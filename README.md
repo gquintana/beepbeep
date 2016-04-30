@@ -1,6 +1,6 @@
-# DB Script Runner
+# Beep beep: the Script Runner
 
-DB Script Runner is tool run scripts on SQL and NoSQL databases.
+Beep beep is tool run scripts on SQL and NoSQL databases.
 
 It can be used to:
 * Create tables/indices/collections and populate them with data
