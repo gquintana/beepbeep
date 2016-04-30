@@ -31,7 +31,7 @@ public class FileScriptScannerTest {
             path -> path.toString().endsWith(".sql"), consumer);
         // When
         scanner.scan();
-        List<FileScript> scripts = consumer.events.stream().map(e -> (FileScript) e).collect(Collectors.toList());
+        List<FileScript> scripts = consumer.eventStream(FileScript.class).collect(Collectors.toList());
         // Then
         assertThat(scripts).hasSize(3);
         assertThat(scripts.get(0).getName()).isEqualTo("create.sql");

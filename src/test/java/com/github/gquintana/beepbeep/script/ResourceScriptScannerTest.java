@@ -19,7 +19,7 @@ public class ResourceScriptScannerTest {
         ResourceScriptScanner scanner = new ResourceScriptScanner(classLoader, name -> name.startsWith("com/github/") && name.endsWith(".sql"), consumer);
         // When
         scanner.scan();
-        List<ResourceScript> scripts = consumer.events.stream().map(e -> (ResourceScript) e).collect(Collectors.toList());
+        List<ResourceScript> scripts = consumer.eventStream(ResourceScript.class).collect(Collectors.toList());
         // Then
         assertThat(scripts).hasSize(3);
         assertThat(scripts.get(0).getName()).isEqualTo("script_create.sql");

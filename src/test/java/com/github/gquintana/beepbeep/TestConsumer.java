@@ -5,6 +5,7 @@ import com.github.gquintana.beepbeep.pipeline.LineEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -16,7 +17,16 @@ public class TestConsumer implements Consumer {
         events.add(event);
     }
 
+
+    public <T> List<T> events(Class<T> clazz) {
+        return eventStream(clazz).collect(toList());
+    }
+
+    public <T> Stream<T> eventStream(Class<T> clazz) {
+        return events.stream().filter(clazz::isInstance).map(clazz::cast);
+    }
+
     public List<String> lines() {
-        return events.stream().filter(l -> l instanceof LineEvent).map(l -> ((LineEvent) l).getLine()).collect(toList());
+        return eventStream(LineEvent.class).map(LineEvent::getLine).collect(toList());
     }
 }
