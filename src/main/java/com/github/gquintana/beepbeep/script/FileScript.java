@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.List;
-import java.util.function.Predicate;
 
 public class FileScript extends Script {
     private final Path path;
@@ -37,9 +35,5 @@ public class FileScript extends Script {
 
     public Path getPath() {
         return path;
-    }
-
-    public static List<FileScript> scanFolder(Path folder, Predicate<Path> fileFilter) throws IOException {
-        return ScriptsFileVisitor.walkTree(folder, fileFilter);
     }
 }
