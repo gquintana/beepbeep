@@ -6,7 +6,7 @@ import org.junit.Test;
 import static com.github.gquintana.beepbeep.pipeline.LineEvent.event;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MultiLineProcessorTest {
+public class MultiLineAggregatorTest {
 
     @Test
     public void testConsume_EndMarker() throws Exception {
@@ -23,8 +23,8 @@ public class MultiLineProcessorTest {
         // Then
         assertThat(end.events).hasSize(2);
         assertThat(end.events)
-                .contains(event(1, "insert into table1(column1, column2)" + eol + "values(1, 'one');" + eol),
-                        event(4, eol + "insert into table1(column1, column2)" + eol + "values(2, 'two');" + eol));
+                .contains(event(1, "insert into table1(column1, column2)" + eol + "values(1, 'one')" + eol),
+                        event(4, eol + "insert into table1(column1, column2)" + eol + "values(2, 'two')" + eol));
 
 
     }
@@ -33,7 +33,7 @@ public class MultiLineProcessorTest {
     public void testConsume_StartMarker() throws Exception {
         // Given
         TestConsumer end = new TestConsumer();
-        MultilineAggregator processor = new MultilineAggregator("^[ ]*(GET|POST)", MultilineAggregator.LineMarkerStrategy.START, end);
+        MultilineAggregator processor = new MultilineAggregator("^[ ]*(GET|POST)", MultilineAggregator.LineMarkerStrategy.START, false, end);
         String eol = System.lineSeparator();
         // When
         processor.consume(event(0, "GET /this/url"));

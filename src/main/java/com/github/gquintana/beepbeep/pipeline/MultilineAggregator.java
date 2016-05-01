@@ -1,5 +1,7 @@
 package com.github.gquintana.beepbeep.pipeline;
 
+import com.github.gquintana.beepbeep.util.Strings;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,9 +14,12 @@ public class MultilineAggregator extends Processor {
      */
     private final Pattern lineMarkerPattern;
     private final LineMarkerStrategy lineMarkerStrategy;
+    private final boolean removeLineMarker;
+
     public enum LineMarkerStrategy {
         START, END
     }
+
     /**
      * End of line character(s)
      */
@@ -25,22 +30,23 @@ public class MultilineAggregator extends Processor {
     private StringBuilder lineBuilder;
     private LineEvent lastLineEvent;
 
-    public MultilineAggregator(Pattern lineMarkerPattern, LineMarkerStrategy lineMarkerStrategy, Consumer consumer) {
+    public MultilineAggregator(Pattern lineMarkerPattern, LineMarkerStrategy lineMarkerStrategy, boolean removeLineMarker, Consumer consumer) {
         super(consumer);
         this.lineMarkerPattern = lineMarkerPattern;
         this.lineMarkerStrategy = lineMarkerStrategy;
+        this.removeLineMarker = removeLineMarker;
     }
 
-    public MultilineAggregator(String endOfLineRegex, LineMarkerStrategy lineMarkerStrategy, Consumer consumer) {
-        this(Pattern.compile(endOfLineRegex), lineMarkerStrategy, consumer);
+    public MultilineAggregator(String endOfLineRegex, LineMarkerStrategy lineMarkerStrategy, boolean removeLineMarker, Consumer consumer) {
+        this(Pattern.compile(endOfLineRegex), lineMarkerStrategy, removeLineMarker, consumer);
     }
 
     public MultilineAggregator(String endOfLineRegex, Consumer consumer) {
-        this(endOfLineRegex, LineMarkerStrategy.END, consumer);
+        this(endOfLineRegex, LineMarkerStrategy.END, true, consumer);
     }
 
     public void consume(Object event) {
-        if (! (event instanceof LineEvent)) {
+        if (!(event instanceof LineEvent)) {
             // End Of file
             flush(lastLineEvent);
             produce(event);
@@ -50,12 +56,33 @@ public class MultilineAggregator extends Processor {
         String line = lineEvent.getLine();
         Matcher lineMarkerMatcher = lineMarkerPattern.matcher(line);
         boolean lineMarkerFound = lineMarkerMatcher.find();
-        if (lineMarkerFound && lineMarkerStrategy == LineMarkerStrategy.START) {
-            flush(lastLineEvent);
-        }
-        append(line, lineEvent);
-        if (lineMarkerFound && lineMarkerStrategy == LineMarkerStrategy.END) {
-            flush(lineEvent);
+        if (lineMarkerFound) {
+            String before = Strings.left(line, lineMarkerMatcher.start());
+            String marker = line.substring(lineMarkerMatcher.start(), lineMarkerMatcher.end());
+            String after = Strings.right(line, lineMarkerMatcher.end());
+            if (lineMarkerStrategy == LineMarkerStrategy.START) {
+                if (!before.isEmpty()) {
+                    append(before, lineEvent);
+                }
+                flush(lastLineEvent);
+                if (removeLineMarker) {
+                    append(after, lineEvent);
+                } else {
+                    append(marker + after, lineEvent);
+                }
+            } else if (lineMarkerStrategy == LineMarkerStrategy.END) {
+                if (removeLineMarker) {
+                    append(before, lineEvent);
+                } else {
+                    append(before + marker, lineEvent);
+                }
+                flush(lastLineEvent);
+                if (!after.isEmpty()) {
+                    append(after, lineEvent);
+                }
+            }
+        } else {
+            append(line, lineEvent);
         }
     }
 
