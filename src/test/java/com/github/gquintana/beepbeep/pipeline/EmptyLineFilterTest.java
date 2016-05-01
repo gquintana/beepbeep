@@ -11,14 +11,16 @@ public class EmptyLineFilterTest {
     public void testConsume() throws Exception {
         // Given
         TestConsumer end = new TestConsumer();
-        EmptyFilter filter = new EmptyFilter(end);
+        LineFilter filter = LineFilter.notNulNotEmptyFilter(end);
         // When
-        filter.consume("Not empty");
-        filter.consume("");
-        filter.consume("Not empty");
-        filter.consume(null);
+        filter.consume(new LineEvent(0, "Not empty"));
+        filter.consume(new LineEvent(1, ""));
+        filter.consume(new LineEvent(2, "Not empty"));
+        filter.consume(new LineEvent(3, null));
+        filter.consume(new ScriptEvent(null, ScriptEvent.Type.END_SUCCESS));
         // Then
-        assertThat(end.events).hasSize(2);
-        assertThat(end.events).contains("Not empty", "Not empty");
+        assertThat(end.events).hasSize(3);
+        assertThat(end.lines()).hasSize(2);
+        assertThat(end.lines()).contains("Not empty", "Not empty");
     }
 }
