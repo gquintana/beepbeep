@@ -17,7 +17,7 @@ public class ResourceScriptScanner extends ScriptScanner {
     private final ClassLoader classLoader;
     private final Predicate<String> nameFilter;
 
-    ResourceScriptScanner(ClassLoader classLoader, Predicate<String> nameFilter, Consumer<Script> scriptConsumer) {
+    public ResourceScriptScanner(ClassLoader classLoader, Predicate<String> nameFilter, Consumer<Script> scriptConsumer) {
         super(scriptConsumer);
         this.classLoader = classLoader;
         this.nameFilter = nameFilter;
