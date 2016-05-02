@@ -1,6 +1,6 @@
 package com.github.gquintana.beepbeep.sql;
 
-import com.github.gquintana.beepbeep.DbScriptRunnerException;
+import com.github.gquintana.beepbeep.BeepBeepException;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -17,7 +17,7 @@ public class DriverSqlConnectionProvider implements SqlConnectionProvider {
         try {
             this.driverClass = (Class<? extends Driver>) Class.forName(driverClassName);
         } catch (ClassNotFoundException e) {
-            throw new DbScriptRunnerException("Invalid SQL Driver " + driverClassName, e);
+            throw new BeepBeepException("Invalid SQL Driver " + driverClassName, e);
         }
         this.url = url;
         this.username = username;

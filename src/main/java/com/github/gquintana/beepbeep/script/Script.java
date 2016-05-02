@@ -1,6 +1,6 @@
 package com.github.gquintana.beepbeep.script;
 
-import com.github.gquintana.beepbeep.DbScriptRunnerException;
+import com.github.gquintana.beepbeep.BeepBeepException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +38,7 @@ public abstract class Script {
             try {
                 analyze();
             } catch (IOException e) {
-                throw new DbScriptRunnerException("Failed to get script " + getName() + " size", e);
+                throw new BeepBeepException("Failed to get script " + getName() + " size", e);
             }
         }
         return size;
