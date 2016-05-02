@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 public abstract class ScriptScanner {
-    private final Consumer<Script> scriptConsumer;
+    protected final Consumer<Script> scriptConsumer;
 
     protected ScriptScanner(Consumer<Script> scriptConsumer) {
         this.scriptConsumer = scriptConsumer;
