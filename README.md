@@ -1,6 +1,8 @@
 # Beep beep: the Script Runner
 
-Beep beep is tool run scripts on SQL and NoSQL databases.
+[![Circle CI](https://circleci.com/gh/gquintana/beepbeep.svg?style=svg)](https://circleci.com/gh/gquintana/beepbeep)
+
+Beep beep is tool run scripts on SQL and NoSQL databases and track already ran/new scripts.
 
 It can be used to:
 * Create tables/indices/collections and populate them with data
