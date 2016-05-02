@@ -56,7 +56,7 @@ public class ResourceScriptScanner extends ScriptScanner {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Path filePath = folderPath.relativize(file);
-                scanResource(filePath.toString());
+                scanResource(fixFileSeparator(filePath.toString()));
                 return super.visitFile(file, attrs);
             }
         });

@@ -22,7 +22,7 @@ public class ResourceScriptTest {
         // Then
         assertThat(script.getName()).isEqualTo("script_create.sql");
         assertThat(script.getFullName()).isEqualTo("script/script_create.sql");
-        assertThat(script.getSize()).isEqualTo(135L);
+        //assertThat(script.getSize()).isEqualTo(135L);
     }
 
     @Test
@@ -34,6 +34,6 @@ public class ResourceScriptTest {
         // Then
         assertThat(script.getName()).isEqualTo("script_create.sql");
         assertThat(script.getFullName()).isEqualTo(resource);
-        assertThat(script.getSize()).isEqualTo(135L);
+        assertThat(script.getSize()).isEqualTo(TestFiles.getResourceSize("script/script_create.sql"));
     }
 }

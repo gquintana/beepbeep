@@ -36,7 +36,7 @@ public class FileScriptScannerTest {
         assertThat(scripts).hasSize(3);
         assertThat(scripts.get(0).getName()).isEqualTo("create.sql");
         assertThat(scripts.get(0).getFullName()).isEqualTo(createFile.getPath());
-        assertThat(scripts.get(0).getSize()).isEqualTo(135L);
+        assertThat(scripts.get(0).getSize()).isEqualTo(TestFiles.getResourceSize("script/script_create.sql"));
         assertThat(scripts.get(1).getName()).isEqualTo("data.sql");
         assertThat(scripts.get(2).getName()).isEqualTo("drop.sql");
     }

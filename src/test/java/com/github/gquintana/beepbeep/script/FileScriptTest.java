@@ -27,7 +27,7 @@ public class FileScriptTest {
         // Then
         assertThat(script.getName()).isEqualTo("script.sql");
         assertThat(script.getFullName()).isEqualTo(file.getPath());
-        assertThat(script.getSize()).isEqualTo(135L);
+        assertThat(script.getSize()).isEqualTo(TestFiles.getResourceSize("script/script_create.sql"));
     }
 
 }

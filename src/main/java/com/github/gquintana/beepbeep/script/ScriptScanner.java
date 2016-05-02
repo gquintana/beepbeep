@@ -2,7 +2,9 @@ package com.github.gquintana.beepbeep.script;
 
 import com.github.gquintana.beepbeep.pipeline.Consumer;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 public abstract class ScriptScanner {
     private final Consumer<Script> scriptConsumer;
@@ -16,4 +18,11 @@ public abstract class ScriptScanner {
     }
 
     public abstract void scan() throws IOException;
+
+    /**
+     * Fix Windows file separator in paths
+     */
+    protected static String fixFileSeparator(String path) {
+        return File.separatorChar == '/' ? path : path.replaceAll(Pattern.quote(File.separator), "/");
+    }
 }
