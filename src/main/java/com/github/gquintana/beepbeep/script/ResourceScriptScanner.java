@@ -2,15 +2,21 @@ package com.github.gquintana.beepbeep.script;
 
 import com.github.gquintana.beepbeep.pipeline.Consumer;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.stream.Collectors;
 
 public class ResourceScriptScanner extends ScriptScanner {
 
@@ -23,25 +29,54 @@ public class ResourceScriptScanner extends ScriptScanner {
         this.nameFilter = nameFilter;
     }
 
-    public void scan() throws IOException {
+    private List<Path> getClassPath() {
+        final Set<Path> bootClassPath =
+            Arrays.stream(System.getProperty("sun.boot.class.path")
+                .split(File.pathSeparator))
+                .map(Paths::get)
+                .collect(Collectors.toSet());
+        List<Path> classPath = new ArrayList<>();
+        classPath.addAll(
+            Arrays.stream(System.getProperty("java.class.path")
+                .split(File.pathSeparator))
+                .map(Paths::get)
+                .filter(f -> !bootClassPath.contains(f))
+                .collect(Collectors.toList()));
         if (classLoader instanceof URLClassLoader) {
             URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
             for (URL url : urlClassLoader.getURLs()) {
-                if (url.getFile().endsWith(".jar")) {
-                    scanJar(url);
-                } else if (url.getFile().endsWith("/")) {
-                    try {
-                        scanFolder(url);
-                    } catch (URISyntaxException e) {
-                        throw new IOException("Failed scanning folder " + url.toString(), e);
-                    }
+                Path path;
+                try {
+                    path = Paths.get(url.toURI());
+                } catch (URISyntaxException e) {
+                    path = Paths.get(url.getPath());
+                }
+                if (!bootClassPath.contains(path) && !classPath.contains(path)) {
+                    classPath.add(path);
+                }
+            }
+        }
+        return classPath;
+    }
+
+    public void scan() throws IOException {
+        for (Path path: getClassPath()) {
+            String pathString = path.toString();
+            File pathFile = path.toFile();
+            if (pathFile.isFile() && pathString.endsWith(".jar")) {
+                scanJar(path);
+            } else if (pathFile.isDirectory()) {
+                try {
+                    scanFolder(path);
+                } catch (URISyntaxException e) {
+                    throw new IOException("Failed scanning folder " + pathString, e);
                 }
             }
         }
     }
 
-    private void scanJar(URL jarUrl) throws IOException {
-        try (JarInputStream jarStream = new JarInputStream(jarUrl.openStream())) {
+    private void scanJar(Path jarPath) throws IOException {
+        try (JarInputStream jarStream = new JarInputStream(Files.newInputStream(jarPath))) {
             JarEntry jarEntry;
             while ((jarEntry = jarStream.getNextJarEntry()) != null) {
                 String jarEntryName = jarEntry.getName();
@@ -50,13 +85,12 @@ public class ResourceScriptScanner extends ScriptScanner {
         }
     }
 
-    private void scanFolder(URL folderUrl) throws URISyntaxException, IOException {
-        Path folderPath = Paths.get(folderUrl.toURI());
+    private void scanFolder(Path folderPath) throws URISyntaxException, IOException {
         Files.walkFileTree(folderPath, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Path filePath = folderPath.relativize(file);
-                scanResource(fixFileSeparator(filePath.toString()));
+                String filePath = fixFileSeparator(folderPath.relativize(file).toString());
+                scanResource(filePath);
                 return super.visitFile(file, attrs);
             }
         });
