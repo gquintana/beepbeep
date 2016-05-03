@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.annotation.Target;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -38,6 +37,54 @@ public class TestFiles {
                 }
                 return size;
             }
+        }
+    }
+
+    public static FolderNode folder(String name, Node ... children) {
+        return new FolderNode(name, children);
+    }
+
+    public static FileNode file(String name) {
+        return new FileNode(name);
+    }
+
+    public static abstract class Node {
+        protected final String name;
+        protected FolderNode parent;
+        protected Node(String name) {
+            this.name = name;
+        }
+
+        public abstract File create(File rootFolder) throws IOException;
+    }
+    public static class FolderNode extends Node {
+        private final Node[] children;
+        protected FolderNode(String name, Node ... children) {
+            super(name);
+            this.children = children;
+            for(Node child: children) {
+                child.parent = this;
+            }
+        }
+
+        public File create(File rootFolder) throws IOException {
+            File folder = new File(rootFolder, name);
+            folder.mkdir();
+            for(Node child: children) {
+                child.create(folder);
+            }
+            return folder;
+        }
+    }
+    public static class FileNode extends Node {
+        protected FileNode(String name) {
+            super(name);
+        }
+
+        public File create(File rootFolder) throws IOException {
+            File file = new File(rootFolder, name);
+            file.createNewFile();
+            return file;
         }
     }
 }

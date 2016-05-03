@@ -45,6 +45,13 @@ public final class ScriptScanners {
     }
 
     /**
+     * Scan and use muliples scripts from file system using file glob syntax
+     */
+    public static ScriptScanner files(String fileGlob, Consumer<Script> scriptConsumer) {
+        return FileScriptScanner.fileGlob(fileGlob, scriptConsumer);
+    }
+
+    /**
      * Scan and use muliple scripts from class path
      */
     public static ResourceScriptScanner resources(ClassLoader classLoader, Predicate<String> resourceFilter, Consumer<Script> scriptConsumer) {
