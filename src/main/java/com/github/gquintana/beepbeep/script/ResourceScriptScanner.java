@@ -66,11 +66,7 @@ public class ResourceScriptScanner extends ScriptScanner {
             if (pathFile.isFile() && pathString.endsWith(".jar")) {
                 scanJar(path, resources);
             } else if (pathFile.isDirectory()) {
-                try {
-                    scanFolder(path, resources);
-                } catch (URISyntaxException e) {
-                    throw new IOException("Failed scanning folder " + pathString, e);
-                }
+                scanFolder(path, resources);
             }
         }
     }
@@ -85,7 +81,7 @@ public class ResourceScriptScanner extends ScriptScanner {
         }
     }
 
-    private void scanFolder(Path folderPath, Set<String> resources) throws URISyntaxException, IOException {
+    private void scanFolder(Path folderPath, Set<String> resources) throws IOException {
         Files.walkFileTree(folderPath, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -105,12 +101,12 @@ public class ResourceScriptScanner extends ScriptScanner {
 
     public static ScriptScanner resourceGlob(ClassLoader classLoader, String resourceGlob, Consumer<Script> scriptConsumer) {
         RegexNamePredicate fileFilter = new RegexNamePredicate(fileGlobToRegex(resourceGlob));
-        ScriptScanner scanner = new ResourceScriptScanner(classLoader,
+        return new ResourceScriptScanner(classLoader,
             fileFilter,
             scriptConsumer);
-        return scanner;
     }
 
+    @SuppressWarnings("RedundantStringToString")
     private static final class RegexNamePredicate implements Predicate<String> {
         private final Pattern pattern;
 
@@ -120,7 +116,7 @@ public class ResourceScriptScanner extends ScriptScanner {
 
         @Override
         public boolean test(String name) {
-            return pattern.matcher(name.toString()).matches();
+            return pattern.matcher(name).matches();
         }
     }
 

@@ -27,7 +27,7 @@ public class LineFilter<E> extends Filter<E> {
     }
 
     public  static <E> LineFilter<E> notNulNotEmptyFilter(Consumer<E> consumer) {
-        return new LineFilter<E>(Strings::isNotNullNorEmpty, consumer);
+        return new LineFilter<>(Strings::isNotNullNorEmpty, consumer);
     }
 
 }

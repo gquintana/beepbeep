@@ -7,10 +7,7 @@ import java.util.Map;
 public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
     private Charset charset = Charset.forName("UTF-8");
     private Map<String, Object> variables;
-    protected Consumer endConsumer = new Consumer() {
-        @Override
-        public void consume(Object event) {
-        }
+    protected Consumer endConsumer = event -> {
     };
 
     public B withEndConsumer(Consumer endConsumer) {

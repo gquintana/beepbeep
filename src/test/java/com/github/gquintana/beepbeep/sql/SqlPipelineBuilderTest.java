@@ -2,13 +2,10 @@ package com.github.gquintana.beepbeep.sql;
 
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
-import com.github.gquintana.beepbeep.pipeline.ScriptReaderProducer;
 import com.github.gquintana.beepbeep.script.ResourceScriptScanner;
 import com.github.gquintana.beepbeep.script.ScriptScanners;
 import org.h2.Driver;
 import org.junit.Test;
-
-import java.nio.charset.Charset;
 
 import static org.assertj.core.api.Assertions.*;
 

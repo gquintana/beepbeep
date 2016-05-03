@@ -3,7 +3,6 @@ package com.github.gquintana.beepbeep.sql;
 import com.github.gquintana.beepbeep.pipeline.Consumer;
 import com.github.gquintana.beepbeep.pipeline.MultilineAggregator;
 import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
-import com.github.gquintana.beepbeep.pipeline.ScriptReaderProducer;
 
 import java.util.regex.Pattern;
 

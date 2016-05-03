@@ -14,7 +14,7 @@ public class FileScriptScanner extends ScriptScanner {
     /**
      * Regex used to extract constant path at the beginning of a file glob
      */
-    private static final Pattern FILE_GLOB_PREFIX_PATTERN = Pattern.compile("^([^*]*\\/)?([^*\\/]*\\*.*)$");
+    private static final Pattern FILE_GLOB_PREFIX_PATTERN = Pattern.compile("^([^*]*/)?([^*/]*\\*.*)$");
 
 
     private final Path folder;
@@ -31,11 +31,12 @@ public class FileScriptScanner extends ScriptScanner {
         this(folder, fileFilter, Integer.MAX_VALUE, scriptConsumer);
     }
 
+    @SuppressWarnings("Convert2MethodRef")
     public void scan() throws IOException {
         ScriptsFileVisitor fileVisitor = new ScriptsFileVisitor();
         Files.walkFileTree(folder, EnumSet.of(FileVisitOption.FOLLOW_LINKS), maxDepth, fileVisitor);
         List<FileScript> scripts = fileVisitor.scripts;
-        Collections.sort(scripts, Comparator.comparing(file -> file.getPath()));
+        Collections.sort(scripts, Comparator.comparing(FileScript::getPath));
         for (FileScript script : scripts) {
             produce(script);
         }

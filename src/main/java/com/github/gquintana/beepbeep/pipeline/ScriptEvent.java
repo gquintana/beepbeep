@@ -17,4 +17,8 @@ public class ScriptEvent {
     public Type getType() {
         return type;
     }
+
+    public Script getScript() {
+        return script;
+    }
 }
