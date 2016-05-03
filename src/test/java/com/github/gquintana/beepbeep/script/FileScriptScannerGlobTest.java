@@ -12,7 +12,7 @@ import static com.github.gquintana.beepbeep.TestFiles.file;
 import static com.github.gquintana.beepbeep.TestFiles.folder;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FileScriptScanner_FileGlobTest {
+public class FileScriptScannerGlobTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 

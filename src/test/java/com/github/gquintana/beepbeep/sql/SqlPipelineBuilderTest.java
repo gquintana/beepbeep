@@ -22,7 +22,7 @@ public class SqlPipelineBuilderTest {
             .withVariable("variable", "value")
             .withEndConsumer(consumer);
         ResourceScriptScanner scriptScanner = ScriptScanners.resources(getClass().getClassLoader(),
-            name -> name.startsWith("com/github/gquintana/beepbeep/") && name.endsWith(".sql"),
+            name -> name.startsWith("com/github/gquintana/beepbeep/script/") && name.endsWith(".sql"),
             pipelineBuilder.build()
         );
         // When

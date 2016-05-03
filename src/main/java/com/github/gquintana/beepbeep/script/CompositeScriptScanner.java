@@ -18,7 +18,7 @@ public class CompositeScriptScanner extends ScriptScanner {
         super(scriptConsumer);
     }
 
-    public CompositeScriptScanner add(ScriptScanner scanner) {
+    public CompositeScriptScanner scanner(ScriptScanner scanner) {
         scanners.add(scanner);
         return this;
     }
@@ -26,23 +26,23 @@ public class CompositeScriptScanner extends ScriptScanner {
     /**
      * Add single script
      */
-    public CompositeScriptScanner add(Script script) {
-        return add(new SingleScriptScanner(script, scriptConsumer));
+    public CompositeScriptScanner script(Script script) {
+        return scanner(ScriptScanners.script(script, scriptConsumer));
     }
 
     /**
      * Add single script from file system
      */
-    public CompositeScriptScanner add(Path file) {
-        return add(new FileScript(file));
+    public CompositeScriptScanner file(Path file) {
+        return script(new FileScript(file));
     }
 
     /**
      * Add multiple scripts from file system
      */
-    public CompositeScriptScanner add(Path... files) {
+    public CompositeScriptScanner files(Path... files) {
         for (Path file : files) {
-            add(file);
+            file(file);
         }
         return this;
     }
@@ -50,16 +50,16 @@ public class CompositeScriptScanner extends ScriptScanner {
     /**
      * Add single script from class path
      */
-    public CompositeScriptScanner add(Class clazz, String resource) {
-        return add(ResourceScript.create(clazz, resource));
+    public CompositeScriptScanner resource(Class clazz, String resource) {
+        return script(ResourceScript.create(clazz, resource));
     }
 
     /**
      * Add multiple scripts from class path
      */
-    public CompositeScriptScanner add(Class clazz, String... resources) {
+    public CompositeScriptScanner resources(Class clazz, String... resources) {
         for (String resource : resources) {
-            add(clazz, resource);
+            resource(clazz, resource);
         }
         return this;
     }
@@ -67,16 +67,16 @@ public class CompositeScriptScanner extends ScriptScanner {
     /**
      * Add single script from class path
      */
-    public CompositeScriptScanner add(ClassLoader classLoader, String resource) {
-        return add(ResourceScript.create(classLoader, resource));
+    public CompositeScriptScanner resource(ClassLoader classLoader, String resource) {
+        return script(ResourceScript.create(classLoader, resource));
     }
 
     /**
      * Add multiple scripts from class path
      */
-    public CompositeScriptScanner add(ClassLoader classLoader, String... resources) {
+    public CompositeScriptScanner resources(ClassLoader classLoader, String... resources) {
         for (String resource : resources) {
-            add(classLoader, resource);
+            resource(classLoader, resource);
         }
         return this;
     }
@@ -84,15 +84,22 @@ public class CompositeScriptScanner extends ScriptScanner {
     /**
      * Scan and add script from file system
      */
-    public CompositeScriptScanner add(Path folder, Predicate<Path> fileFilter) {
-        return add(new FileScriptScanner(folder, fileFilter, scriptConsumer));
+    public CompositeScriptScanner files(Path folder, Predicate<Path> fileFilter) {
+        return scanner(ScriptScanners.files(folder, fileFilter, scriptConsumer));
+    }
+
+    /**
+     * Scan and add script from file system, using file glob
+     */
+    public CompositeScriptScanner files(String fileGlob, Predicate<Path> fileFilter) {
+        return scanner(ScriptScanners.files(fileGlob, scriptConsumer));
     }
 
     /**
      * Scan and add script from class path
      */
-    public CompositeScriptScanner add(ClassLoader classLoader, Predicate<String> resourceFilter) {
-        return add(new ResourceScriptScanner(classLoader, resourceFilter, scriptConsumer));
+    public CompositeScriptScanner resources(ClassLoader classLoader, Predicate<String> resourceFilter) {
+        return scanner(ScriptScanners.resources(classLoader, resourceFilter, scriptConsumer));
     }
 
     @Override

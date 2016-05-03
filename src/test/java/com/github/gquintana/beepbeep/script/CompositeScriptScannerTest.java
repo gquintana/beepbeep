@@ -13,9 +13,9 @@ public class CompositeScriptScannerTest {
         TestConsumer end = new TestConsumer();
         final String folder = getClass().getPackage().getName().replaceAll("\\.", "/");
         CompositeScriptScanner scanner = ScriptScanners.composite(end)
-            .add(getClass().getClassLoader(),
+            .resources(getClass().getClassLoader(),
                 (String r) -> r.endsWith(".sql") && r.startsWith(folder))
-            .add(getClass().getClassLoader(), folder+"/"+"script_not_found.sql");
+            .resource(getClass().getClassLoader(), folder+"/"+"script_not_found.sql");
         // When
         scanner.scan();
         // Then

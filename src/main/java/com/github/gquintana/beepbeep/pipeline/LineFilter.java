@@ -1,5 +1,7 @@
 package com.github.gquintana.beepbeep.pipeline;
 
+import com.github.gquintana.beepbeep.util.Strings;
+
 import java.util.function.Predicate;
 
 public class LineFilter<E> extends Filter<E> {
@@ -24,12 +26,8 @@ public class LineFilter<E> extends Filter<E> {
         return lineFilter.test(line);
     }
 
-    public static boolean isNotNullNorEmpty(String line) {
-        return line != null && !line.trim().isEmpty();
-    }
-
     public  static <E> LineFilter<E> notNulNotEmptyFilter(Consumer<E> consumer) {
-        return new LineFilter<E>(LineFilter::isNotNullNorEmpty, consumer);
+        return new LineFilter<E>(Strings::isNotNullNorEmpty, consumer);
     }
 
 }

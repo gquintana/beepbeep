@@ -16,7 +16,7 @@ public class ResourceScriptScannerTest {
         // Given
         ClassLoader classLoader = getClass().getClassLoader();
         TestConsumer consumer = new TestConsumer();
-        ResourceScriptScanner scanner = new ResourceScriptScanner(classLoader, name -> name.startsWith("com/github/") && name.endsWith(".sql"), consumer);
+        ResourceScriptScanner scanner = new ResourceScriptScanner(classLoader, name -> name.startsWith("com/github/gquintana/beepbeep/script/") && name.endsWith(".sql"), consumer);
         // When
         scanner.scan();
         List<ResourceScript> scripts = consumer.eventStream(ResourceScript.class).collect(Collectors.toList());

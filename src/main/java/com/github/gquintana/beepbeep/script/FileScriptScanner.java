@@ -20,7 +20,6 @@ public class FileScriptScanner extends ScriptScanner {
     private final Path folder;
     private final Predicate<Path> fileFilter;
     private final int maxDepth;
-    private static final Pattern AST_PATTERN = Pattern.compile("\\*+");
 
     public FileScriptScanner(Path folder, Predicate<Path> fileFilter, int maxDepth, Consumer<Script> scriptConsumer) {
         super(scriptConsumer);
@@ -94,45 +93,6 @@ public class FileScriptScanner extends ScriptScanner {
             fileGlobParts[0] = fileGlob;
         }
         return fileGlobParts;
-    }
-
-    /**
-     * Convert &ast;&ast;/&ast;.sql into a regex ^.&ast;/[^/]&ast;.sql$
-     */
-    static String fileGlobToRegex(String fileGlob) {
-        String suffixRegex;
-        StringBuilder suffixRegexBuilder = new StringBuilder("^");
-        String[] suffixParts = fileGlob.split("/");
-        for (int i = 0; i< suffixParts.length; i++) {
-            String suffixPart = suffixParts[i];
-            boolean lastPart = i == (suffixParts.length - 1);
-            if (suffixPart.equals("**")) {
-                if (lastPart) {
-                    suffixRegexBuilder.append(".*");
-                } else {
-                    suffixRegexBuilder.append("(?:.*/)?");
-                }
-            } else {
-                int start = 0;
-                Matcher astMatcher = AST_PATTERN.matcher(suffixPart);
-                while(astMatcher.find()) {
-                    if (start < astMatcher.start()) {
-                        suffixRegexBuilder.append(Pattern.quote(suffixPart.substring(start, astMatcher.start())));
-                    }
-                    suffixRegexBuilder.append("[^/]*");
-                    start = astMatcher.end();
-                }
-                if (start < suffixPart.length()) {
-                    suffixRegexBuilder.append(Pattern.quote(suffixPart.substring(start, suffixPart.length())));
-                }
-                if (!lastPart) {
-                    suffixRegexBuilder.append("/");
-                }
-            }
-        }
-        suffixRegexBuilder.append('$');
-        suffixRegex = suffixRegexBuilder.toString();
-        return suffixRegex;
     }
 
     private static final class RegexPathPredicate implements Predicate<Path> {

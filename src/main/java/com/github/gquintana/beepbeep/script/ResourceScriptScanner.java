@@ -9,13 +9,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ResourceScriptScanner extends ScriptScanner {
@@ -60,14 +58,16 @@ public class ResourceScriptScanner extends ScriptScanner {
     }
 
     public void scan() throws IOException {
+        // Same ressource can be present multiple times in class path
+        Set<String> resources = new HashSet<>();
         for (Path path: getClassPath()) {
             String pathString = path.toString();
             File pathFile = path.toFile();
             if (pathFile.isFile() && pathString.endsWith(".jar")) {
-                scanJar(path);
+                scanJar(path, resources);
             } else if (pathFile.isDirectory()) {
                 try {
-                    scanFolder(path);
+                    scanFolder(path, resources);
                 } catch (URISyntaxException e) {
                     throw new IOException("Failed scanning folder " + pathString, e);
                 }
@@ -75,30 +75,53 @@ public class ResourceScriptScanner extends ScriptScanner {
         }
     }
 
-    private void scanJar(Path jarPath) throws IOException {
+    private void scanJar(Path jarPath, Set<String> resources) throws IOException {
         try (JarInputStream jarStream = new JarInputStream(Files.newInputStream(jarPath))) {
             JarEntry jarEntry;
             while ((jarEntry = jarStream.getNextJarEntry()) != null) {
                 String jarEntryName = jarEntry.getName();
-                scanResource(jarEntryName);
+                scanResource(jarEntryName, resources);
             }
         }
     }
 
-    private void scanFolder(Path folderPath) throws URISyntaxException, IOException {
+    private void scanFolder(Path folderPath, Set<String> resources) throws URISyntaxException, IOException {
         Files.walkFileTree(folderPath, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 String filePath = fixFileSeparator(folderPath.relativize(file).toString());
-                scanResource(filePath);
+                scanResource(filePath, resources);
                 return super.visitFile(file, attrs);
             }
         });
     }
 
-    private void scanResource(String name) {
-        if (nameFilter.test(name)) {
+    private void scanResource(String name, Set<String> resources) {
+        if (nameFilter.test(name) && !resources.contains(name)) {
+            resources.add(name);
             produce(ResourceScript.create(classLoader, name));
         }
     }
+
+    public static ScriptScanner resourceGlob(ClassLoader classLoader, String resourceGlob, Consumer<Script> scriptConsumer) {
+        RegexNamePredicate fileFilter = new RegexNamePredicate(fileGlobToRegex(resourceGlob));
+        ScriptScanner scanner = new ResourceScriptScanner(classLoader,
+            fileFilter,
+            scriptConsumer);
+        return scanner;
+    }
+
+    private static final class RegexNamePredicate implements Predicate<String> {
+        private final Pattern pattern;
+
+        public RegexNamePredicate(String regex) {
+            this.pattern = Pattern.compile(regex);
+        }
+
+        @Override
+        public boolean test(String name) {
+            return pattern.matcher(name.toString()).matches();
+        }
+    }
+
 }
