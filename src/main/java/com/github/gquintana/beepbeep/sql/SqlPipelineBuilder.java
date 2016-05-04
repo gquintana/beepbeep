@@ -33,7 +33,7 @@ public class SqlPipelineBuilder extends PipelineBuilder<SqlPipelineBuilder> {
 
     public Consumer build() {
         Consumer consumer = endConsumer;
-        consumer = new SqlStatementProcessor(connectionProvider, autoCommit, consumer);
+        consumer = new SqlLineExecutor(connectionProvider, autoCommit, consumer);
         consumer = notNullNorEmptyFilter(consumer);
         consumer = new MultilineAggregator(endOfLineRegex, MultilineAggregator.LineMarkerStrategy.END, true, consumer);
         consumer = variableReplacer(consumer);

@@ -9,7 +9,7 @@ import org.junit.Test;
 import static com.github.gquintana.beepbeep.pipeline.LineEvent.event;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SqlStatementProcessorTest {
+public class SqlLineExecutorTest {
 
     @Test
     public void testConsume() throws Exception {
@@ -18,7 +18,7 @@ public class SqlStatementProcessorTest {
         SqlConnectionProvider connectionProvider = new DriverSqlConnectionProvider(
                 Driver.class.getName(), "jdbc:h2:mem:test", "sa", "");
         try(SingleSqlConnectionProvider connectionProvider2 = new SingleSqlConnectionProvider(connectionProvider)) {
-            Processor processor = new RegexReplacerProcessor(";\\s*$", "", new SqlStatementProcessor(connectionProvider2, end));
+            Processor processor = new RegexReplacerProcessor(";\\s*$", "", new SqlLineExecutor(connectionProvider2, end));
             String eol = System.lineSeparator();
             // When
             processor.consume(event(0, "create table person(login varchar(64), email varchar(256), constraint person_pk primary key (login));"));

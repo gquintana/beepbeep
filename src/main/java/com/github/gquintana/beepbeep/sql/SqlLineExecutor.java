@@ -1,54 +1,30 @@
 package com.github.gquintana.beepbeep.sql;
 
-import com.github.gquintana.beepbeep.pipeline.Consumer;
-import com.github.gquintana.beepbeep.pipeline.LineEvent;
-import com.github.gquintana.beepbeep.pipeline.Processor;
-import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
+import com.github.gquintana.beepbeep.LineException;
+import com.github.gquintana.beepbeep.pipeline.*;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class SqlStatementProcessor extends Processor {
+public class SqlLineExecutor extends LineExecutor {
     private final SqlConnectionProvider connectionProvider;
     private final boolean autoCommit;
     private Connection connection;
 
 
-    public SqlStatementProcessor(SqlConnectionProvider connectionProvider, boolean autoCommit, Consumer consumer) {
+    public SqlLineExecutor(SqlConnectionProvider connectionProvider, boolean autoCommit, Consumer consumer) {
         super(consumer);
         this.connectionProvider = connectionProvider;
         this.autoCommit = autoCommit;
     }
 
-    public SqlStatementProcessor(SqlConnectionProvider connectionProvider, Consumer consumer) {
+    public SqlLineExecutor(SqlConnectionProvider connectionProvider, Consumer consumer) {
         this(connectionProvider, true, consumer);
     }
 
-    @Override
-    public void consume(Object event) {
-        if (event instanceof LineEvent) {
-            executeLine((LineEvent) event);
-        } else if (event instanceof ScriptEvent) {
-            ScriptEvent scriptEvent = (ScriptEvent) event;
-            switch (scriptEvent.getType()) {
-                case START:
-                    openConnection();
-                    break;
-                case END_SUCCESS:
-                    closeConnection(true);
-                    break;
-                case END_FAILED:
-                    closeConnection(false);
-            }
-            produce(event);
-        } else {
-            produce(event);
-        }
-    }
-
-    private void closeConnection(boolean success) {
+    protected void executeEnd(boolean success) {
         try {
             if (!autoCommit) {
                 if (success) {
@@ -62,24 +38,24 @@ public class SqlStatementProcessor extends Processor {
             }
             connection = null;
         } catch (SQLException e) {
-            throw new SqlScriptRunnerException("Failed to close connection", e);
+            throw new SqlException("Failed to close connection", e);
         }
     }
 
-    private void openConnection() {
+    protected void executeStart() {
         if (connection == null) {
             try {
                 connection = connectionProvider.getConnection();
                 connection.setAutoCommit(autoCommit);
             } catch (SQLException e) {
-                throw new SqlScriptRunnerException("Failed to open connection", e);
+                throw new SqlException("Failed to open connection", e);
             }
         }
     }
 
-    private void executeLine(LineEvent lineEvent) {
+    protected void executeLine(LineEvent lineEvent) {
         String line = lineEvent.getLine();
-        openConnection();
+        executeStart();
         try (Statement statement = connection.createStatement()) {
             boolean resultSetResult = statement.execute(line);
             if (resultSetResult) {
@@ -93,8 +69,7 @@ public class SqlStatementProcessor extends Processor {
                 }
             }
         } catch (SQLException e) {
-            produce(e.getMessage());
-            throw new SqlScriptRunnerException("Failed to execute " + lineEvent, e);
+            throw new LineException("SQL error ", e, lineEvent);
         }
     }
 
