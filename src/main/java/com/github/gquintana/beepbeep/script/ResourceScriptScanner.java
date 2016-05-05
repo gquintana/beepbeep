@@ -99,7 +99,7 @@ public class ResourceScriptScanner extends ScriptScanner {
         }
     }
 
-    public static ScriptScanner resourceGlob(ClassLoader classLoader, String resourceGlob, Consumer<Script> scriptConsumer) {
+    public static ResourceScriptScanner resourceGlob(ClassLoader classLoader, String resourceGlob, Consumer<Script> scriptConsumer) {
         RegexNamePredicate fileFilter = new RegexNamePredicate(fileGlobToRegex(resourceGlob));
         return new ResourceScriptScanner(classLoader,
             fileFilter,

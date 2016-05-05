@@ -24,7 +24,7 @@ public class ScriptReaderProducer extends Producer implements Consumer<Script> {
             }
             produce(new ScriptEvent(script, ScriptEvent.Type.END_SUCCESS));
         } catch (Exception e) {
-            produce(new ScriptEvent(script, ScriptEvent.Type.END_FAILED));
+            produce(new ScriptEvent(script, ScriptEvent.Type.END_FAILED, e));
         }
 
     }

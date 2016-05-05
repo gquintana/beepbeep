@@ -1,0 +1,14 @@
+POST person/person
+{
+  "login":"jdoe",
+  "email":"john.doe@unknown.com"
+}
+POST person/person
+{
+"login":"sconnor",
+"email":"sarah.connor@cyberdine.com"
+}
+
+POST person/_refresh
+
+GET person/_search

@@ -59,6 +59,13 @@ public final class ScriptScanners {
     }
 
     /**
+     * Scan and use muliple scripts from class path using resource glob syntact
+     */
+    public static ResourceScriptScanner resources(ClassLoader classLoader, String resourceGlob, Consumer<Script> scriptConsumer) {
+        return ResourceScriptScanner.resourceGlob(classLoader, resourceGlob, scriptConsumer);
+    }
+
+    /**
      * Mix and use multiple scripts from file system and class path
      */
     public static CompositeScriptScanner composite(Consumer<Script> scriptConsumer) {

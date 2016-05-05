@@ -79,8 +79,13 @@ public class HttpLineExecutor extends LineExecutor {
         // Body / Entity
         if (Strings.isNotNullNorEmpty(httpLine.getBody()) && request instanceof HttpEntityEnclosingRequestBase) {
             HttpEntityEnclosingRequestBase httpEntityRequest = (HttpEntityEnclosingRequestBase) request;
-            ContentType httpContentType = ContentType.parse(contentType);
-            StringEntity entity = contentType == null ? new StringEntity(httpLine.getBody()) : new StringEntity(httpLine.getBody(), httpContentType);
+            StringEntity entity;
+            if (contentType == null) {
+                entity = new StringEntity(httpLine.getBody());
+            } else {
+                ContentType httpContentType = ContentType.parse(contentType);
+                entity = new StringEntity(httpLine.getBody(), httpContentType);
+            }
             httpEntityRequest.setEntity(entity);
         }
         return request;

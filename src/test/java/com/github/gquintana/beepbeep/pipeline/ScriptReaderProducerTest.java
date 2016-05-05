@@ -24,8 +24,8 @@ public class ScriptReaderProducerTest {
         assertThat(end.events).hasSize(6);
         List<String> lines = end.lines();
         assertThat(lines).hasSize(4);
-        assertThat(lines).contains("INSERT INTO person(login, email) VALUE ('jdoe', 'john.doe@unknown.com');",
-        "INSERT INTO person(login, email) VALUE ('sconnor', 'sarah.connor@cyberdine.com');");
+        assertThat(lines).contains("INSERT INTO person(login, email) VALUES ('jdoe', 'john.doe@unknown.com');",
+        "INSERT INTO person(login, email) VALUES ('sconnor', 'sarah.connor@cyberdine.com');");
         List<ScriptEvent> scriptEvents = end.events(ScriptEvent.class);
         assertThat(scriptEvents.get(0).getType()).isEqualTo(ScriptEvent.Type.START);
         assertThat(scriptEvents.get(1).getType()).isEqualTo(ScriptEvent.Type.END_SUCCESS);
