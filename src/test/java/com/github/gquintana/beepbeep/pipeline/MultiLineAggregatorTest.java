@@ -3,7 +3,6 @@ package com.github.gquintana.beepbeep.pipeline;
 import com.github.gquintana.beepbeep.TestConsumer;
 import org.junit.Test;
 
-import static com.github.gquintana.beepbeep.pipeline.LineEvent.event;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MultiLineAggregatorTest {
@@ -29,6 +28,8 @@ public class MultiLineAggregatorTest {
 
     }
 
+
+
     @Test
     public void testConsume_StartMarker() throws Exception {
         // Given
@@ -49,6 +50,10 @@ public class MultiLineAggregatorTest {
                         event(4, "POST /other/url" + eol + "{\"body\":\"json\"}" + eol));
 
 
+    }
+
+    private LineEvent event(int lineNb, String line) {
+        return new LineEvent(null, lineNb, line);
     }
 
 }

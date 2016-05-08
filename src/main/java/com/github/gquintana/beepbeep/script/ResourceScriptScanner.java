@@ -1,6 +1,7 @@
 package com.github.gquintana.beepbeep.script;
 
 import com.github.gquintana.beepbeep.pipeline.Consumer;
+import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class ResourceScriptScanner extends ScriptScanner {
     private final ClassLoader classLoader;
     private final Predicate<String> nameFilter;
 
-    public ResourceScriptScanner(ClassLoader classLoader, Predicate<String> nameFilter, Consumer<Script> scriptConsumer) {
+    public ResourceScriptScanner(ClassLoader classLoader, Predicate<String> nameFilter, Consumer<ScriptStartEvent> scriptConsumer) {
         super(scriptConsumer);
         this.classLoader = classLoader;
         this.nameFilter = nameFilter;
@@ -99,7 +100,7 @@ public class ResourceScriptScanner extends ScriptScanner {
         }
     }
 
-    public static ResourceScriptScanner resourceGlob(ClassLoader classLoader, String resourceGlob, Consumer<Script> scriptConsumer) {
+    public static ResourceScriptScanner resourceGlob(ClassLoader classLoader, String resourceGlob, Consumer<ScriptStartEvent> scriptConsumer) {
         RegexNamePredicate fileFilter = new RegexNamePredicate(fileGlobToRegex(resourceGlob));
         return new ResourceScriptScanner(classLoader,
             fileFilter,

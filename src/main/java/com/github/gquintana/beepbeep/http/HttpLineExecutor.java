@@ -111,13 +111,13 @@ public class HttpLineExecutor extends LineExecutor {
             if (statusCode >= 400 && statusCode < 599) {
                 throw new LineException("HTTP Status " + statusCode + " " + httpResponse.getStatusLine().getReasonPhrase(), lineEvent);
             }
-            produce(httpResponse);
+            produce(lineEvent, httpResponse);
         } catch (IOException e) {
             throw new LineException("HTTP I/O failure", e, lineEvent);
         }
     }
 
-    private void produce(HttpResponse httpResponse) throws IOException {
+    private void produce(LineEvent lineEvent, HttpResponse httpResponse) throws IOException {
         String resultEvent = httpResponse.getStatusLine().getStatusCode() + "," + httpResponse.getStatusLine().getReasonPhrase();
         if (httpResponse.getEntity() != null) {
             ContentType contentType = ContentType.get(httpResponse.getEntity());
@@ -127,7 +127,7 @@ public class HttpLineExecutor extends LineExecutor {
                 resultEvent += "," + new String(byteArrayOutputStream.toByteArray(), charset);
             }
         }
-        produce(resultEvent);
+        produce(lineEvent, resultEvent);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.github.gquintana.beepbeep.script;
 
 import com.github.gquintana.beepbeep.pipeline.Consumer;
+import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -21,13 +22,13 @@ public class FileScriptScanner extends ScriptScanner {
     private final Predicate<Path> fileFilter;
     private final int maxDepth;
 
-    public FileScriptScanner(Path folder, Predicate<Path> fileFilter, int maxDepth, Consumer<Script> scriptConsumer) {
+    public FileScriptScanner(Path folder, Predicate<Path> fileFilter, int maxDepth, Consumer<ScriptStartEvent> scriptConsumer) {
         super(scriptConsumer);
         this.folder = folder;
         this.fileFilter = fileFilter;
         this.maxDepth = maxDepth;
     }
-    public FileScriptScanner(Path folder, Predicate<Path> fileFilter, Consumer<Script> scriptConsumer) {
+    public FileScriptScanner(Path folder, Predicate<Path> fileFilter, Consumer<ScriptStartEvent> scriptConsumer) {
         this(folder, fileFilter, Integer.MAX_VALUE, scriptConsumer);
     }
 
@@ -54,7 +55,7 @@ public class FileScriptScanner extends ScriptScanner {
         }
     }
 
-    public static ScriptScanner fileGlob(String fileGlob, Consumer<Script> scriptConsumer) {
+    public static ScriptScanner fileGlob(String fileGlob, Consumer<ScriptStartEvent> scriptConsumer) {
         fileGlob = fixFileSeparator(fileGlob);
         String[] prefixSuffix = fileGlobPrefixSuffix(fileGlob);
         ScriptScanner scanner;

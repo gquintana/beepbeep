@@ -60,7 +60,7 @@ public class HttpLineTest {
     public void testParsePostBody() throws UnsupportedEncodingException {
         // Given
         String eol = System.lineSeparator();
-        LineEvent lineEvent = new LineEvent(10,
+        LineEvent lineEvent = new LineEvent(null, 10,
             "#Comment" + eol +
                 "" + eol +
                 "  # Comment" + eol +
@@ -86,7 +86,7 @@ public class HttpLineTest {
     public void testParseGetHeaders() throws UnsupportedEncodingException {
         // Given
         String eol = System.lineSeparator();
-        LineEvent lineEvent = new LineEvent(10,
+        LineEvent lineEvent = new LineEvent(null, 10,
             "#Comment" + eol +
                 "" + eol +
                 "  # Comment" + eol +
@@ -106,7 +106,7 @@ public class HttpLineTest {
     public void testParseEmpty() throws UnsupportedEncodingException {
         // Given
         String eol = System.lineSeparator();
-        LineEvent lineEvent = new LineEvent(10,
+        LineEvent lineEvent = new LineEvent(null, 10,
             "#Comment" + eol +
                 "" + eol +
                 "  # Comment" + eol

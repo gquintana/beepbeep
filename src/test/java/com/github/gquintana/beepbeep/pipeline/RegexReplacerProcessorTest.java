@@ -3,7 +3,6 @@ package com.github.gquintana.beepbeep.pipeline;
 import com.github.gquintana.beepbeep.TestConsumer;
 import org.junit.Test;
 
-import static com.github.gquintana.beepbeep.pipeline.LineEvent.event;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RegexReplacerProcessorTest {
@@ -27,5 +26,9 @@ public class RegexReplacerProcessorTest {
                         event(2, "insert into table1(column1, column2)" + eol + " values(3, 'Three')"),
                         null);
 
+    }
+
+    private LineEvent event(int lineNb, String line) {
+        return new LineEvent(null, lineNb, line);
     }
 }

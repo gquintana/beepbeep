@@ -101,7 +101,7 @@ public class MultilineAggregator extends Processor {
             String multiLine = lineBuilder.toString();
             lineBuilder = null;
             lastLineEvent = null;
-            produce(new LineEvent(event.getLineNumber(), multiLine));
+            produce(new LineEvent(event.getScript(), event.getLineNumber(), multiLine));
         }
     }
 }

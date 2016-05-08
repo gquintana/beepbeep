@@ -1,6 +1,7 @@
 package com.github.gquintana.beepbeep.script;
 
 import com.github.gquintana.beepbeep.TestConsumer;
+import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -15,11 +16,11 @@ public class ResourceScriptScannerTest {
     public void testScanClassLoader() throws IOException {
         // Given
         ClassLoader classLoader = getClass().getClassLoader();
-        TestConsumer consumer = new TestConsumer();
+        TestConsumer<ScriptStartEvent> consumer = new TestConsumer<>();
         ResourceScriptScanner scanner = new ResourceScriptScanner(classLoader, name -> name.startsWith("com/github/gquintana/beepbeep/script/") && name.endsWith(".sql"), consumer);
         // When
         scanner.scan();
-        List<ResourceScript> scripts = consumer.eventStream(ResourceScript.class).collect(Collectors.toList());
+        List<ResourceScript> scripts = consumer.scriptStream(ResourceScript.class).collect(Collectors.toList());
         // Then
         assertThat(scripts).hasSize(3);
         assertThat(scripts.get(0).getName()).isEqualTo("script_create.sql");

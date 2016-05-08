@@ -3,41 +3,33 @@ package com.github.gquintana.beepbeep.pipeline;
 import com.github.gquintana.beepbeep.script.Script;
 
 public class ScriptEvent {
+    private final String type;
     private final Script script;
-    private final Type type;
-    private final Exception exception;
-    public enum Type {
-        START, END_SUCCESS, END_FAILED
-    }
 
-    public ScriptEvent(Script script, Type type) {
-        this(script, type, null);
-    }
-
-    public ScriptEvent(Script script, Type type, Exception exception) {
-        this.script = script;
+    public ScriptEvent(String type, Script script) {
         this.type = type;
-        this.exception = exception;
-    }
-
-    public Type getType() {
-        return type;
+        this.script = script;
     }
 
     public Script getScript() {
         return script;
     }
 
-    public Exception getException() {
-        return exception;
+    public String getType() {
+        return type;
     }
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder().append(type).append(" ").append(script.getFullName());
-        if (exception != null) {
-            stringBuilder.append(" ").append(exception.getMessage());
-        }
+        StringBuilder stringBuilder = toStringBuilder();
         return stringBuilder.toString();
+    }
+
+    protected StringBuilder toStringBuilder() {
+        StringBuilder stringBuilder = new StringBuilder().append(type);
+        if (script != null) {
+            stringBuilder.append(" ").append(script.getFullName());
+        }
+        return stringBuilder;
     }
 }

@@ -60,12 +60,12 @@ public class SqlLineExecutor extends LineExecutor {
             boolean resultSetResult = statement.execute(line);
             if (resultSetResult) {
                 try (ResultSet resultSet = statement.getResultSet()) {
-                    produce(resultSet);
+                    produce(lineEvent, resultSet);
                 }
             } else {
                 int updateCount = statement.getUpdateCount();
                 if (updateCount >= 0) {
-                    produce(updateCount + " updates");
+                    produce(lineEvent, updateCount + " updates");
                 }
             }
         } catch (SQLException e) {
@@ -73,7 +73,7 @@ public class SqlLineExecutor extends LineExecutor {
         }
     }
 
-    private void produce(ResultSet resultSet) throws SQLException {
+    private void produce(LineEvent lineEvent, ResultSet resultSet) throws SQLException {
         int columnCount = resultSet.getMetaData().getColumnCount();
         int rowIndex = 0;
         while (resultSet.next()) {
@@ -81,7 +81,7 @@ public class SqlLineExecutor extends LineExecutor {
             for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
                 lineBuilder.append(";").append(resultSet.getObject(columnIndex));
             }
-            produce(lineBuilder.toString());
+            produce(lineEvent, lineBuilder.toString());
             rowIndex++;
         }
     }

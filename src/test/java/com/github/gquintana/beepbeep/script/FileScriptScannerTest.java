@@ -2,6 +2,8 @@ package com.github.gquintana.beepbeep.script;
 
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.TestFiles;
+import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
+import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -26,12 +28,13 @@ public class FileScriptScannerTest {
         TestFiles.writeResource("script/script_create.sql", createFile);
         TestFiles.writeResource("script/script_data.sql", new File(createFolder, "data.sql"));
         TestFiles.writeResource("script/script_drop.sql", new File(dropFolder, "drop.sql"));
-        TestConsumer consumer = new TestConsumer();
+        TestConsumer<ScriptStartEvent> consumer = new TestConsumer<>();
         FileScriptScanner scanner = new FileScriptScanner(temporaryFolder.getRoot().toPath(),
             path -> path.toString().endsWith(".sql"), consumer);
         // When
         scanner.scan();
-        List<FileScript> scripts = consumer.eventStream(FileScript.class).collect(Collectors.toList());
+        List<FileScript> scripts = consumer.scriptStream(FileScript.class)
+            .collect(Collectors.toList());
         // Then
         assertThat(scripts).hasSize(3);
         assertThat(scripts.get(0).getName()).isEqualTo("create.sql");

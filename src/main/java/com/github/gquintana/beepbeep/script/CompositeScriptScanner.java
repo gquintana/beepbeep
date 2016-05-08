@@ -1,6 +1,7 @@
 package com.github.gquintana.beepbeep.script;
 
 import com.github.gquintana.beepbeep.pipeline.Consumer;
+import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -14,8 +15,8 @@ import java.util.function.Predicate;
 public class CompositeScriptScanner extends ScriptScanner {
     private final List<ScriptScanner> scanners = new ArrayList<>();
 
-    public CompositeScriptScanner(Consumer<Script> scriptConsumer) {
-        super(scriptConsumer);
+    public CompositeScriptScanner(Consumer<ScriptStartEvent> consumer) {
+        super(consumer);
     }
 
     public CompositeScriptScanner scanner(ScriptScanner scanner) {
@@ -27,7 +28,7 @@ public class CompositeScriptScanner extends ScriptScanner {
      * Add single script
      */
     public CompositeScriptScanner script(Script script) {
-        return scanner(ScriptScanners.script(script, scriptConsumer));
+        return scanner(ScriptScanners.script(script, consumer));
     }
 
     /**
@@ -85,21 +86,21 @@ public class CompositeScriptScanner extends ScriptScanner {
      * Scan and add script from file system
      */
     public CompositeScriptScanner files(Path folder, Predicate<Path> fileFilter) {
-        return scanner(ScriptScanners.files(folder, fileFilter, scriptConsumer));
+        return scanner(ScriptScanners.files(folder, fileFilter, consumer));
     }
 
     /**
      * Scan and add script from file system, using file glob
      */
     public CompositeScriptScanner files(String fileGlob, Predicate<Path> fileFilter) {
-        return scanner(ScriptScanners.files(fileGlob, scriptConsumer));
+        return scanner(ScriptScanners.files(fileGlob, consumer));
     }
 
     /**
      * Scan and add script from class path
      */
     public CompositeScriptScanner resources(ClassLoader classLoader, Predicate<String> resourceFilter) {
-        return scanner(ScriptScanners.resources(classLoader, resourceFilter, scriptConsumer));
+        return scanner(ScriptScanners.resources(classLoader, resourceFilter, consumer));
     }
 
     @Override

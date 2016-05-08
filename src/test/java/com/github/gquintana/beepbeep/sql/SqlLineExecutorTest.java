@@ -1,12 +1,13 @@
 package com.github.gquintana.beepbeep.sql;
 
 import com.github.gquintana.beepbeep.TestConsumer;
-import com.github.gquintana.beepbeep.pipeline.Processor;
-import com.github.gquintana.beepbeep.pipeline.RegexReplacerProcessor;
+import com.github.gquintana.beepbeep.pipeline.*;
 import org.h2.Driver;
 import org.junit.Test;
 
-import static com.github.gquintana.beepbeep.pipeline.LineEvent.event;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SqlLineExecutorTest {
@@ -14,7 +15,7 @@ public class SqlLineExecutorTest {
     @Test
     public void testConsume() throws Exception {
         // Given
-        TestConsumer end = new TestConsumer();
+        TestConsumer<ScriptEvent> end = new TestConsumer();
         SqlConnectionProvider connectionProvider = new DriverSqlConnectionProvider(
                 Driver.class.getName(), "jdbc:h2:mem:test", "sa", "");
         try(SingleSqlConnectionProvider connectionProvider2 = new SingleSqlConnectionProvider(connectionProvider)) {
@@ -27,12 +28,17 @@ public class SqlLineExecutorTest {
             processor.consume(event(3, "select login,email from person order by login asc;"));
             // Then
             assertThat(end.events).hasSize(5);
-            assertThat(end.events).contains(
+            List<String> results = end.eventStream(ResultEvent.class).map(r -> r.getResult()).collect(Collectors.toList());
+            assertThat(results).contains(
                     "0 updates",
                     "1 updates",
                     "1 updates",
                     "0;jdoe;john.doe@unknown.com",
                     "1;sconnor;sarah.connor@cyberdine.com");
         }
+    }
+
+    private LineEvent event(int lineNb, String line) {
+        return new LineEvent(null, lineNb, line);
     }
 }

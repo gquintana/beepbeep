@@ -6,7 +6,6 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.gquintana.beepbeep.pipeline.LineEvent.event;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class VariableReplacerProcessorTest {
@@ -31,6 +30,10 @@ public class VariableReplacerProcessorTest {
                         event(1, ""),
                         event(2, "insert into table1(column1, column2) values(2, '${column2.2}');"),
                         null);
+    }
+
+    private LineEvent event(int lineNb, String line) {
+        return new LineEvent(null, lineNb, line);
     }
 
     @Test

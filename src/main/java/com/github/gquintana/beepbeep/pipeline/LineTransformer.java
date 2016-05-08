@@ -18,7 +18,7 @@ public abstract class LineTransformer extends Transformer {
         if (replaced.equals(line)) {
             return event;
         }
-        return new LineEvent(lineEvent.getLineNumber(), replaced);
+        return new LineEvent(lineEvent.getScript(), lineEvent.getLineNumber(), replaced);
     }
 
 }

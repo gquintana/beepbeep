@@ -3,6 +3,7 @@ package com.github.gquintana.beepbeep.http;
 import com.github.gquintana.beepbeep.LineException;
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.pipeline.LineEvent;
+import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
@@ -26,7 +27,7 @@ public class HttpLineExecutorTest {
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
-        processor.consume(new LineEvent(1, "GET /" + eol + "HEADER Accept text/html" + eol));
+        processor.consume(new LineEvent(null, 1, "GET /" + eol + "HEADER Accept text/html" + eol));
         // Then
         assertThat(consumer.events).hasSize(1);
         assertThat(consumer.events.get(0).toString()).startsWith("200,OK");
@@ -38,15 +39,15 @@ public class HttpLineExecutorTest {
         wireMock.stubFor(get(urlMatching("/my/url")).withHeader("Accept", matching("application/json"))
             .willReturn(aResponse().withStatus(200).withHeader("Content-type", "application/json")
                 .withBody("{\"body\":\"Hello world\"}")));
-        TestConsumer consumer = new TestConsumer();
+        TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = new HttpClientProvider("http://localhost:8080/");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
-        processor.consume(new LineEvent(1, "GET /my/url" + eol + "HEADER Accept application/json" + eol));
+        processor.consume(new LineEvent(null, 1, "GET /my/url" + eol + "HEADER Accept application/json" + eol));
         // Then
         assertThat(consumer.events).hasSize(1);
-        assertThat(consumer.events.get(0).toString()).startsWith("200,OK");
+        assertThat(consumer.events.get(0).toString()).contains("200,OK");
     }
 
     @Test
@@ -65,13 +66,13 @@ public class HttpLineExecutorTest {
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
-        processor.consume(new LineEvent(1, "POST my/url" + eol
+        processor.consume(new LineEvent(null, 1, "POST my/url" + eol
             + "HEADER Accept application/json" + eol
             + "HEADER Content-Type application/json" + eol +
             requestBody));
         // Then
         assertThat(consumer.events).hasSize(1);
-        assertThat(consumer.events.get(0).toString()).startsWith("201,Created,{\"created\":\"true\"}");
+        assertThat(consumer.events.get(0).toString()).contains("201,Created,{\"created\":\"true\"}");
     }
 
     @Test
@@ -82,7 +83,7 @@ public class HttpLineExecutorTest {
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
-        processor.consume(new LineEvent(1, "# Comment" + eol
+        processor.consume(new LineEvent(null, 1, "# Comment" + eol
             + "" + eol
             + "\t# Comment" + eol));
         // Then
@@ -97,7 +98,7 @@ public class HttpLineExecutorTest {
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
-        processor.consume(new LineEvent(1, "FAIL /at/url"));
+        processor.consume(new LineEvent(null, 1, "FAIL /at/url"));
         // Then
         assertThat(consumer.events).isEmpty();
     }
@@ -110,7 +111,7 @@ public class HttpLineExecutorTest {
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
-        processor.consume(new LineEvent(1, "GET /unknown/url"));
+        processor.consume(new LineEvent(null, 1, "GET /unknown/url"));
         // Then
         assertThat(consumer.events).isEmpty();
     }
@@ -123,7 +124,7 @@ public class HttpLineExecutorTest {
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
-        processor.consume(new LineEvent(1, "GET /unknown/url"));
+        processor.consume(new LineEvent(null, 1, "GET /unknown/url"));
         // Then
         assertThat(consumer.events).isEmpty();
     }

@@ -1,7 +1,10 @@
 package com.github.gquintana.beepbeep.sql;
 
 import com.github.gquintana.beepbeep.TestConsumer;
+import com.github.gquintana.beepbeep.pipeline.ResultEvent;
+import com.github.gquintana.beepbeep.pipeline.ScriptEndEvent;
 import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
+import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import com.github.gquintana.beepbeep.script.ResourceScriptScanner;
 import com.github.gquintana.beepbeep.script.ScriptScanners;
 import org.h2.Driver;
@@ -27,8 +30,9 @@ public class SqlPipelineBuilderTest {
         // Then
         output.assertNoScriptEndFailed();
         assertThat(output.events).hasSize(3 * 2 + 2 + 4 + 1);
-        assertThat(output.events(ScriptEvent.class)).hasSize(2 * 3);
-        assertThat(output.events(String.class)).hasSize(2 + 2 + 2 + 1);
+        assertThat(output.events(ScriptStartEvent.class)).hasSize(3);
+        assertThat(output.events(ScriptEndEvent.class)).hasSize(3);
+        assertThat(output.events(ResultEvent.class)).hasSize(2 + 2 + 2 + 1);
     }
 
 }

@@ -11,10 +11,10 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
     protected String password;
 
     private Map<String, Object> variables;
-    protected Consumer endConsumer = event -> {
+    protected Consumer<ScriptEvent> endConsumer = event -> {
     };
 
-    public B withEndConsumer(Consumer endConsumer) {
+    public B withEndConsumer(Consumer<ScriptEvent> endConsumer) {
         this.endConsumer = endConsumer;
         return (B) this;
     }
@@ -57,18 +57,18 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
     }
 
 
-    protected Consumer notNullNorEmptyFilter(Consumer consumer) {
+    protected Consumer<ScriptEvent> notNullNorEmptyFilter(Consumer<ScriptEvent> consumer) {
         return LineFilter.notNulNotEmptyFilter(consumer);
     }
 
-    protected Consumer variableReplacer(Consumer consumer) {
+    protected Consumer<ScriptEvent> variableReplacer(Consumer<ScriptEvent> consumer) {
         if (variables != null && !variables.isEmpty()) {
             consumer = new VariableReplacerProcessor(variables, consumer);
         }
         return consumer;
     }
 
-    protected Consumer scriptReader(Consumer consumer) {
+    protected Consumer<ScriptStartEvent> scriptReader(Consumer<ScriptEvent> consumer) {
         return new ScriptReaderProducer(consumer, charset);
     }
 

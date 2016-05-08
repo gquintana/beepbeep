@@ -1,8 +1,6 @@
 package com.github.gquintana.beepbeep.http;
 
-import com.github.gquintana.beepbeep.pipeline.Consumer;
-import com.github.gquintana.beepbeep.pipeline.MultilineAggregator;
-import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
+import com.github.gquintana.beepbeep.pipeline.*;
 
 public class HttpPipelineBuilder extends PipelineBuilder<HttpPipelineBuilder> {
     private HttpClientProvider httpClientProvider = new HttpClientProvider();
@@ -12,8 +10,8 @@ public class HttpPipelineBuilder extends PipelineBuilder<HttpPipelineBuilder> {
         return this;
     }
 
-    public Consumer build() {
-        Consumer consumer = endConsumer;
+    public Consumer<ScriptStartEvent> build() {
+        Consumer<ScriptEvent> consumer = endConsumer;
         httpClientProvider.setUrl(url);
         httpClientProvider.setUsername(username);
         httpClientProvider.setPassword(password);
@@ -21,7 +19,6 @@ public class HttpPipelineBuilder extends PipelineBuilder<HttpPipelineBuilder> {
         consumer = notNullNorEmptyFilter(consumer);
         consumer = new MultilineAggregator("^\\s*(GET|POST|PUT|DELETE|HEAD|OPTIONS|PATCH)\\s+", MultilineAggregator.LineMarkerStrategy.START, false, consumer);
         consumer = variableReplacer(consumer);
-        consumer = scriptReader(consumer);
-        return consumer;
+        return scriptReader(consumer);
     }
 }

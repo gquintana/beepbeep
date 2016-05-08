@@ -4,43 +4,43 @@ import com.github.gquintana.beepbeep.script.Script;
 
 import java.util.Objects;
 
-public class LineEvent extends ScriptEvent {
-    public static final String TYPE = "LINE";
+public class ResultEvent extends ScriptEvent {
+    public static final String TYPE = "RESULT";
     private final int lineNumber;
-    private final String line;
+    private final String result;
 
-    public LineEvent(Script script, int lineNumber, String line) {
+    public ResultEvent(Script script, int lineNumber, String result) {
         super(TYPE, script);
         this.lineNumber = lineNumber;
-        this.line = line;
+        this.result = result;
     }
 
     public int getLineNumber() {
         return lineNumber;
     }
 
-    public String getLine() {
-        return line;
+    public String getResult() {
+        return result;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LineEvent lineEvent = (LineEvent) o;
+        ResultEvent lineEvent = (ResultEvent) o;
         return lineNumber == lineEvent.lineNumber &&
-                Objects.equals(line, lineEvent.line);
+                Objects.equals(result, lineEvent.result);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lineNumber, line);
+        return Objects.hash(lineNumber, result);
     }
 
     @Override
     protected StringBuilder toStringBuilder() {
         StringBuilder stringBuilder = super.toStringBuilder();
-        stringBuilder.append(" L").append(lineNumber).append(" ").append(line);
+        stringBuilder.append(" L").append(lineNumber).append(" ").append(result);
         return stringBuilder;
     }
 

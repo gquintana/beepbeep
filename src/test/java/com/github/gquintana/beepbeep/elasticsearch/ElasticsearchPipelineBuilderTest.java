@@ -4,6 +4,7 @@ import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.http.HttpClientProvider;
 import com.github.gquintana.beepbeep.http.HttpPipelineBuilder;
 import com.github.gquintana.beepbeep.pipeline.Consumer;
+import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import com.github.gquintana.beepbeep.script.ResourceScript;
 import com.github.gquintana.beepbeep.script.ResourceScriptScanner;
 import com.github.gquintana.beepbeep.script.ScriptScanners;
@@ -26,13 +27,13 @@ public class ElasticsearchPipelineBuilderTest {
         // Given
         TestConsumer output = new TestConsumer();
         HttpClientProvider clientProvider = new HttpClientProvider();
-        Consumer input = new HttpPipelineBuilder().withUrl(getElasticsearchUri())
+        Consumer<ScriptStartEvent> input = new HttpPipelineBuilder().withUrl(getElasticsearchUri())
             .withHttpClientProvider(clientProvider).withEndConsumer(output).build();
         // When
-        input.consume(ResourceScript.create(getClass(), "cluster_health.json"));
+        input.consume(new ScriptStartEvent(ResourceScript.create(getClass(), "cluster_health.json")));
         // Then
         assertThat(output.events).hasSize(3);
-        assertThat(output.events.get(1).toString()).startsWith("200,OK");
+        assertThat(output.events.get(1).toString()).contains("200,OK");
     }
 
     String getElasticsearchUri() {
@@ -54,6 +55,6 @@ public class ElasticsearchPipelineBuilderTest {
         // Then
         output.assertNoScriptEndFailed();
         assertThat(output.events).hasSize(3 * 2 + 1 + 4 + 1);
-        assertThat(output.events.get(1).toString()).startsWith("200,OK");
+        assertThat(output.events.get(1).toString()).contains("200,OK");
     }
 }

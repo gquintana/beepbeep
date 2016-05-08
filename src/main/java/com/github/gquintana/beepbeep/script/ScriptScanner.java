@@ -1,21 +1,22 @@
 package com.github.gquintana.beepbeep.script;
 
 import com.github.gquintana.beepbeep.pipeline.Consumer;
+import com.github.gquintana.beepbeep.pipeline.Producer;
+import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class ScriptScanner {
-    protected final Consumer<Script> scriptConsumer;
+public abstract class ScriptScanner extends Producer<ScriptStartEvent> {
 
-    protected ScriptScanner(Consumer<Script> scriptConsumer) {
-        this.scriptConsumer = scriptConsumer;
+    protected ScriptScanner(Consumer<ScriptStartEvent> scriptConsumer) {
+        super(scriptConsumer);
     }
 
     protected void produce(Script script) {
-        scriptConsumer.consume(script);
+        produce(new ScriptStartEvent(script));
     }
 
     public abstract void scan() throws IOException;
