@@ -6,10 +6,16 @@ import com.github.gquintana.beepbeep.pipeline.LineEvent;
 import com.github.gquintana.beepbeep.pipeline.LineExecutor;
 import com.github.gquintana.beepbeep.util.Strings;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.protocol.HttpContext;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,18 +24,12 @@ import java.nio.charset.Charset;
 
 public class HttpLineExecutor extends LineExecutor {
     private final HttpClientProvider httpClientProvider;
-    private final String baseUri;
     private HttpClient httpClient;
 
 
-    public HttpLineExecutor(HttpClientProvider httpClientProvider, String url, Consumer consumer) {
+    public HttpLineExecutor(HttpClientProvider httpClientProvider, Consumer consumer) {
         super(consumer);
         this.httpClientProvider = httpClientProvider;
-        if (url.endsWith("/")) {
-            this.baseUri = Strings.left(url, url.length() - 1);
-        } else {
-            this.baseUri = url;
-        }
     }
 
     @Override
@@ -46,7 +46,7 @@ public class HttpLineExecutor extends LineExecutor {
         if (!uri.startsWith("/")) {
             uri = "/" + uri;
         }
-        uri = baseUri + uri;
+        uri = httpClientProvider.getBasePath() + uri;
         switch (httpLine.getMethod()) {
             case "GET":
                 request = new HttpGet(uri);
@@ -106,7 +106,7 @@ public class HttpLineExecutor extends LineExecutor {
                 return;
             }
             HttpRequestBase httpRequest = createHttpRequest(httpLine);
-            HttpResponse httpResponse = httpClient.execute(httpRequest);
+            HttpResponse httpResponse = httpClient.execute(httpClientProvider.getHttpHost(), httpRequest);
             int statusCode = httpResponse.getStatusLine().getStatusCode();
             if (statusCode >= 400 && statusCode < 599) {
                 throw new LineException("HTTP Status " + statusCode + " " + httpResponse.getStatusLine().getReasonPhrase(), lineEvent);
