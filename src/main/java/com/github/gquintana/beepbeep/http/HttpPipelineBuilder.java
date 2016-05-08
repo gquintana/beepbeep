@@ -14,7 +14,7 @@ public class HttpPipelineBuilder extends PipelineBuilder<HttpPipelineBuilder> {
 
     public Consumer build() {
         Consumer consumer = endConsumer;
-        consumer = new HttpLineExecutor(httpClientProvider, consumer);
+        consumer = new HttpLineExecutor(httpClientProvider, url, consumer);
         consumer = notNullNorEmptyFilter(consumer);
         consumer = new MultilineAggregator("^\\s*(GET|POST|PUT|DELETE|HEAD|OPTIONS|PATCH)\\s+", MultilineAggregator.LineMarkerStrategy.START, false, consumer);
         consumer = variableReplacer(consumer);

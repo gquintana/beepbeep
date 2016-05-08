@@ -33,6 +33,9 @@ public class SqlPipelineBuilder extends PipelineBuilder<SqlPipelineBuilder> {
 
     public Consumer build() {
         Consumer consumer = endConsumer;
+        if (connectionProvider == null) {
+            connectionProvider = DriverSqlConnectionProvider.create(url, username, password);
+        }
         consumer = new SqlLineExecutor(connectionProvider, autoCommit, consumer);
         consumer = notNullNorEmptyFilter(consumer);
         consumer = new MultilineAggregator(endOfLineRegex, MultilineAggregator.LineMarkerStrategy.END, true, consumer);

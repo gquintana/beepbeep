@@ -18,12 +18,18 @@ import java.nio.charset.Charset;
 
 public class HttpLineExecutor extends LineExecutor {
     private final HttpClientProvider httpClientProvider;
+    private final String baseUri;
     private HttpClient httpClient;
 
 
-    public HttpLineExecutor(HttpClientProvider httpClientProvider, Consumer consumer) {
+    public HttpLineExecutor(HttpClientProvider httpClientProvider, String url, Consumer consumer) {
         super(consumer);
         this.httpClientProvider = httpClientProvider;
+        if (url.endsWith("/")) {
+            this.baseUri = Strings.left(url, url.length() - 1);
+        } else {
+            this.baseUri = url;
+        }
     }
 
     @Override
@@ -40,7 +46,7 @@ public class HttpLineExecutor extends LineExecutor {
         if (!uri.startsWith("/")) {
             uri = "/" + uri;
         }
-        uri = httpClientProvider.getBaseUri() + uri;
+        uri = baseUri + uri;
         switch (httpLine.getMethod()) {
             case "GET":
                 request = new HttpGet(uri);

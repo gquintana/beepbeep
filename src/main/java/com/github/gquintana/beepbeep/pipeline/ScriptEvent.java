@@ -31,4 +31,13 @@ public class ScriptEvent {
     public Exception getException() {
         return exception;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder().append(type).append(" ").append(script.getFullName());
+        if (exception != null) {
+            stringBuilder.append(" ").append(exception.getMessage());
+        }
+        return stringBuilder.toString();
+    }
 }

@@ -25,8 +25,9 @@ public class ElasticsearchPipelineBuilderTest {
     public void testGetHealth() {
         // Given
         TestConsumer output = new TestConsumer();
-        HttpClientProvider clientProvider = new HttpClientProvider("http://" + elasticsearch.getElasticsearch().getHttpAddress());
-        Consumer input = new HttpPipelineBuilder().withHttpClientProvider(clientProvider).withEndConsumer(output).build();
+        HttpClientProvider clientProvider = new HttpClientProvider();
+        Consumer input = new HttpPipelineBuilder().withUrl(getElasticsearchUri())
+            .withHttpClientProvider(clientProvider).withEndConsumer(output).build();
         // When
         input.consume(ResourceScript.create(getClass(), "cluster_health.json"));
         // Then
@@ -34,12 +35,18 @@ public class ElasticsearchPipelineBuilderTest {
         assertThat(output.events.get(1).toString()).startsWith("200,OK");
     }
 
+    String getElasticsearchUri() {
+        return "http://" + elasticsearch.getElasticsearch().getHttpAddress();
+    }
+
     @Test
     public void testCreateSearchDelete() throws IOException {
         // Given
         TestConsumer output = new TestConsumer();
-        HttpClientProvider clientProvider = new HttpClientProvider("http://" + elasticsearch.getElasticsearch().getHttpAddress());
-        Consumer input = new HttpPipelineBuilder().withHttpClientProvider(clientProvider).withEndConsumer(output).build();
+        HttpClientProvider clientProvider = new HttpClientProvider();
+        Consumer input = new HttpPipelineBuilder()
+            .withUrl(getElasticsearchUri())
+            .withHttpClientProvider(clientProvider).withEndConsumer(output).build();
         // When
         String scriptGlob = getClass().getPackage().getName().replaceAll("\\.", "/") + "/index*.json";
         ResourceScriptScanner scanner = ScriptScanners.resources(getClass().getClassLoader(), scriptGlob, input);

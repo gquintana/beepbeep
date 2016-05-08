@@ -5,7 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
-    private Charset charset = Charset.forName("UTF-8");
+    protected Charset charset = Charset.forName("UTF-8");
+    protected String url;
+    protected String username;
+    protected String password;
+
     private Map<String, Object> variables;
     protected Consumer endConsumer = event -> {
     };
@@ -36,6 +40,22 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
         this.variables.put(name, value);
         return (B) this;
     }
+
+    public B withUrl(String url) {
+        this.url = url;
+        return (B) this;
+    }
+
+    public B withUsername(String username) {
+        this.username = username;
+        return (B) this;
+    }
+
+    public B withPassword(String password) {
+        this.password = password;
+        return (B) this;
+    }
+
 
     protected Consumer notNullNorEmptyFilter(Consumer consumer) {
         return LineFilter.notNulNotEmptyFilter(consumer);
