@@ -40,7 +40,7 @@ public class LineEvent extends ScriptEvent {
     @Override
     protected StringBuilder toStringBuilder() {
         StringBuilder stringBuilder = super.toStringBuilder();
-        stringBuilder.append(" L").append(lineNumber).append(" ").append(line);
+        stringBuilder.append(":").append(lineNumber).append(" ").append(line);
         return stringBuilder;
     }
 

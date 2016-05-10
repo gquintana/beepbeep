@@ -52,6 +52,9 @@ public abstract class Script {
     }
 
     public String getSha1Hex() {
+        if (sha1Hex == null) {
+            analyze();
+        }
         return sha1Hex;
     }
 }

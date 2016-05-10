@@ -10,9 +10,10 @@ import com.github.gquintana.beepbeep.store.ScriptStatus;
 import com.github.gquintana.beepbeep.store.ScriptStore;
 import com.github.gquintana.beepbeep.store.ScriptStoreException;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -41,14 +42,50 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
         this.indexType = indexType;
     }
 
+    /**
+     * Execute HTTP request
+     */
+    private HttpResponse execute(HttpRequest httpRequest) throws IOException {
+        HttpResponse httpResponse = httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), httpRequest);
+        return httpResponse;
+    }
+
+    /**
+     * Execute HTTP request
+     */
+    private <T> T execute(HttpRequest httpRequest, ResponseHandler<T> httpResponseHandler) throws IOException {
+        return  httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), httpRequest, httpResponseHandler);
+    }
+
+    private <T> T readJsonContent(HttpResponse httpResponse, Class<T> type) throws IOException {
+        try (InputStream inputStream = httpResponse.getEntity().getContent()) {
+            return objectMapper.readValue(inputStream, type);
+        }
+    }
+
+    private void checkError(HttpResponse httpResponse) throws IOException {
+        StatusLine statusLine = httpResponse.getStatusLine();
+        if (statusLine.getStatusCode()>=400 && statusLine.getStatusCode() < 600) {
+            JsonNode jsonNode = readJsonContent(httpResponse, JsonNode.class);
+            StringBuilder message = new StringBuilder().append("HTTP error ").append(statusLine.getStatusCode()).append(", ").append(statusLine.getReasonPhrase());
+            JsonNode error = jsonNode.get("error");
+            if (error != null) {
+                message.append(", ").append(error.get("reason").asText());
+            }
+            throw new ScriptStoreException(message.toString());
+        }
+    }
+
+    /**
+     * Create index with settings if needed
+     */
     public void prepare() {
         String[] splitIndex = indexType.split("/");
         String index = splitIndex[0];
         String type = splitIndex[1];
         try {
-            HttpClient httpClient = httpClientProvider.getHttpClient();
             // Get index
-            HttpResponse httpResponse = httpClient.execute(httpClientProvider.getHttpHost(), new HttpGet(index));
+            HttpResponse httpResponse = execute(new HttpGet(index));
             if (httpResponse.getStatusLine().getStatusCode() == 200) {
                 return; // Index already exists
             }
@@ -65,7 +102,14 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
                 "\"sha1\":{\"type\":\"string\",\"index\":\"not_analyzed\" }" +
                 "}}}}";
             httpRequest.setEntity(new StringEntity(indexSettings));
-            httpResponse = httpClient.execute(httpClientProvider.getHttpHost(), httpRequest);
+            httpResponse = execute(httpRequest);
+            checkError(httpResponse);
+            // Wait for index
+            httpResponse = execute(new HttpGet("_cluster/health/"+index+"?"+URLEncoder.encode("wait_for_status=yellow&timeout=10s","UTF-8")));
+            checkError(httpResponse);
+            // Force refresh
+            httpResponse = execute(new HttpGet(index+"/_refresh"));
+            checkError(httpResponse);
         } catch (IOException e) {
             throw new ScriptStoreException("Prepare index " + index + " failed", e);
         }
@@ -74,9 +118,8 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
     @Override
     public ScriptInfo<String> getByFullName(String fullName) {
         try {
-            HttpClient httpClient = httpClientProvider.getHttpClient();
-            HttpGet httpRequest = new HttpGet(indexType + "/_search?version=true&q=" + URLEncoder.encode("full_name:\"" + fullName + "\""));
-            return httpClient.execute(httpClientProvider.getHttpHost(), httpRequest, new GetByFullNameResponseHandler(fullName));
+            HttpGet httpRequest = new HttpGet(indexType + "/_search?version=true&q=" + URLEncoder.encode("full_name:\"" + fullName + "\"","UTF-8"));
+            return execute(httpRequest, new GetByFullNameResponseHandler(fullName));
         } catch (IOException e) {
             throw new ScriptStoreException("Search script " + fullName + " failed", e);
         }
@@ -91,28 +134,26 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
 
         @Override
         public ScriptInfo<String> handleResponse(HttpResponse httpResponse) throws ClientProtocolException, IOException {
+            checkError(httpResponse);
             if (httpResponse.getStatusLine().getStatusCode() != 200) {
                 throw new ScriptStoreException("Search script " + fullName + " failed, " + httpResponse.getStatusLine().getReasonPhrase());
             }
-            try (InputStream inputStream = httpResponse.getEntity().getContent()) {
-                JsonNode jsonNode = objectMapper.readValue(inputStream, JsonNode.class);
-                JsonNode hits = jsonNode.path("hits");
-                int totalHits = hits.path("total").asInt();
-                if (totalHits <= 0) {
-                    return null;
-                }
-                return read((ObjectNode) hits.get("hits").get(0));
+            JsonNode jsonNode = readJsonContent(httpResponse, JsonNode.class);
+            JsonNode hits = jsonNode.path("hits");
+            int totalHits = hits.path("total").asInt();
+            if (totalHits <= 0) {
+                return null;
             }
+            return read((ObjectNode) hits.get("hits").get(0));
         }
     }
 
     @Override
     public ScriptInfo<String> create(ScriptInfo<String> info) {
         try {
-            HttpClient httpClient = httpClientProvider.getHttpClient();
             HttpPost httpRequest = new HttpPost(indexType + "?refresh=true");
             httpRequest.setEntity(write(info));
-            return httpClient.execute(httpClientProvider.getHttpHost(), httpRequest, new CreateResponseHandler(info));
+            return execute(httpRequest, new CreateResponseHandler(info));
         } catch (IOException e) {
             throw new ScriptStoreException("Create script " + info.getFullName() + " failed", e);
         }
@@ -127,17 +168,16 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
 
         @Override
         public ScriptInfo<String> handleResponse(HttpResponse httpResponse) throws ClientProtocolException, IOException {
+            checkError(httpResponse);
             if (httpResponse.getStatusLine().getStatusCode() != 201) {
                 throw new ScriptStoreException("Create script " + info.getFullName() + " failed, " + httpResponse.getStatusLine().getReasonPhrase());
             }
-            try (InputStream inputStream = httpResponse.getEntity().getContent()) {
-                JsonNode jsonNode = objectMapper.readValue(inputStream, JsonNode.class);
-                String id = jsonNode.get("_id").asText();
-                int version = jsonNode.get("_version").asInt();
-                info.setId(id);
-                info.setVersion(version);
-                return info;
-            }
+            JsonNode jsonNode = readJsonContent(httpResponse, JsonNode.class);
+            String id = jsonNode.get("_id").asText();
+            int version = jsonNode.get("_version").asInt();
+            info.setId(id);
+            info.setVersion(version);
+            return info;
         }
     }
 
@@ -146,10 +186,9 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
     public ScriptInfo<String> update(ScriptInfo<String> info) {
         String fullName = info.getFullName();
         try {
-            HttpClient httpClient = httpClientProvider.getHttpClient();
             HttpPut httpRequest = new HttpPut(indexType + "/" + info.getId() + "?refresh=true&version=" + info.getVersion());
             httpRequest.setEntity(write(info));
-            return httpClient.execute(httpClientProvider.getHttpHost(), httpRequest, new UpdateResponseHandler(info));
+            return execute(httpRequest, new UpdateResponseHandler(info));
         } catch (IOException e) {
             throw new ScriptStoreException("Search script " + fullName + " failed", e);
         }
@@ -164,15 +203,14 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
 
         @Override
         public ScriptInfo<String> handleResponse(HttpResponse httpResponse) throws ClientProtocolException, IOException {
+            checkError(httpResponse);
             if (httpResponse.getStatusLine().getStatusCode() != 200) { // 409 means conflicts
                 throw new ScriptStoreException("Update script " + info.getFullName() + " failed, " + httpResponse.getStatusLine().getReasonPhrase());
             }
-            try (InputStream inputStream = httpResponse.getEntity().getContent()) {
-                JsonNode jsonNode = objectMapper.readValue(inputStream, JsonNode.class);
-                int version = jsonNode.get("_version").asInt();
-                info.setVersion(version);
-                return info;
-            }
+            JsonNode jsonNode = readJsonContent(httpResponse, JsonNode.class);
+            int version = jsonNode.get("_version").asInt();
+            info.setVersion(version);
+            return info;
         }
     }
 

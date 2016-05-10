@@ -31,7 +31,7 @@ public class ScriptEndEvent extends ScriptEvent {
     @Override
     protected StringBuilder toStringBuilder() {
         StringBuilder stringBuilder = super.toStringBuilder();
-        stringBuilder.append(" L").append(lineNumber);
+        stringBuilder.append(":").append(lineNumber);
         if (exception != null) {
             stringBuilder.append(" ").append(exception.getMessage());
         }

@@ -35,19 +35,22 @@ public class SqlPipelineBuilder extends PipelineBuilder<SqlPipelineBuilder> {
 
     @Override
     public SqlPipelineBuilder withScriptStore(String name) {
-        return withScriptStore(new SqlScriptStore(connectionProvider, name, true));
+        return withScriptStore(new SqlScriptStore(getConnectionProvider(), name, true));
     }
 
     @Override
     public  Consumer<ScriptStartEvent> build() {
         Consumer<ScriptEvent> consumer = endConsumer;
-        if (connectionProvider == null) {
-            connectionProvider = DriverSqlConnectionProvider.create(url, username, password);
-        }
-        consumer = new SqlLineExecutor(connectionProvider, autoCommit, consumer);
+        consumer = new SqlLineExecutor(getConnectionProvider(), autoCommit, consumer);
         consumer = notNullNorEmptyFilter(consumer);
         consumer = new MultilineAggregator(endOfLineRegex, MultilineAggregator.LineMarkerStrategy.END, true, consumer);
         consumer = variableReplacer(consumer);
         return scriptReader(consumer);
+    }
+
+    protected SqlConnectionProvider getConnectionProvider() {
+        return connectionProvider == null ?
+            DriverSqlConnectionProvider.create(url, username, password) :
+            connectionProvider;
     }
 }

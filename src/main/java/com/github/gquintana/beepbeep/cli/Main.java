@@ -10,6 +10,7 @@ import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import com.github.gquintana.beepbeep.script.ScriptScanner;
 import com.github.gquintana.beepbeep.script.ScriptScanners;
 import com.github.gquintana.beepbeep.sql.SqlPipelineBuilder;
+import com.github.gquintana.beepbeep.store.ScriptStore;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -27,6 +28,8 @@ public class Main {
     public String username;
     @Option(name = "--password", aliases = {"-p"}, usage = "Database password")
     public String password;
+    @Option(name = "--store", aliases = {"-s"}, usage = "Table/collection/index to store ran script and not execute them again")
+    public String store;
 
 
     public void run(CmdLineParser cmdLineParser) throws IOException, CmdLineException {
@@ -56,6 +59,12 @@ public class Main {
             .withUsername(username)
             .withPassword(password)
             .withEndConsumer(lineOutput);
+        if (store != null) {
+            pipelineBuilder.withScriptStore(store);
+            // Create table/index
+            ScriptStore store = pipelineBuilder.getScriptStore();
+            store.prepare();
+        }
         return pipelineBuilder;
     }
 
@@ -71,8 +80,8 @@ public class Main {
             System.err.println(e.getMessage());
             parser.printUsage(System.err);
             System.exit(1);
-        } catch (IOException|BeepBeepException e) {
-            System.err.println(e.getMessage());
+        } catch (IOException | BeepBeepException e) {
+            e.printStackTrace(System.err);
             System.exit(2);
         }
     }

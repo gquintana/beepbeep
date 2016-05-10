@@ -1,6 +1,7 @@
 package com.github.gquintana.beepbeep.cli;
 
 import com.github.gquintana.beepbeep.TestFiles;
+import com.github.gquintana.beepbeep.elasticsearch.ElasticsearchPipelineBuilder;
 import com.github.gquintana.beepbeep.http.HttpPipelineBuilder;
 import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
 import com.github.gquintana.beepbeep.sql.DriverSqlConnectionProvider;
@@ -56,35 +57,20 @@ public class MainTest {
         assertThat(main.url).isEqualTo("http://localhost:8080/restapp/");
         assertThat(pipelineBuilder).isInstanceOf(HttpPipelineBuilder.class);
     }
-
     @Test
-    public void testGlobal_Sql() throws Exception {
+    public void testCreatePipelineBuilder_Elasticsearch() throws Exception {
         // Given
-        File scriptFolder = temporaryFolder.newFolder("sql");
-        File h2Folder = temporaryFolder.newFolder("h2");
-        TestFiles.writeResource("script/script_create.sql", new File(scriptFolder, "01_create.sql"));
-        TestFiles.writeResource("script/script_data.sql", new File(scriptFolder, "02_data.sql"));
-        String h2Url = "jdbc:h2:file:" + h2Folder.getPath();
-        String[] args = {
-            "--type", "sql",
-            "--url", h2Url,
-            "--username", "sa",
-            "--files", scriptFolder.getPath() + "/*.sql"};
+        Main main = new Main();
+        CmdLineParser cmdLineParser = new CmdLineParser(main);
+        cmdLineParser.parseArgument(
+            "--type", "elasticsearch",
+            "--url", "http://localhost:9200",
+            "--files", "target/test-classes/com/github/gquintana/beepbeep/**/*.json");
         // When
-        Main.main(args);
+        PipelineBuilder pipelineBuilder = main.createPipelineBuilder(cmdLineParser);
         // Then
-        try (Connection connection = DriverSqlConnectionProvider.create(h2Url, "sa", null).getConnection();
-             Statement statement = connection.createStatement()) {
-            List<String> logins = new ArrayList<>();
-            try (ResultSet resultSet = statement.executeQuery("SELECT * FROM person")) {
-                while (resultSet.next()) {
-                    logins.add(resultSet.getString("login"));
-                }
-            }
-            assertThat(logins).hasSize(2);
-            assertThat(logins).contains("jdoe","sconnor");
-            statement.execute("DROP TABLE person");
-        }
-
+        assertThat(main.url).isEqualTo("http://localhost:9200");
+        assertThat(pipelineBuilder).isInstanceOf(ElasticsearchPipelineBuilder.class);
     }
+
 }
