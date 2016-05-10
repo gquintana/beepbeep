@@ -27,8 +27,9 @@ public class ElasticsearchPipelineBuilderTest {
         // Given
         TestConsumer output = new TestConsumer();
         HttpClientProvider clientProvider = new HttpClientProvider();
-        Consumer<ScriptStartEvent> input = new HttpPipelineBuilder().withUrl(getElasticsearchUri())
-            .withHttpClientProvider(clientProvider).withEndConsumer(output).build();
+        Consumer<ScriptStartEvent> input = new ElasticsearchPipelineBuilder().withUrl(getElasticsearchUri())
+            .withHttpClientProvider(clientProvider)
+            .withEndConsumer(output).build();
         // When
         input.consume(new ScriptStartEvent(ResourceScript.create(getClass(), "cluster_health.json")));
         // Then
@@ -45,7 +46,7 @@ public class ElasticsearchPipelineBuilderTest {
         // Given
         TestConsumer output = new TestConsumer();
         HttpClientProvider clientProvider = new HttpClientProvider();
-        Consumer input = new HttpPipelineBuilder()
+        Consumer input = new ElasticsearchPipelineBuilder()
             .withUrl(getElasticsearchUri())
             .withHttpClientProvider(clientProvider).withEndConsumer(output).build();
         // When
@@ -56,5 +57,26 @@ public class ElasticsearchPipelineBuilderTest {
         output.assertNoScriptEndFailed();
         assertThat(output.events).hasSize(3 * 2 + 1 + 4 + 1);
         assertThat(output.events.get(1).toString()).contains("200,OK");
+    }
+    @Test
+    public void testStore() throws IOException {
+        // Given
+        TestConsumer output = new TestConsumer();
+        HttpClientProvider clientProvider = new HttpClientProvider();
+        ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder()
+            .withUrl(getElasticsearchUri())
+            .withHttpClientProvider(clientProvider).withEndConsumer(output)
+            .withScriptStore(".beepbeep/script");
+        pipelineBuilder.getScriptStore().prepare();
+        Consumer input = pipelineBuilder.build();
+        String scriptGlob = getClass().getPackage().getName().replaceAll("\\.", "/") + "/index*.json";
+        ResourceScriptScanner scanner = ScriptScanners.resources(getClass().getClassLoader(), scriptGlob, input);
+        scanner.scan();
+        output.clear();
+        // When
+        scanner.scan();
+        // Then
+        output.assertNoScriptEndFailed();
+        assertThat(output.events).isEmpty();
     }
 }

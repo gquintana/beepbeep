@@ -11,24 +11,33 @@ public class SqlPipelineBuilder extends PipelineBuilder<SqlPipelineBuilder> {
     private boolean autoCommit = true;
     private String endOfLineRegex = ";\\s*$";
 
+    public SqlPipelineBuilder withConnectionProvider(SqlConnectionProvider connectionProvider) {
+        this.connectionProvider = connectionProvider;
+        return self();
+    }
+
     public SqlPipelineBuilder withConnectionProvider(String driverClass, String url, String username, String password) {
-        this.connectionProvider = new DriverSqlConnectionProvider(driverClass, url, username, password);
-        return this;
+        return withConnectionProvider(new DriverSqlConnectionProvider(driverClass, url, username, password));
     }
 
     public SqlPipelineBuilder withManualCommit() {
         this.autoCommit = false;
-        return this;
+        return self();
     }
 
     public SqlPipelineBuilder withEndOfLineRegex(String regex) {
         this.endOfLineRegex = regex;
-        return this;
+        return self();
     }
 
     public SqlPipelineBuilder withEndOfLineMarker(String marker) {
         this.endOfLineRegex = Pattern.quote(marker) + "\\s*$";
-        return this;
+        return self();
+    }
+
+    @Override
+    public SqlPipelineBuilder withScriptStore(String name) {
+        return withScriptStore(new SqlScriptStore(connectionProvider, name, true));
     }
 
     public Consumer build() {

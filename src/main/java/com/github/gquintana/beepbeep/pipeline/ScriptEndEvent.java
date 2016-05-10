@@ -37,4 +37,8 @@ public class ScriptEndEvent extends ScriptEvent {
         }
         return stringBuilder;
     }
+
+    public boolean isSuccess() {
+        return exception == null;
+    }
 }

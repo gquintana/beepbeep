@@ -1,6 +1,7 @@
 package com.github.gquintana.beepbeep.cli;
 
 import com.github.gquintana.beepbeep.BeepBeepException;
+import com.github.gquintana.beepbeep.elasticsearch.ElasticsearchPipelineBuilder;
 import com.github.gquintana.beepbeep.http.HttpPipelineBuilder;
 import com.github.gquintana.beepbeep.pipeline.Consumer;
 import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
@@ -41,6 +42,9 @@ public class Main {
                 break;
             case "http":
                 pipelineBuilder = new HttpPipelineBuilder();
+                break;
+            case "elasticsearch":
+                pipelineBuilder = new ElasticsearchPipelineBuilder();
                 break;
             default:
                 new CmdLineException(cmdLineParser, "Invalid type " + type, new IllegalArgumentException());

@@ -1,5 +1,9 @@
 package com.github.gquintana.beepbeep.pipeline;
 
+import com.github.gquintana.beepbeep.store.ScriptStore;
+import com.github.gquintana.beepbeep.store.ScriptStoreFilter;
+import com.github.gquintana.beepbeep.store.ScriptStoreUpdater;
+
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,19 +13,23 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
     protected String url;
     protected String username;
     protected String password;
-
+    protected ScriptStore scriptStore;
     private Map<String, Object> variables;
     protected Consumer<ScriptEvent> endConsumer = event -> {
     };
 
+    protected B self() {
+        return (B) this;
+    }
+
     public B withEndConsumer(Consumer<ScriptEvent> endConsumer) {
         this.endConsumer = endConsumer;
-        return (B) this;
+        return self();
     }
 
     public B withCharset(Charset charset) {
         this.charset = charset;
-        return (B) this;
+        return self();
     }
 
     public B withVariables(Map<String, Object> variables) {
@@ -30,7 +38,7 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
         } else {
             this.variables.putAll(variables);
         }
-        return (B) this;
+        return self();
     }
 
     public B withVariable(String name, Object value) {
@@ -38,24 +46,34 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
             this.variables = new HashMap<>();
         }
         this.variables.put(name, value);
-        return (B) this;
+        return self();
     }
 
     public B withUrl(String url) {
         this.url = url;
-        return (B) this;
+        return self();
     }
 
     public B withUsername(String username) {
         this.username = username;
-        return (B) this;
+        return self();
     }
 
     public B withPassword(String password) {
         this.password = password;
-        return (B) this;
+        return self();
     }
 
+    public ScriptStore getScriptStore() {
+        return scriptStore;
+    }
+
+    public B withScriptStore(ScriptStore scriptStore) {
+        this.scriptStore = scriptStore;
+        return self();
+    }
+
+    public abstract B withScriptStore(String name);
 
     protected Consumer<ScriptEvent> notNullNorEmptyFilter(Consumer<ScriptEvent> consumer) {
         return LineFilter.notNulNotEmptyFilter(consumer);
@@ -69,7 +87,14 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
     }
 
     protected Consumer<ScriptStartEvent> scriptReader(Consumer<ScriptEvent> consumer) {
-        return new ScriptReaderProducer(consumer, charset);
+        if (scriptStore != null) {
+            consumer = new ScriptStoreUpdater<>(scriptStore, consumer);
+        }
+        Consumer<ScriptStartEvent> startConsumer = new ScriptReaderProducer(consumer, charset);
+        if (scriptStore != null) {
+            startConsumer = new ScriptStoreFilter(scriptStore, startConsumer);
+        }
+        return startConsumer;
     }
 
     public abstract Consumer build();

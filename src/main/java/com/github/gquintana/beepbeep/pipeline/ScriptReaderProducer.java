@@ -22,6 +22,7 @@ public class ScriptReaderProducer extends Producer<ScriptEvent> implements Consu
         try(BufferedReader lineReader = new BufferedReader(new InputStreamReader(script.getStream(), charset))) {
             while((line = lineReader.readLine()) != null) {
                 produce(new LineEvent(script, lineNumber, line));
+                lineNumber++;
             }
             produce(new ScriptEndEvent(script, lineNumber));
         } catch (Exception e) {

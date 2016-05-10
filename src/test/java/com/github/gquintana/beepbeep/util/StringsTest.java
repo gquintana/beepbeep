@@ -20,4 +20,9 @@ public class StringsTest {
         assertEquals("", Strings.right("Bonjour le monde", 20));
 
     }
+
+    @Test
+    public void testBytesToHex() throws Exception {
+        assertEquals("123abc", Strings.bytesToHex(new byte[]{18, 58, (byte) 188}));
+    }
 }

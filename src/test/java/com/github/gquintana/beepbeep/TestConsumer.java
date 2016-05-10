@@ -52,4 +52,8 @@ public class TestConsumer<E extends ScriptEvent> implements Consumer<E> {
             fail(event.getException().getMessage());
         }
     }
+
+    public void clear() {
+        events.clear();
+    }
 }
