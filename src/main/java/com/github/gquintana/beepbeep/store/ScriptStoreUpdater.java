@@ -7,7 +7,7 @@ import java.time.Instant;
 public class ScriptStoreUpdater<ID> extends Transformer<ScriptEvent, ScriptEvent> {
     private final ScriptStore<ID> store;
 
-    public ScriptStoreUpdater(ScriptStore store, Consumer<ScriptEvent> consumer) {
+    public ScriptStoreUpdater(ScriptStore<ID> store, Consumer<ScriptEvent> consumer) {
         super(consumer);
         this.store = store;
     }

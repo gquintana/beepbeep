@@ -23,7 +23,7 @@ public class MemoryScriptStore implements ScriptStore<Integer> {
         if (original == null) {
             return null;
         }
-        ScriptInfo copy = new ScriptInfo();
+        ScriptInfo<Integer> copy = new ScriptInfo<>();
         copy(original, copy);
         return copy;
     }
@@ -54,7 +54,7 @@ public class MemoryScriptStore implements ScriptStore<Integer> {
             if (original == null) {
                 throw new ScriptStoreException("Script not found " + info.getFullName());
             }
-            if (original.getVersion() != info.getVersion()) {
+            if (!original.getVersion().equals(info.getVersion())) {
                 throw new ScriptStoreException("Concurrent modification of script " + info.getFullName());
             }
             copy(info, original);

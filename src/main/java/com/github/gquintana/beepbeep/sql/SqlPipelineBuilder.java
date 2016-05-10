@@ -1,8 +1,6 @@
 package com.github.gquintana.beepbeep.sql;
 
-import com.github.gquintana.beepbeep.pipeline.Consumer;
-import com.github.gquintana.beepbeep.pipeline.MultilineAggregator;
-import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
+import com.github.gquintana.beepbeep.pipeline.*;
 
 import java.util.regex.Pattern;
 
@@ -40,8 +38,9 @@ public class SqlPipelineBuilder extends PipelineBuilder<SqlPipelineBuilder> {
         return withScriptStore(new SqlScriptStore(connectionProvider, name, true));
     }
 
-    public Consumer build() {
-        Consumer consumer = endConsumer;
+    @Override
+    public  Consumer<ScriptStartEvent> build() {
+        Consumer<ScriptEvent> consumer = endConsumer;
         if (connectionProvider == null) {
             connectionProvider = DriverSqlConnectionProvider.create(url, username, password);
         }
@@ -49,7 +48,6 @@ public class SqlPipelineBuilder extends PipelineBuilder<SqlPipelineBuilder> {
         consumer = notNullNorEmptyFilter(consumer);
         consumer = new MultilineAggregator(endOfLineRegex, MultilineAggregator.LineMarkerStrategy.END, true, consumer);
         consumer = variableReplacer(consumer);
-        consumer = scriptReader(consumer);
-        return consumer;
+        return scriptReader(consumer);
     }
 }

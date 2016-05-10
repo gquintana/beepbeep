@@ -1,24 +1,15 @@
 package com.github.gquintana.beepbeep.elasticsearch;
 
 import com.github.gquintana.beepbeep.http.HttpClientProvider;
-import com.github.gquintana.beepbeep.sql.DriverSqlConnectionProvider;
-import com.github.gquintana.beepbeep.sql.SingleSqlConnectionProvider;
-import com.github.gquintana.beepbeep.sql.SqlScriptStore;
 import com.github.gquintana.beepbeep.store.ScriptInfo;
 import com.github.gquintana.beepbeep.store.ScriptStatus;
 import com.github.gquintana.beepbeep.store.ScriptStoreException;
 import org.apache.http.client.methods.HttpDelete;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-import java.sql.Connection;
-import java.sql.Statement;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

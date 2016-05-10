@@ -2,7 +2,6 @@ package com.github.gquintana.beepbeep.script;
 
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.TestFiles;
-import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import org.junit.Rule;
 import org.junit.Test;

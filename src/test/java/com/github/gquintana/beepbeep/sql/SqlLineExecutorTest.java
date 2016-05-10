@@ -1,7 +1,10 @@
 package com.github.gquintana.beepbeep.sql;
 
 import com.github.gquintana.beepbeep.TestConsumer;
-import com.github.gquintana.beepbeep.pipeline.*;
+import com.github.gquintana.beepbeep.pipeline.LineEvent;
+import com.github.gquintana.beepbeep.pipeline.RegexReplacerProcessor;
+import com.github.gquintana.beepbeep.pipeline.ResultEvent;
+import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
 import org.h2.Driver;
 import org.junit.Test;
 
@@ -15,12 +18,11 @@ public class SqlLineExecutorTest {
     @Test
     public void testConsume() throws Exception {
         // Given
-        TestConsumer<ScriptEvent> end = new TestConsumer();
+        TestConsumer<ScriptEvent> end = new TestConsumer<>();
         SqlConnectionProvider connectionProvider = new DriverSqlConnectionProvider(
                 Driver.class.getName(), "jdbc:h2:mem:test", "sa", "");
         try(SingleSqlConnectionProvider connectionProvider2 = new SingleSqlConnectionProvider(connectionProvider)) {
-            Processor processor = new RegexReplacerProcessor(";\\s*$", "", new SqlLineExecutor(connectionProvider2, end));
-            String eol = System.lineSeparator();
+            RegexReplacerProcessor processor = new RegexReplacerProcessor(";\\s*$", "", new SqlLineExecutor(connectionProvider2, end));
             // When
             processor.consume(event(0, "create table person(login varchar(64), email varchar(256), constraint person_pk primary key (login));"));
             processor.consume(event(1, "insert into person(login, email) values('jdoe', 'john.doe@unknown.com');"));

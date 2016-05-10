@@ -4,7 +4,7 @@ package com.github.gquintana.beepbeep.pipeline;
  * Runs given LineEvent
  */
 public abstract class LineExecutor extends Processor<ScriptEvent, ScriptEvent> {
-    public LineExecutor(Consumer consumer) {
+    public LineExecutor(Consumer<ScriptEvent> consumer) {
         super(consumer);
     }
 
@@ -13,8 +13,7 @@ public abstract class LineExecutor extends Processor<ScriptEvent, ScriptEvent> {
         if (event instanceof LineEvent) {
             executeLine((LineEvent) event);
         } else {
-            ScriptEvent scriptEvent = (ScriptEvent) event;
-            switch (scriptEvent.getType()) {
+            switch (event.getType()) {
                 case ScriptStartEvent.TYPE:
                     executeStart();
                     break;

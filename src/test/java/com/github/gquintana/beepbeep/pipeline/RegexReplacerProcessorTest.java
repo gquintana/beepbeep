@@ -10,7 +10,7 @@ public class RegexReplacerProcessorTest {
     @Test
     public void testTransform() throws Exception {
         // Given
-        TestConsumer end = new TestConsumer();
+        TestConsumer<ScriptEvent> end = new TestConsumer<>();
         RegexReplacerProcessor processor = new RegexReplacerProcessor(";\\s*$", "", end);
         String eol = System.lineSeparator();
         // When

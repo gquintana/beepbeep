@@ -5,6 +5,8 @@ import com.github.gquintana.beepbeep.elasticsearch.ElasticsearchPipelineBuilder;
 import com.github.gquintana.beepbeep.http.HttpPipelineBuilder;
 import com.github.gquintana.beepbeep.pipeline.Consumer;
 import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
+import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
+import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import com.github.gquintana.beepbeep.script.ScriptScanner;
 import com.github.gquintana.beepbeep.script.ScriptScanners;
 import com.github.gquintana.beepbeep.sql.SqlPipelineBuilder;
@@ -27,14 +29,14 @@ public class Main {
     public String password;
 
 
-    public void run(CmdLineParser cmdLineParser) throws IOException {
+    public void run(CmdLineParser cmdLineParser) throws IOException, CmdLineException {
         PipelineBuilder pipelineBuilder = createPipelineBuilder(cmdLineParser);
-        Consumer scriptInput = pipelineBuilder.build();
+        Consumer<ScriptStartEvent> scriptInput = pipelineBuilder.build();
         ScriptScanner scanner = ScriptScanners.files(files, scriptInput);
         scanner.scan();
     }
 
-    PipelineBuilder createPipelineBuilder(CmdLineParser cmdLineParser) {
+    PipelineBuilder createPipelineBuilder(CmdLineParser cmdLineParser) throws CmdLineException {
         PipelineBuilder pipelineBuilder = null;
         switch (type) {
             case "sql":
@@ -47,9 +49,9 @@ public class Main {
                 pipelineBuilder = new ElasticsearchPipelineBuilder();
                 break;
             default:
-                new CmdLineException(cmdLineParser, "Invalid type " + type, new IllegalArgumentException());
+                throw new CmdLineException(cmdLineParser, "Invalid type " + type, new IllegalArgumentException());
         }
-        Consumer lineOutput = new PrintConsumer();
+        Consumer<ScriptEvent> lineOutput = new PrintConsumer<>();
         pipelineBuilder.withUrl(url)
             .withUsername(username)
             .withPassword(password)

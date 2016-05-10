@@ -44,7 +44,7 @@ public class TestConsumer<E extends ScriptEvent> implements Consumer<E> {
 
     public void assertNoScriptEndFailed() {
         Optional<ScriptEndEvent> optEndFailEvent = eventStream(ScriptEndEvent.class)
-            .filter(e -> e.getType() == ScriptEndEvent.FAIL_TYPE)
+            .filter(e -> e.getType().equals(ScriptEndEvent.FAIL_TYPE))
             .findAny();
         if (optEndFailEvent.isPresent()) {
             ScriptEndEvent event = optEndFailEvent.get();

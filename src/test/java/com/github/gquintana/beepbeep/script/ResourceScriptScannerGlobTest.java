@@ -1,6 +1,7 @@
 package com.github.gquintana.beepbeep.script;
 
 import com.github.gquintana.beepbeep.TestConsumer;
+import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class ResourceScriptScannerGlobTest {
     }
 
     private void checkResourceGlobScan(String fileGlob, int fileNb) throws IOException {
-        TestConsumer end = new TestConsumer();
+        TestConsumer<ScriptStartEvent> end = new TestConsumer<>();
         ResourceScriptScanner.resourceGlob(getClass().getClassLoader(), fileGlob, end).scan();
         assertThat(end.events).hasSize(fileNb);
     }

@@ -6,13 +6,13 @@ public class RegexReplacerProcessor extends LineTransformer {
     private final Pattern searchPattern;
     private final String replacement;
 
-    public RegexReplacerProcessor(Pattern searchPattern, String replacement, Consumer consumer) {
+    public RegexReplacerProcessor(Pattern searchPattern, String replacement, Consumer<ScriptEvent> consumer) {
         super(consumer);
         this.searchPattern = searchPattern;
         this.replacement = replacement;
     }
 
-    public RegexReplacerProcessor(String searchRegex, String replacement, Consumer consumer) {
+    public RegexReplacerProcessor(String searchRegex, String replacement, Consumer<ScriptEvent> consumer) {
         this(Pattern.compile(searchRegex, Pattern.MULTILINE), replacement, consumer);
     }
 

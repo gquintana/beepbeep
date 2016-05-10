@@ -1,7 +1,10 @@
 package com.github.gquintana.beepbeep.sql;
 
 import com.github.gquintana.beepbeep.LineException;
-import com.github.gquintana.beepbeep.pipeline.*;
+import com.github.gquintana.beepbeep.pipeline.Consumer;
+import com.github.gquintana.beepbeep.pipeline.LineEvent;
+import com.github.gquintana.beepbeep.pipeline.LineExecutor;
+import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -14,13 +17,13 @@ public class SqlLineExecutor extends LineExecutor {
     private Connection connection;
 
 
-    public SqlLineExecutor(SqlConnectionProvider connectionProvider, boolean autoCommit, Consumer consumer) {
+    public SqlLineExecutor(SqlConnectionProvider connectionProvider, boolean autoCommit, Consumer<ScriptEvent> consumer) {
         super(consumer);
         this.connectionProvider = connectionProvider;
         this.autoCommit = autoCommit;
     }
 
-    public SqlLineExecutor(SqlConnectionProvider connectionProvider, Consumer consumer) {
+    public SqlLineExecutor(SqlConnectionProvider connectionProvider, Consumer<ScriptEvent> consumer) {
         this(connectionProvider, true, consumer);
     }
 

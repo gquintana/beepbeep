@@ -9,19 +9,18 @@ import com.github.gquintana.beepbeep.script.ResourceScriptScanner;
 import com.github.gquintana.beepbeep.script.ScriptScanners;
 import com.github.gquintana.beepbeep.store.ScriptStore;
 import org.h2.Driver;
-import org.junit.After;
 import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.Statement;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SqlPipelineBuilderTest {
     @Test
     public void testConsume() throws Exception {
         // Given
-        TestConsumer output = new TestConsumer();
+        TestConsumer<ScriptEvent> output = new TestConsumer<>();
         SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
             .withConnectionProvider(Driver.class.getName(), "jdbc:h2:mem:test", "sa", "")
             .withVariable("variable", "value")
@@ -43,7 +42,7 @@ public class SqlPipelineBuilderTest {
     @Test
     public void testConsume_ScriptStore() throws Exception {
         // Given
-        TestConsumer output = new TestConsumer();
+        TestConsumer<ScriptEvent> output = new TestConsumer<>();
         SingleSqlConnectionProvider  connectionProvider= new SingleSqlConnectionProvider(DriverSqlConnectionProvider.create("jdbc:h2:mem:test", "sa", ""));
         SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
             .withConnectionProvider(connectionProvider)

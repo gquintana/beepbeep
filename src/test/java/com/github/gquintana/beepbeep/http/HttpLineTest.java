@@ -1,7 +1,6 @@
 package com.github.gquintana.beepbeep.http;
 
 import com.github.gquintana.beepbeep.pipeline.LineEvent;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
@@ -9,7 +8,6 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 
 public class HttpLineTest {
     @Test

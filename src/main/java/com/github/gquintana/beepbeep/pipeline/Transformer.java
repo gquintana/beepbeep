@@ -1,7 +1,7 @@
 package com.github.gquintana.beepbeep.pipeline;
 
 public abstract class Transformer<I,O> extends Processor<I,O> {
-    protected Transformer(Consumer consumer) {
+    protected Transformer(Consumer<O> consumer) {
         super(consumer);
     }
 

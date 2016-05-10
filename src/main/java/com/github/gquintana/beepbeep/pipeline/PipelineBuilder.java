@@ -18,6 +18,7 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
     protected Consumer<ScriptEvent> endConsumer = event -> {
     };
 
+    @SuppressWarnings("unchecked")
     protected B self() {
         return (B) this;
     }
@@ -76,7 +77,7 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
     public abstract B withScriptStore(String name);
 
     protected Consumer<ScriptEvent> notNullNorEmptyFilter(Consumer<ScriptEvent> consumer) {
-        return LineFilter.notNulNotEmptyFilter(consumer);
+        return LineFilter.<ScriptEvent>notNulNotEmptyFilter(consumer);
     }
 
     protected Consumer<ScriptEvent> variableReplacer(Consumer<ScriptEvent> consumer) {
@@ -88,7 +89,7 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
 
     protected Consumer<ScriptStartEvent> scriptReader(Consumer<ScriptEvent> consumer) {
         if (scriptStore != null) {
-            consumer = new ScriptStoreUpdater<>(scriptStore, consumer);
+            consumer = new ScriptStoreUpdater(scriptStore, consumer);
         }
         Consumer<ScriptStartEvent> startConsumer = new ScriptReaderProducer(consumer, charset);
         if (scriptStore != null) {
@@ -97,5 +98,5 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
         return startConsumer;
     }
 
-    public abstract Consumer build();
+    public abstract Consumer<ScriptStartEvent> build();
 }

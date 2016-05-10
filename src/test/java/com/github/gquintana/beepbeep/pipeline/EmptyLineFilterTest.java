@@ -10,8 +10,8 @@ public class EmptyLineFilterTest {
     @Test
     public void testConsume() throws Exception {
         // Given
-        TestConsumer end = new TestConsumer();
-        LineFilter filter = LineFilter.notNulNotEmptyFilter(end);
+        TestConsumer<ScriptEvent> end = new TestConsumer<>();
+        LineFilter<ScriptEvent> filter = LineFilter.notNulNotEmptyFilter(end);
         // When
         filter.consume(new LineEvent(null, 0, "Not empty"));
         filter.consume(new LineEvent(null, 1, ""));

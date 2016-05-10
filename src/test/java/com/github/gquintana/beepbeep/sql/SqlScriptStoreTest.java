@@ -1,7 +1,5 @@
 package com.github.gquintana.beepbeep.sql;
 
-import com.github.gquintana.beepbeep.BeepBeepException;
-import com.github.gquintana.beepbeep.store.MemoryScriptStore;
 import com.github.gquintana.beepbeep.store.ScriptInfo;
 import com.github.gquintana.beepbeep.store.ScriptStatus;
 import com.github.gquintana.beepbeep.store.ScriptStoreException;
@@ -19,7 +17,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class SqlScriptStoreTest {

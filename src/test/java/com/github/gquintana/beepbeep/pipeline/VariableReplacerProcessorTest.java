@@ -13,7 +13,7 @@ public class VariableReplacerProcessorTest {
     @Test
     public void testConsume() throws Exception {
         // Given
-        TestConsumer end = new TestConsumer();
+        TestConsumer<ScriptEvent> end = new TestConsumer<>();
         Map<String, Object> variables = new HashMap<>();
         variables.put("column2.1", "One");
         VariableReplacerProcessor processor = new VariableReplacerProcessor(variables, end);
@@ -39,7 +39,7 @@ public class VariableReplacerProcessorTest {
     @Test
     public void testConsumeRecursiveReplace() throws Exception {
         // Given
-        TestConsumer end = new TestConsumer();
+        TestConsumer<ScriptEvent> end = new TestConsumer<>();
         Map<String, Object> variables = new HashMap<>();
         variables.put("column2.default", "X");
         variables.put("column2.1", "<${column2.default}>");

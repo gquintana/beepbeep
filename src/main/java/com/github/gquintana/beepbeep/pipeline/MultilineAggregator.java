@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 /**
  * Aggregate multiple line statements
  */
-public class MultilineAggregator extends Processor {
+public class MultilineAggregator extends Processor<ScriptEvent,ScriptEvent> {
     /**
      * Pattern to mark statement end or statement continuation
      */
@@ -30,22 +30,22 @@ public class MultilineAggregator extends Processor {
     private StringBuilder lineBuilder;
     private LineEvent lastLineEvent;
 
-    public MultilineAggregator(Pattern lineMarkerPattern, LineMarkerStrategy lineMarkerStrategy, boolean removeLineMarker, Consumer consumer) {
+    public MultilineAggregator(Pattern lineMarkerPattern, LineMarkerStrategy lineMarkerStrategy, boolean removeLineMarker, Consumer<ScriptEvent> consumer) {
         super(consumer);
         this.lineMarkerPattern = lineMarkerPattern;
         this.lineMarkerStrategy = lineMarkerStrategy;
         this.removeLineMarker = removeLineMarker;
     }
 
-    public MultilineAggregator(String endOfLineRegex, LineMarkerStrategy lineMarkerStrategy, boolean removeLineMarker, Consumer consumer) {
+    public MultilineAggregator(String endOfLineRegex, LineMarkerStrategy lineMarkerStrategy, boolean removeLineMarker, Consumer<ScriptEvent> consumer) {
         this(Pattern.compile(endOfLineRegex), lineMarkerStrategy, removeLineMarker, consumer);
     }
 
-    public MultilineAggregator(String endOfLineRegex, Consumer consumer) {
+    public MultilineAggregator(String endOfLineRegex, Consumer<ScriptEvent> consumer) {
         this(endOfLineRegex, LineMarkerStrategy.END, true, consumer);
     }
 
-    public void consume(Object event) {
+    public void consume(ScriptEvent event) {
         if (!(event instanceof LineEvent)) {
             // End Of file
             flush(lastLineEvent);

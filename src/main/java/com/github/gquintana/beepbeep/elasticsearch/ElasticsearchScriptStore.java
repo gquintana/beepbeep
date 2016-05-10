@@ -65,7 +65,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
                 "\"sha1\":{\"type\":\"string\",\"index\":\"not_analyzed\" }" +
                 "}}}}";
             httpRequest.setEntity(new StringEntity(indexSettings));
-            httpClient.execute(httpClientProvider.getHttpHost(), httpRequest);
+            httpResponse = httpClient.execute(httpClientProvider.getHttpHost(), httpRequest);
         } catch (IOException e) {
             throw new ScriptStoreException("Prepare index " + index + " failed", e);
         }
@@ -75,7 +75,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
     public ScriptInfo<String> getByFullName(String fullName) {
         try {
             HttpClient httpClient = httpClientProvider.getHttpClient();
-            HttpGet httpRequest = new HttpGet(indexType + "/_search?version=true&q="+ URLEncoder.encode("full_name:\""+fullName+"\""));
+            HttpGet httpRequest = new HttpGet(indexType + "/_search?version=true&q=" + URLEncoder.encode("full_name:\"" + fullName + "\""));
             return httpClient.execute(httpClientProvider.getHttpHost(), httpRequest, new GetByFullNameResponseHandler(fullName));
         } catch (IOException e) {
             throw new ScriptStoreException("Search script " + fullName + " failed", e);
@@ -110,7 +110,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
     public ScriptInfo<String> create(ScriptInfo<String> info) {
         try {
             HttpClient httpClient = httpClientProvider.getHttpClient();
-            HttpPost httpRequest = new HttpPost(indexType+"?refresh=true");
+            HttpPost httpRequest = new HttpPost(indexType + "?refresh=true");
             httpRequest.setEntity(write(info));
             return httpClient.execute(httpClientProvider.getHttpHost(), httpRequest, new CreateResponseHandler(info));
         } catch (IOException e) {
@@ -193,7 +193,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
             String json = objectMapper.writeValueAsString(objectNode);
             return new StringEntity(json, ContentType.APPLICATION_JSON);
         } catch (JsonProcessingException e) {
-            throw new ScriptStoreException("Failed to serialiaze script info", e);
+            throw new ScriptStoreException("Failed to serialize script info", e);
         }
     }
 
@@ -204,15 +204,15 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
         String id = node.get("_id").asText();
         int version = node.get("_version").asInt();
         ObjectNode source = (ObjectNode) node.get("_source");
-        String fullname = source.get("full_name").asText();
+        String fullName = source.get("full_name").asText();
         long size = source.get("size").asLong();
         String sha1 = source.get("sha1").asText();
         String status = source.get("status").asText();
         Long startDate = source.get("start_date").asLong();
         Long endDate = source.path("end_date").asLong();
-        return new ScriptInfo<>(id, version, fullname, size, sha1,
+        return new ScriptInfo<>(id, version, fullName, size, sha1,
             Instant.ofEpochMilli(startDate),
-            endDate == null ? null : Instant.ofEpochMilli(endDate),
+            endDate == 0L ? null : Instant.ofEpochMilli(endDate),
             status == null ? null : ScriptStatus.valueOf(status));
     }
 

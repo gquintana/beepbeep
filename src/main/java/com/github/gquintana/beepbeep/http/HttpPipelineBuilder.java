@@ -23,6 +23,7 @@ public class HttpPipelineBuilder<B extends HttpPipelineBuilder<B>> extends Pipel
         return withScriptStore(new MemoryScriptStore());
     }
 
+    @Override
     public Consumer<ScriptStartEvent> build() {
         Consumer<ScriptEvent> consumer = endConsumer;
         consumer = new HttpLineExecutor(getHttpClientProvider(), consumer);

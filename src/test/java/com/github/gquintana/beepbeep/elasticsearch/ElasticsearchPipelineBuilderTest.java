@@ -2,8 +2,8 @@ package com.github.gquintana.beepbeep.elasticsearch;
 
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.http.HttpClientProvider;
-import com.github.gquintana.beepbeep.http.HttpPipelineBuilder;
 import com.github.gquintana.beepbeep.pipeline.Consumer;
+import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import com.github.gquintana.beepbeep.script.ResourceScript;
 import com.github.gquintana.beepbeep.script.ResourceScriptScanner;
@@ -25,7 +25,7 @@ public class ElasticsearchPipelineBuilderTest {
     @Test
     public void testGetHealth() {
         // Given
-        TestConsumer output = new TestConsumer();
+        TestConsumer<ScriptEvent> output = new TestConsumer<>();
         HttpClientProvider clientProvider = new HttpClientProvider();
         Consumer<ScriptStartEvent> input = new ElasticsearchPipelineBuilder().withUrl(getElasticsearchUri())
             .withHttpClientProvider(clientProvider)
@@ -44,9 +44,9 @@ public class ElasticsearchPipelineBuilderTest {
     @Test
     public void testCreateSearchDelete() throws IOException {
         // Given
-        TestConsumer output = new TestConsumer();
+        TestConsumer<ScriptEvent> output = new TestConsumer<>();
         HttpClientProvider clientProvider = new HttpClientProvider();
-        Consumer input = new ElasticsearchPipelineBuilder()
+        Consumer<ScriptStartEvent> input = new ElasticsearchPipelineBuilder()
             .withUrl(getElasticsearchUri())
             .withHttpClientProvider(clientProvider).withEndConsumer(output).build();
         // When
@@ -61,14 +61,14 @@ public class ElasticsearchPipelineBuilderTest {
     @Test
     public void testStore() throws IOException {
         // Given
-        TestConsumer output = new TestConsumer();
+        TestConsumer<ScriptEvent> output = new TestConsumer<>();
         HttpClientProvider clientProvider = new HttpClientProvider();
         ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder()
             .withUrl(getElasticsearchUri())
             .withHttpClientProvider(clientProvider).withEndConsumer(output)
             .withScriptStore(".beepbeep/script");
         pipelineBuilder.getScriptStore().prepare();
-        Consumer input = pipelineBuilder.build();
+        Consumer<ScriptStartEvent> input = pipelineBuilder.build();
         String scriptGlob = getClass().getPackage().getName().replaceAll("\\.", "/") + "/index*.json";
         ResourceScriptScanner scanner = ScriptScanners.resources(getClass().getClassLoader(), scriptGlob, input);
         scanner.scan();

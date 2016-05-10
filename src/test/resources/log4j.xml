@@ -9,6 +9,12 @@
     </layout>
   </appender>
   <!-- Loggers -->
+  <logger name="org.apache.http">
+    <level value="WARN"/>
+  </logger>
+  <logger name="org.elasticsearch">
+    <level value="WARN"/>
+  </logger>
   <root>
     <priority value="INFO"/>
     <appender-ref ref="console"/>

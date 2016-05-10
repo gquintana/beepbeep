@@ -17,8 +17,9 @@ public class DriverSqlConnectionProvider implements SqlConnectionProvider {
     private final String username;
     private final String password;
     private static final Pattern URL_PATTERN = Pattern.compile("^jdbc:([^:]+):.*");
-    private static final Map<String, String> DRIVER_CLASS_BY_TYPE = createDriverClasseByType();
+    private static final Map<String, String> DRIVER_CLASS_BY_TYPE = createDriverClassByType();
 
+    @SuppressWarnings("unchecked")
     public DriverSqlConnectionProvider(String driverClassName, String url, String username, String password) {
         try {
             this.driverClass = (Class<? extends Driver>) Class.forName(driverClassName);
@@ -52,7 +53,7 @@ public class DriverSqlConnectionProvider implements SqlConnectionProvider {
         return DriverManager.getConnection(url, username, password);
     }
 
-    private static Map<String, String> createDriverClasseByType() {
+    private static Map<String, String> createDriverClassByType() {
         Map<String, String> driverClassByType = new HashMap<>();
         driverClassByType.put("h2", "org.h2.Driver");
         driverClassByType.put("hsqldb", "org.hsqldb.jdbc.JDBCDriver");

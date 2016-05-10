@@ -10,7 +10,7 @@ public class MultiLineAggregatorTest {
     @Test
     public void testConsume_EndMarker() throws Exception {
         // Given
-        TestConsumer end = new TestConsumer();
+        TestConsumer<ScriptEvent> end = new TestConsumer<>();
         MultilineAggregator processor = new MultilineAggregator(";[ ]*$", end);
         String eol = System.lineSeparator();
         // When
@@ -33,7 +33,7 @@ public class MultiLineAggregatorTest {
     @Test
     public void testConsume_StartMarker() throws Exception {
         // Given
-        TestConsumer end = new TestConsumer();
+        TestConsumer<ScriptEvent> end = new TestConsumer<>();
         MultilineAggregator processor = new MultilineAggregator("^[ ]*(GET|POST)", MultilineAggregator.LineMarkerStrategy.START, false, end);
         String eol = System.lineSeparator();
         // When

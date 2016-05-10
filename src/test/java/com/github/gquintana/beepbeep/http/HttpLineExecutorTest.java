@@ -4,7 +4,6 @@ import com.github.gquintana.beepbeep.LineException;
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.pipeline.LineEvent;
 import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Ignore;
@@ -22,7 +21,7 @@ public class HttpLineExecutorTest {
     @Ignore
     public void testGetGoogle() {
         // Given
-        TestConsumer consumer = new TestConsumer();
+        TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = new HttpClientProvider("http://www.google.com");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
@@ -61,7 +60,7 @@ public class HttpLineExecutorTest {
             .willReturn(aResponse().withStatus(201)
                 .withHeader("Content-type", "application/json; charset=UTF-8")
                 .withBody("{\"created\":\"true\"}")));
-        TestConsumer consumer = new TestConsumer();
+        TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = new HttpClientProvider("http://localhost:8080/");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
@@ -78,7 +77,7 @@ public class HttpLineExecutorTest {
     @Test
     public void testEmpty() {
         // Given
-        TestConsumer consumer = new TestConsumer();
+        TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = new HttpClientProvider("http://localhost:8080/");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
@@ -93,11 +92,10 @@ public class HttpLineExecutorTest {
     @Test(expected = LineException.class)
     public void testParseFailure() {
         // Given
-        TestConsumer consumer = new TestConsumer();
+        TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = new HttpClientProvider("http://localhost:8080/");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
-        String eol = System.lineSeparator();
         processor.consume(new LineEvent(null, 1, "FAIL /at/url"));
         // Then
         assertThat(consumer.events).isEmpty();
@@ -106,11 +104,10 @@ public class HttpLineExecutorTest {
     @Test(expected = LineException.class)
     public void test404Error() {
         // Given
-        TestConsumer consumer = new TestConsumer();
+        TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = new HttpClientProvider("http://localhost:8080/");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
-        String eol = System.lineSeparator();
         processor.consume(new LineEvent(null, 1, "GET /unknown/url"));
         // Then
         assertThat(consumer.events).isEmpty();
@@ -119,11 +116,10 @@ public class HttpLineExecutorTest {
     @Test(expected = LineException.class)
     public void testConnectionError() {
         // Given
-        TestConsumer consumer = new TestConsumer();
+        TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = new HttpClientProvider("http://unknown");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
-        String eol = System.lineSeparator();
         processor.consume(new LineEvent(null, 1, "GET /unknown/url"));
         // Then
         assertThat(consumer.events).isEmpty();
