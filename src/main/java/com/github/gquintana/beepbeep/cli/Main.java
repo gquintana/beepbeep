@@ -18,15 +18,17 @@ import org.kohsuke.args4j.Option;
 import java.io.IOException;
 
 public class Main {
+    @Option(name = "--help", aliases = {"-h"}, usage = "Display help", help = true)
+    public boolean help = false;
     @Option(name = "--files", aliases = {"-f"}, usage = "Files: exemple /folder/**/prefix*.ext", required = true)
     public String files;
-    @Option(name = "--type", aliases = {"-t"}, usage = "Database type: sql, http", required = true)
+    @Option(name = "--type", aliases = {"-t"}, usage = "Connection type: sql, http, elasticsearch", required = true)
     public String type;
-    @Option(name = "--url", aliases = {"-d"}, usage = "Database URL", required = true)
+    @Option(name = "--url", aliases = {"-d"}, usage = "Connection URL", required = true)
     public String url;
-    @Option(name = "--username", aliases = {"-u"}, usage = "Database URL")
+    @Option(name = "--username", aliases = {"-u"}, usage = "Connection username")
     public String username;
-    @Option(name = "--password", aliases = {"-p"}, usage = "Database password")
+    @Option(name = "--password", aliases = {"-p"}, usage = "Connection password")
     public String password;
     @Option(name = "--store", aliases = {"-s"}, usage = "Table/collection/index to store ran script and not execute them again")
     public String store;
@@ -72,8 +74,15 @@ public class Main {
     public static void main(String[] args) {
         Main main = new Main();
         CmdLineParser parser = new CmdLineParser(main);
+        for(String arg: args) {
+            System.out.println(arg);
+        }
         try {
             parser.parseArgument(args);
+            if (main.help) {
+                parser.printUsage(System.out);
+                System.exit(0);
+            }
             main.run(parser);
         } catch (CmdLineException e) {
             // handling of wrong arguments
