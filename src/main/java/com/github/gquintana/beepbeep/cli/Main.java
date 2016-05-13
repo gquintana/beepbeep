@@ -16,6 +16,8 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class Main {
     @Option(name = "--help", aliases = {"-h"}, usage = "Display help", help = true)
@@ -68,26 +70,29 @@ public class Main {
 
 
     public static void main(String[] args) {
+        System.exit(doMain(args));
+    }
+
+    static int  doMain(String[] args) {
         Main main = new Main();
         CmdLineParser parser = new CmdLineParser(main);
-        for(String arg: args) {
-            System.out.println(arg);
-        }
         try {
             parser.parseArgument(args);
             if (main.help) {
                 parser.printUsage(System.out);
-                System.exit(0);
+                return 0;
             }
+            System.out.println("Args: " + Arrays.stream(args).collect(Collectors.joining(" ")));
             main.run(parser);
+            return 0;
         } catch (CmdLineException e) {
             // handling of wrong arguments
             System.err.println(e.getMessage());
             parser.printUsage(System.err);
-            System.exit(1);
+            return 1;
         } catch (IOException | BeepBeepException e) {
             e.printStackTrace(System.err);
-            System.exit(2);
+            return 2;
         }
     }
 }

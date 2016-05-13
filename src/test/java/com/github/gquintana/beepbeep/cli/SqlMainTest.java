@@ -39,8 +39,9 @@ public class SqlMainTest {
             "--username", "sa",
             "--files", scriptFolder.getPath() + "/*.sql"};
         // When
-        Main.main(args);
+        int exit = Main.doMain(args);
         // Then
+        assertThat(exit).isEqualTo(0);
         try (Connection connection = DriverSqlConnectionProvider.create(h2Url, "sa", null).getConnection();
              Statement statement = connection.createStatement()) {
             List<String> logins = new ArrayList<>();
@@ -71,8 +72,9 @@ public class SqlMainTest {
             "--store", "beepbeep",
             "--files", scriptFolder.getPath() + "/*.sql"};
         // When
-        Main.main(args);
+        int exit = Main.doMain(args);
         // Then
+        assertThat(exit).isEqualTo(0);
         try (Connection connection = DriverSqlConnectionProvider.create(h2Url, "sa", null).getConnection();
              Statement statement = connection.createStatement()) {
             List<String> scripts = new ArrayList<>();

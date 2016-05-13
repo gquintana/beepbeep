@@ -49,8 +49,9 @@ public class ElasticsearchMainTest {
             "--url", esUrl,
             "--files", scriptFolder.getPath() + "/*.json"};
         // When
-        Main.main(args);
+        int exit = Main.doMain(args);
         // Then
+        assertThat(exit).isEqualTo(0);
         deleteIndices(esUrl, "person");
     }
 
@@ -67,8 +68,9 @@ public class ElasticsearchMainTest {
             "--store", "beepbeep/script",
             "--files", scriptFolder.getPath() + "/*.json"};
         // When
-        Main.main(args);
+        int exit = Main.doMain(args);
         // Then
+        assertThat(exit).isEqualTo(0);
         deleteIndices(esUrl, "person", "beepbeep");
     }
 
