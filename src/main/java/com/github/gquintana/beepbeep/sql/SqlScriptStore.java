@@ -70,13 +70,32 @@ public class SqlScriptStore implements ScriptStore<Integer> {
             "1, ?, ?, ?, ?, ?, ?)";
     }
 
+    protected boolean doesTableExist(Connection connection) throws SQLException {
+        DatabaseMetaData md = connection.getMetaData();
+        String t;
+        if (md.storesLowerCaseIdentifiers()) {
+            t = table.toLowerCase();
+        } else if (md.storesUpperCaseIdentifiers()) {
+            t = table.toUpperCase();
+        } else {
+            t = table;
+        }
+        try (ResultSet resultSet = md.getTables(null, null, t, null)) {
+            return resultSet.next();
+        }
+    }
+
     public void prepare() {
-        try (Connection connection = connectionProvider.getConnection();
-             Statement statement = connection.createStatement()) {
-            statement.execute(getCreateTableSql());
-            statement.execute(getCreateUniqueIndexSql());
-            if (sequence) {
-                statement.execute(getCreateSequenceSql());
+        try (Connection connection = connectionProvider.getConnection()) {
+            if (doesTableExist(connection)) {
+                return;
+            }
+            try (Statement statement = connection.createStatement()) {
+                statement.execute(getCreateTableSql());
+                statement.execute(getCreateUniqueIndexSql());
+                if (sequence) {
+                    statement.execute(getCreateSequenceSql());
+                }
             }
         } catch (SQLException e) {
             throw new ScriptStoreException("create table " + table + " failed", e);
@@ -123,7 +142,7 @@ public class SqlScriptStore implements ScriptStore<Integer> {
      * Use sequence to generate Id
      */
     private int generateId(Connection connection) throws SQLException {
-        try(Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             return getId(statement.executeQuery(getSelectSequenceSql()));
         }
     }

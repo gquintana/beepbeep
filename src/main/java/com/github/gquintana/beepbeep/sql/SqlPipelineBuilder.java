@@ -39,7 +39,7 @@ public class SqlPipelineBuilder extends PipelineBuilder<SqlPipelineBuilder> {
     }
 
     @Override
-    public  Consumer<ScriptStartEvent> build() {
+    public  Consumer<ScriptStartEvent> createConsumers() {
         Consumer<ScriptEvent> consumer = endConsumer;
         consumer = new SqlLineExecutor(getConnectionProvider(), autoCommit, consumer);
         consumer = notNullNorEmptyFilter(consumer);

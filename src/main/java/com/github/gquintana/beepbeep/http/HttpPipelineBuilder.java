@@ -24,7 +24,7 @@ public class HttpPipelineBuilder<B extends HttpPipelineBuilder<B>> extends Pipel
     }
 
     @Override
-    public Consumer<ScriptStartEvent> build() {
+    public Consumer<ScriptStartEvent> createConsumers() {
         Consumer<ScriptEvent> consumer = endConsumer;
         consumer = new HttpLineExecutor(getHttpClientProvider(), consumer);
         consumer = notNullNorEmptyFilter(consumer);

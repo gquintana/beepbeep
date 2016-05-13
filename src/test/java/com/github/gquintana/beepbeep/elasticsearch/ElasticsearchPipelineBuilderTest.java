@@ -23,15 +23,16 @@ public class ElasticsearchPipelineBuilderTest {
     public static ElasticsearchRule elasticsearch = new ElasticsearchRule(temporaryFolder);
 
     @Test
-    public void testGetHealth() {
+    public void testGetHealth() throws IOException {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
         HttpClientProvider clientProvider = new HttpClientProvider();
-        Consumer<ScriptStartEvent> input = new ElasticsearchPipelineBuilder().withUrl(getElasticsearchUri())
+        ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder().withUrl(getElasticsearchUri())
             .withHttpClientProvider(clientProvider)
-            .withEndConsumer(output).build();
+            .withEndConsumer(output)
+            .withResourceScriptScanner(getClass(), "cluster_health.json");
         // When
-        input.consume(new ScriptStartEvent(ResourceScript.create(getClass(), "cluster_health.json")));
+        pipelineBuilder.scan();
         // Then
         assertThat(output.events).hasSize(3);
         assertThat(output.events.get(1).toString()).contains("200,OK");
@@ -46,13 +47,14 @@ public class ElasticsearchPipelineBuilderTest {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
         HttpClientProvider clientProvider = new HttpClientProvider();
-        Consumer<ScriptStartEvent> input = new ElasticsearchPipelineBuilder()
-            .withUrl(getElasticsearchUri())
-            .withHttpClientProvider(clientProvider).withEndConsumer(output).build();
-        // When
         String scriptGlob = getClass().getPackage().getName().replaceAll("\\.", "/") + "/index*.json";
-        ResourceScriptScanner scanner = ScriptScanners.resources(getClass().getClassLoader(), scriptGlob, input);
-        scanner.scan();
+        ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder()
+            .withUrl(getElasticsearchUri())
+            .withHttpClientProvider(clientProvider)
+            .withEndConsumer(output)
+            .withResourcesScriptScanner(getClass().getClassLoader(), scriptGlob);
+        // When
+        pipelineBuilder.scan();
         // Then
         output.assertNoScriptEndFailed();
         assertThat(output.events).hasSize(3 * 2 + 1 + 4 + 1);
@@ -63,18 +65,16 @@ public class ElasticsearchPipelineBuilderTest {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
         HttpClientProvider clientProvider = new HttpClientProvider();
+        String scriptGlob = getClass().getPackage().getName().replaceAll("\\.", "/") + "/index*.json";
         ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder()
             .withUrl(getElasticsearchUri())
             .withHttpClientProvider(clientProvider).withEndConsumer(output)
-            .withScriptStore(".beepbeep/script");
-        pipelineBuilder.getScriptStore().prepare();
-        Consumer<ScriptStartEvent> input = pipelineBuilder.build();
-        String scriptGlob = getClass().getPackage().getName().replaceAll("\\.", "/") + "/index*.json";
-        ResourceScriptScanner scanner = ScriptScanners.resources(getClass().getClassLoader(), scriptGlob, input);
-        scanner.scan();
+            .withScriptStore(".beepbeep/script")
+            .withResourcesScriptScanner(Thread.currentThread().getContextClassLoader(), scriptGlob);
+        pipelineBuilder.scan();
         output.clear();
         // When
-        scanner.scan();
+        pipelineBuilder.scan();
         // Then
         output.assertNoScriptEndFailed();
         assertThat(output.events).isEmpty();

@@ -36,9 +36,7 @@ public class Main {
 
     public void run(CmdLineParser cmdLineParser) throws IOException, CmdLineException {
         PipelineBuilder pipelineBuilder = createPipelineBuilder(cmdLineParser);
-        Consumer<ScriptStartEvent> scriptInput = pipelineBuilder.build();
-        ScriptScanner scanner = ScriptScanners.files(files, scriptInput);
-        scanner.scan();
+        pipelineBuilder.scan();
     }
 
     PipelineBuilder createPipelineBuilder(CmdLineParser cmdLineParser) throws CmdLineException {
@@ -63,10 +61,8 @@ public class Main {
             .withEndConsumer(lineOutput);
         if (store != null) {
             pipelineBuilder.withScriptStore(store);
-            // Create table/index
-            ScriptStore store = pipelineBuilder.getScriptStore();
-            store.prepare();
         }
+        pipelineBuilder.withFilesScriptScanner(files);
         return pipelineBuilder;
     }
 
