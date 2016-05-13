@@ -16,7 +16,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -24,6 +23,7 @@ import org.apache.http.entity.StringEntity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.text.Normalizer;
 import java.time.Instant;
 
 public class ElasticsearchScriptStore implements ScriptStore<String> {
@@ -54,7 +54,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
      * Execute HTTP request
      */
     private <T> T execute(HttpRequest httpRequest, ResponseHandler<T> httpResponseHandler) throws IOException {
-        return  httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), httpRequest, httpResponseHandler);
+        return httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), httpRequest, httpResponseHandler);
     }
 
     private <T> T readJsonContent(HttpResponse httpResponse, Class<T> type) throws IOException {
@@ -65,12 +65,13 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
 
     private void checkError(HttpResponse httpResponse) throws IOException {
         StatusLine statusLine = httpResponse.getStatusLine();
-        if (statusLine.getStatusCode()>=400 && statusLine.getStatusCode() < 600) {
+        if (statusLine.getStatusCode() >= 400 && statusLine.getStatusCode() < 600) {
             JsonNode jsonNode = readJsonContent(httpResponse, JsonNode.class);
             StringBuilder message = new StringBuilder().append("HTTP error ").append(statusLine.getStatusCode()).append(", ").append(statusLine.getReasonPhrase());
             JsonNode error = jsonNode.get("error");
             if (error != null) {
-                message.append(", ").append(error.get("reason").asText());
+                JsonNode reason = error.get("reason");
+                message.append(", ").append((reason == null ? error : reason).asText());
             }
             throw new ScriptStoreException(message.toString());
         }
@@ -105,30 +106,61 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
             httpResponse = execute(httpRequest);
             checkError(httpResponse);
             // Wait for index
-            httpResponse = execute(new HttpGet("_cluster/health/"+index+"?"+URLEncoder.encode("wait_for_status=yellow&timeout=10s","UTF-8")));
+            httpResponse = execute(new HttpGet("_cluster/health/" + index + "?" + URLEncoder.encode("wait_for_status=yellow&timeout=10s", "UTF-8")));
             checkError(httpResponse);
             // Force refresh
-            httpResponse = execute(new HttpGet(index+"/_refresh"));
+            httpResponse = execute(new HttpGet(index + "/_refresh"));
             checkError(httpResponse);
         } catch (IOException e) {
             throw new ScriptStoreException("Prepare index " + index + " failed", e);
         }
     }
 
+    static String fullNameToId(String fullName) {
+        // Remove accents
+        String s = Normalizer.normalize(fullName, Normalizer.Form.NFD);
+        s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+        // Remove special chars
+        s = s.replaceAll("[^\\w-]", "_");
+        // Remove starting underscore, it could clash with _search...
+        s = s.replaceFirst("^_+", "");
+        return s;
+    }
+
     @Override
     public ScriptInfo<String> getByFullName(String fullName) {
         try {
-            HttpGet httpRequest = new HttpGet(indexType + "/_search?version=true&q=" + URLEncoder.encode("full_name:\"" + fullName + "\"","UTF-8"));
-            return execute(httpRequest, new GetByFullNameResponseHandler(fullName));
+            String id = fullNameToId(fullName);
+            // 1 requête par Id
+            HttpGet httpRequest = new HttpGet(indexType + "/" + id);
+            ScriptInfo<String> info = execute(httpRequest, new GetByFullNameResponseHandler1());
+            // 2 requête par Full name
+            if (info == null) {
+                httpRequest = new HttpGet(indexType + "/_search?version=true&q=" + URLEncoder.encode("full_name:\"" + fullName + "\"", "UTF-8"));
+                info = execute(httpRequest, new GetByFullNameResponseHandler2(fullName));
+            }
+            return info;
         } catch (IOException e) {
             throw new ScriptStoreException("Search script " + fullName + " failed", e);
         }
     }
 
-    private class GetByFullNameResponseHandler implements ResponseHandler<ScriptInfo<String>> {
+    private class GetByFullNameResponseHandler1 implements ResponseHandler<ScriptInfo<String>> {
+        @Override
+        public ScriptInfo<String> handleResponse(HttpResponse httpResponse) throws ClientProtocolException, IOException {
+            if (httpResponse.getStatusLine().getStatusCode() == 404) {
+                return null;
+            }
+            checkError(httpResponse);
+            JsonNode jsonNode = readJsonContent(httpResponse, JsonNode.class);
+            return read((ObjectNode) jsonNode);
+        }
+    }
+
+    private class GetByFullNameResponseHandler2 implements ResponseHandler<ScriptInfo<String>> {
         private String fullName;
 
-        public GetByFullNameResponseHandler(String fullName) {
+        public GetByFullNameResponseHandler2(String fullName) {
             this.fullName = fullName;
         }
 
@@ -151,7 +183,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
     @Override
     public ScriptInfo<String> create(ScriptInfo<String> info) {
         try {
-            HttpPost httpRequest = new HttpPost(indexType + "?refresh=true");
+            HttpPut httpRequest = new HttpPut(indexType + "/" + fullNameToId(info.getFullName()) + "?refresh=true");
             httpRequest.setEntity(write(info));
             return execute(httpRequest, new CreateResponseHandler(info));
         } catch (IOException e) {

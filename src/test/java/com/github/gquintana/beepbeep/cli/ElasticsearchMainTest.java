@@ -75,7 +75,7 @@ public class ElasticsearchMainTest {
     public void deleteIndices(String esUrl, String... indices) {
         try {
             HttpClientProvider httpClientProvider = new HttpClientProvider(esUrl);
-            HttpDelete httpRequest = new HttpDelete(Arrays.stream(indices).collect(Collectors.joining(",")));
+            HttpDelete httpRequest = new HttpDelete(Arrays.stream(indices).collect(Collectors.joining(",")) + "?ignore_unavailable=true");
             httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), httpRequest);
         } catch (IOException e) {
         }

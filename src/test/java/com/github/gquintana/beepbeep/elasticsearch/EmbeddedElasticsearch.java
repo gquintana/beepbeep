@@ -64,6 +64,10 @@ public class EmbeddedElasticsearch implements Closeable {
     }
 
     private static String addressToString(BoundTransportAddress address) {
+        /* Elasticsearch 1.x
+        InetSocketAddress transportAddress = ((InetSocketTransportAddress) address.publishAddress()).address();
+        return transportAddress.getHostString()+":"+transportAddress.getPort();
+        */
         TransportAddress transportAddress = address.publishAddress();
         return transportAddress.getHost()+":"+transportAddress.getPort();
     }

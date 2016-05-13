@@ -31,7 +31,7 @@ public class ElasticsearchScriptStoreTest {
 
     @After
     public void tearDown() throws Exception {
-        httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), new HttpDelete(".beepbeep"));
+        httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), new HttpDelete(".beepbeep?ignore_unavailable=true"));
     }
 
     private ScriptInfo<String> createInfo() {
@@ -108,5 +108,13 @@ public class ElasticsearchScriptStoreTest {
         info.setEndDate(Instant.now().plus(10, ChronoUnit.SECONDS));
         // When
         info = store.update(info);
+    }
+
+    @Test
+    public void testFullNameToId() {
+        assertThat(ElasticsearchScriptStore.fullNameToId("C:\\Program Files\\beepbeep\\logs\\beepbeep.log"))
+            .isEqualTo("C__Program_Files_beepbeep_logs_beepbeep_log");
+        assertThat(ElasticsearchScriptStore.fullNameToId("/home/sconnor/ça c'est un accent aigü"))
+            .isEqualTo("home_sconnor_ca_c_est_un_accent_aigu");
     }
 }
