@@ -3,9 +3,12 @@ package com.github.gquintana.beepbeep.store;
 import com.github.gquintana.beepbeep.pipeline.*;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ScriptStoreUpdater<ID> extends Transformer<ScriptEvent, ScriptEvent> {
     private final ScriptStore<ID> store;
+    private final Map<String, ScriptInfo<ID>> infoCache = new HashMap<>();
 
     public ScriptStoreUpdater(ScriptStore<ID> store, Consumer<ScriptEvent> consumer) {
         super(consumer);
@@ -16,7 +19,7 @@ public class ScriptStoreUpdater<ID> extends Transformer<ScriptEvent, ScriptEvent
     protected ScriptEvent transform(ScriptEvent event) {
         String fullName = event.getScript().getFullName();
         if (event instanceof ScriptStartEvent) {
-            ScriptInfo<ID> info = store.getByFullName(fullName);
+            ScriptInfo<ID> info = getInfo(fullName);
             boolean create = info == null;
             if (create) {
                 info = new ScriptInfo<>();
@@ -33,9 +36,10 @@ public class ScriptStoreUpdater<ID> extends Transformer<ScriptEvent, ScriptEvent
             } else {
                 info = store.update(info);
             }
+            infoCache.put(fullName, info);
         } else if (event instanceof ScriptEndEvent) {
             ScriptEndEvent endEvent = (ScriptEndEvent) event;
-            ScriptInfo<ID> info = store.getByFullName(fullName);
+            ScriptInfo<ID> info = getInfo(fullName);
             if (info == null) {
                 throw new ScriptStoreException("Script end not in store " + event.getScript());
             }
@@ -46,7 +50,17 @@ public class ScriptStoreUpdater<ID> extends Transformer<ScriptEvent, ScriptEvent
                 info.setStatus(ScriptStatus.FAILED);
             }
             info = store.update(info);
+            infoCache.clear();
         }
         return event;
+    }
+
+    private ScriptInfo<ID> getInfo(String fullName) {
+        ScriptInfo<ID> info = infoCache.get(fullName);
+        if (info == null) {
+            info = store.getByFullName(fullName);
+            infoCache.put(fullName, info);
+        }
+        return info;
     }
 }
