@@ -1,6 +1,6 @@
 # Bip bip: the Script Runner
 
-[![Circle CI](https://circleci.com/gh/gquintana/beepbeep.svg?style=svg)](https://circleci.com/gh/gquintana/beepbeep)
+[![Circle CI](https://circleci.com/gh/gquintana/beepbeep.svg?style=shield)](https://circleci.com/gh/gquintana/beepbeep)
 [![Coverage Status](https://coveralls.io/repos/github/gquintana/beepbeep/badge.svg?branch=master)](https://coveralls.io/github/gquintana/beepbeep?branch=master)
 
 
@@ -35,12 +35,10 @@ END_SUCCESS script/index_data.json:15
 
 Run all SQL scripts from the classpath on a H2 embedded database and replace `${variable}` placeholders in scripts by value.
 ```
-Consumer<ScriptStartEvent> input = new SqlPipelineBuilder()
+new SqlPipelineBuilder()
     .withConnectionProvider(Driver.class.getName(), "jdbc:h2:mem:test", "sa", "")
     .withVariable("variable", "value")
-    .build();
-ResourceScriptScanner scriptScanner = ScriptScanners.resources(getClass().getClassLoader(),
-    "com/github/gquintana/beepbeep/script/**/*.sql",
-    input);
-scriptScanner.scan();
+    .withResourcesScriptScanner(getClass().getClassLoader(),
+      "com/github/gquintana/beepbeep/script/**/*.sql")
+    .scan();
 ```
