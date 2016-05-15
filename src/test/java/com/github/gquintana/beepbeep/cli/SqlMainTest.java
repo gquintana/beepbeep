@@ -5,6 +5,7 @@ import com.github.gquintana.beepbeep.http.HttpPipelineBuilder;
 import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
 import com.github.gquintana.beepbeep.sql.DriverSqlConnectionProvider;
 import com.github.gquintana.beepbeep.sql.SqlPipelineBuilder;
+import com.github.gquintana.beepbeep.sql.TestSqlConnectionProviders;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.gquintana.beepbeep.sql.TestSqlConnectionProviders.createSqlConnectionProvider;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SqlMainTest {
@@ -90,7 +92,7 @@ public class SqlMainTest {
     }
 
     public void dropTables(String h2Url, String... tables) {
-        try (Connection connection = DriverSqlConnectionProvider.create(h2Url, "sa", null).getConnection();
+        try (Connection connection = createSqlConnectionProvider().getConnection();
              Statement statement = connection.createStatement()) {
             for (String table : tables) {
                 statement.execute("DROP TABLE " + table);

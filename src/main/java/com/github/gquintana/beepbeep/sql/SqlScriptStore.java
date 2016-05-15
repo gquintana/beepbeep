@@ -30,7 +30,7 @@ public class SqlScriptStore implements ScriptStore<Integer> {
             "id INT PRIMARY KEY " + (sequence ? "" : "AUTO_INCREMENT") + ", " +
             "version INT NOT NULL DEFAULT 1, " +
             "full_name VARCHAR(512) NOT NULL, " +
-            "size_bytes LONG NOT NULL, " +
+            "size_bytes INT NOT NULL, " +
             "sha1 VARCHAR(128) NOT NULL, " +
             "start_date TIMESTAMP NOT NULL, " +
             "end_date TIMESTAMP," +
@@ -58,7 +58,7 @@ public class SqlScriptStore implements ScriptStore<Integer> {
     }
 
     protected String getSelectSequenceSql() {
-        return "SELECT " + table + "_seq.NEXTVAL FROM DUAL";
+        return "SELECT nextval('" + table + "_seq')";
     }
 
     protected String getInsertSql() {
@@ -149,18 +149,22 @@ public class SqlScriptStore implements ScriptStore<Integer> {
 
     @Override
     public ScriptInfo<Integer> create(ScriptInfo<Integer> info) {
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement statement = connection.prepareStatement(getInsertSql())) {
+        try (Connection connection = connectionProvider.getConnection()) {
             int index = 1;
             int id = 0;
             if (sequence) {
                 id = generateId(connection);
-                statement.setInt(index++, id);
-            }
-            write(statement, info, index);
-            statement.executeUpdate();
-            if (!sequence) {
-                id = getId(statement.getGeneratedKeys());
+                try (PreparedStatement statement = connection.prepareStatement(getInsertSql())) {
+                    statement.setInt(index++, id);
+                    write(statement, info, index);
+                    statement.executeUpdate();
+                }
+            } else {
+                try (PreparedStatement statement = connection.prepareStatement(getInsertSql(), PreparedStatement.RETURN_GENERATED_KEYS)) {
+                    write(statement, info, index);
+                    statement.executeUpdate();
+                    id = getId(statement.getGeneratedKeys());
+                }
             }
             info.setId(id);
             info.setVersion(1);

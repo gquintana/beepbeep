@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.function.Predicate;
 
+import static com.github.gquintana.beepbeep.sql.TestSqlConnectionProviders.createSqlConnectionProvider;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SqlPipelineBuilderTest {
@@ -41,8 +42,9 @@ public class SqlPipelineBuilderTest {
         File scriptFolder = temporaryFolder.newFolder("script");
         ScriptScanners.resources(getClass().getClassLoader(), "com/github/gquintana/beepbeep/script/*.sql",
             e -> writeResource(e, scriptFolder)).scan();
+        DriverSqlConnectionProvider connectionProvider = createSqlConnectionProvider();
         SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
-            .withConnectionProvider(Driver.class.getName(), "jdbc:h2:mem:test", "sa", "")
+            .withConnectionProvider(connectionProvider.getDriverClass().getName(), connectionProvider.getUrl(), connectionProvider.getUsername(), connectionProvider.getPassword())
             .withVariable("variable", "value")
             .withEndConsumer(output)
             .withFilesScriptScanner(scriptFolder.getPath() + "/*.sql");
@@ -60,7 +62,7 @@ public class SqlPipelineBuilderTest {
     public void testConsume_ScriptStore() throws Exception {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
-        SingleSqlConnectionProvider connectionProvider = new SingleSqlConnectionProvider(DriverSqlConnectionProvider.create("jdbc:h2:mem:test", "sa", ""));
+        SingleSqlConnectionProvider connectionProvider = new SingleSqlConnectionProvider(createSqlConnectionProvider());
         Predicate<String> resourceFilter = name -> name.startsWith("com/github/gquintana/beepbeep/script/") && name.endsWith(".sql");
         SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
             .withConnectionProvider(connectionProvider)
@@ -82,6 +84,8 @@ public class SqlPipelineBuilderTest {
         try (Connection connection = connectionProvider.getConnection();
              Statement statement = connection.createStatement()) {
             statement.execute("DROP TABLE beepbeep");
+            // When using sequences
+            // statement.execute("DROP SEQUENCE beepbeep_seq");
         }
         connectionProvider.close();
     }

@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.github.gquintana.beepbeep.sql.TestSqlConnectionProviders.createSqlConnectionProvider;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SqlLineExecutorTest {
@@ -19,8 +20,7 @@ public class SqlLineExecutorTest {
     public void testConsume() throws Exception {
         // Given
         TestConsumer<ScriptEvent> end = new TestConsumer<>();
-        SqlConnectionProvider connectionProvider = new DriverSqlConnectionProvider(
-                Driver.class.getName(), "jdbc:h2:mem:test", "sa", "");
+        SqlConnectionProvider connectionProvider = createSqlConnectionProvider();
         try(SingleSqlConnectionProvider connectionProvider2 = new SingleSqlConnectionProvider(connectionProvider)) {
             RegexReplacerProcessor processor = new RegexReplacerProcessor(";\\s*$", "", new SqlLineExecutor(connectionProvider2, end));
             // When

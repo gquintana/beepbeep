@@ -16,6 +16,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 
+import static com.github.gquintana.beepbeep.sql.TestSqlConnectionProviders.createSqlConnectionProvider;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Parameterized.class)
@@ -36,7 +37,7 @@ public class SqlScriptStoreTest {
     @Before
     public void setUp() {
         connectionProvider = new SingleSqlConnectionProvider(
-            DriverSqlConnectionProvider.create("jdbc:h2:mem:test", "sa", ""));
+            createSqlConnectionProvider());
         store = new SqlScriptStore(connectionProvider, "beepbeep", sequence);
         store.prepare();
     }
@@ -70,7 +71,6 @@ public class SqlScriptStoreTest {
         // When
         info = store.create(info);
         // Then
-        assertThat(info.getId()).isEqualTo(1);
         assertThat(info.getVersion()).isEqualTo(1);
         assertThat(store.getByFullName(info.getFullName())).isNotNull();
     }
