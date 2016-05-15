@@ -25,6 +25,32 @@ public class MainTest {
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
+    public void testInvalidArgument() throws Exception {
+        // Given
+        // When
+        int exit = Main.doMain("--invalid",
+            "--type", "sql",
+            "--url", "jdbc:h2:mem:test",
+            "--username", "sa",
+            "--files", "target/test-classes/com/github/gquintana/beepbeep/**/*.sql");
+        // Then
+        assertThat(exit).isEqualTo(1);
+    }
+
+    @Test
+    public void testInvalidType() throws Exception {
+        // Given
+        // When
+        int exit = Main.doMain(
+            "--type", "invalid",
+            "--url", "jdbc:h2:mem:test",
+            "--username", "sa",
+            "--files", "target/test-classes/com/github/gquintana/beepbeep/**/*.sql");
+        // Then
+        assertThat(exit).isEqualTo(1);
+    }
+
+    @Test
     public void testCreatePipelineBuilder_Sql() throws Exception {
         // Given
         Main main = new Main();
@@ -42,21 +68,6 @@ public class MainTest {
 
     }
 
-    @Test
-    public void testCreatePipelineBuilder_Http() throws Exception {
-        // Given
-        Main main = new Main();
-        CmdLineParser cmdLineParser = new CmdLineParser(main);
-        cmdLineParser.parseArgument(
-            "--type", "http",
-            "--url", "http://localhost:8080/restapp/",
-            "--files", "target/test-classes/com/github/gquintana/beepbeep/**/*.json");
-        // When
-        PipelineBuilder pipelineBuilder = main.createPipelineBuilder(cmdLineParser);
-        // Then
-        assertThat(main.url).isEqualTo("http://localhost:8080/restapp/");
-        assertThat(pipelineBuilder).isInstanceOf(HttpPipelineBuilder.class);
-    }
     @Test
     public void testCreatePipelineBuilder_Elasticsearch() throws Exception {
         // Given

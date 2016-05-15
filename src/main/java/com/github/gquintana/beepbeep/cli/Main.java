@@ -69,11 +69,11 @@ public class Main {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String ... args) {
         System.exit(doMain(args));
     }
 
-    static int  doMain(String[] args) {
+    static int  doMain(String ... args) {
         Main main = new Main();
         CmdLineParser parser = new CmdLineParser(main);
         try {
