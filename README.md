@@ -1,6 +1,8 @@
 # Bip bip: the Script Runner
 
 [![Circle CI](https://circleci.com/gh/gquintana/beepbeep.svg?style=svg)](https://circleci.com/gh/gquintana/beepbeep)
+[![Coverage Status](https://coveralls.io/repos/github/gquintana/beepbeep/badge.svg?branch=master)](https://coveralls.io/github/gquintana/beepbeep?branch=master)
+
 
 Bip bip is runs scripts on SQL and NoSQL databases and track already ran/new scripts.
 
