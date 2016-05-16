@@ -32,8 +32,8 @@ public class SqlMainTest {
         // Given
         File scriptFolder = temporaryFolder.newFolder("sql");
         File h2Folder = temporaryFolder.newFolder("h2");
-        TestFiles.writeResource("script/script_create.sql", new File(scriptFolder, "01_create.sql"));
-        TestFiles.writeResource("script/script_data.sql", new File(scriptFolder, "02_data.sql"));
+        TestFiles.writeResource("sql/init/01_create.sql", new File(scriptFolder, "01_create.sql"));
+        TestFiles.writeResource("sql/init/02_data.sql", new File(scriptFolder, "02_data.sql"));
         String h2Url = "jdbc:h2:file:" + h2Folder.getPath();
         String[] args = {
             "--type", "sql",
@@ -64,8 +64,8 @@ public class SqlMainTest {
         // Given
         File scriptFolder = temporaryFolder.newFolder("sql");
         File h2Folder = temporaryFolder.newFolder("h2");
-        TestFiles.writeResource("script/script_create.sql", new File(scriptFolder, "01_create.sql"));
-        TestFiles.writeResource("script/script_data.sql", new File(scriptFolder, "02_data.sql"));
+        TestFiles.writeResource("sql/init/01_create.sql", new File(scriptFolder, "01_create.sql"));
+        TestFiles.writeResource("sql/init/02_data.sql", new File(scriptFolder, "02_data.sql"));
         String h2Url = "jdbc:h2:file:" + h2Folder.getPath();
         String[] args = {
             "--type", "sql",

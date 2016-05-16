@@ -15,7 +15,7 @@ public class ScriptReaderProducerTest {
     @Test
     public void testRead() {
         // Given
-        ResourceScript script = ResourceScript.create(TestFiles.class, "script/script_data.sql");
+        ResourceScript script = ResourceScript.create(TestFiles.class, "sql/init/02_data.sql");
         TestConsumer<ScriptEvent> end = new TestConsumer<>();
         ScriptReaderProducer scriptReader = new ScriptReaderProducer(end, Charset.forName("UTF-8"));
         // When

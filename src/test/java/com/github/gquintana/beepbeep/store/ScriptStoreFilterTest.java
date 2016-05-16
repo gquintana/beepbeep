@@ -26,7 +26,7 @@ public class ScriptStoreFilterTest {
         output = new TestConsumer<>();
         store = new MemoryScriptStore();
         filter = new ScriptStoreFilter(store, output);
-        script = ResourceScript.create(TestFiles.class, "script/script_create.sql");
+        script = ResourceScript.create(TestFiles.class, "sql/init/01_create.sql");
     }
 
     private void storeScript(Instant start, Instant end, ScriptStatus status) {

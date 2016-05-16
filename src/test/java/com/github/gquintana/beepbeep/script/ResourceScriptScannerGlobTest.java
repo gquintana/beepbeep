@@ -14,7 +14,7 @@ public class ResourceScriptScannerGlobTest {
         checkResourceGlobScan("*.sql", 1);
         checkResourceGlobScan("**/*.sql", 5);
         checkResourceGlobScan("com/github/gquintana/**/*.sql", 4);
-        checkResourceGlobScan("com/github/gquintana/beepbeep/script/*.sql", 3);
+        checkResourceGlobScan("com/github/gquintana/beepbeep/sql/init/*.sql", 2);
     }
 
     private void checkResourceGlobScan(String fileGlob, int fileNb) throws IOException {

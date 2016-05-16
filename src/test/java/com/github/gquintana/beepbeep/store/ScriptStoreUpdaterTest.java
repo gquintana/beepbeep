@@ -27,7 +27,7 @@ public class ScriptStoreUpdaterTest {
         output = new TestConsumer<>();
         store = new MemoryScriptStore();
         updater = new ScriptStoreUpdater<>(store, output);
-        script = ResourceScript.create(TestFiles.class, "script/script_create.sql");
+        script = ResourceScript.create(TestFiles.class, "sql/init/01_create.sql");
     }
 
     private void storeScript(Instant start, Instant end, ScriptStatus status) {

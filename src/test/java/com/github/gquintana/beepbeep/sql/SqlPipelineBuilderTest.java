@@ -29,7 +29,7 @@ public class SqlPipelineBuilderTest {
     private static void writeResource(ScriptStartEvent e, File scriptFolder) {
         try {
             Script s = e.getScript();
-            TestFiles.writeResource("script/" + s.getName(), new File(scriptFolder, s.getName()));
+            TestFiles.writeResource("sql/init/" + s.getName(), new File(scriptFolder, s.getName()));
         } catch (IOException e1) {
             e1.printStackTrace();
         }
@@ -40,7 +40,7 @@ public class SqlPipelineBuilderTest {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
         File scriptFolder = temporaryFolder.newFolder("script");
-        ScriptScanners.resources(getClass().getClassLoader(), "com/github/gquintana/beepbeep/script/*.sql",
+        ScriptScanners.resources(getClass().getClassLoader(), "com/github/gquintana/beepbeep/sql/init/*.sql",
             e -> writeResource(e, scriptFolder)).scan();
         DriverSqlConnectionProvider connectionProvider = createSqlConnectionProvider();
         SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
@@ -52,10 +52,10 @@ public class SqlPipelineBuilderTest {
         pipelineBuilder.scan();
         // Then
         output.assertNoScriptEndFailed();
-        assertThat(output.events).hasSize(3 * 2 + 2 + 4 + 1);
-        assertThat(output.events(ScriptStartEvent.class)).hasSize(3);
-        assertThat(output.events(ScriptEndEvent.class)).hasSize(3);
-        assertThat(output.events(ResultEvent.class)).hasSize(2 + 2 + 2 + 1);
+        assertThat(output.events).hasSize(2 * 2 + 2 + 4);
+        assertThat(output.events(ScriptStartEvent.class)).hasSize(2);
+        assertThat(output.events(ScriptEndEvent.class)).hasSize(2);
+        assertThat(output.events(ResultEvent.class)).hasSize(2 + 2 + 2);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class SqlPipelineBuilderTest {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
         SingleSqlConnectionProvider connectionProvider = new SingleSqlConnectionProvider(createSqlConnectionProvider());
-        Predicate<String> resourceFilter = name -> name.startsWith("com/github/gquintana/beepbeep/script/") && name.endsWith(".sql");
+        Predicate<String> resourceFilter = name -> name.startsWith("com/github/gquintana/beepbeep/init/sql/") && name.endsWith(".sql");
         SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
             .withConnectionProvider(connectionProvider)
             .withVariable("variable", "value")
