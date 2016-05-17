@@ -9,7 +9,7 @@ import org.junit.runners.Parameterized;
 import java.util.List;
 
 public class ScriptEndEventEqualsTest extends BaseEqualsHashcodeTest<ScriptEvent> {
-    public ScriptEndEventEqualsTest(ScriptEndEvent actual, ScriptEndEvent expected, boolean equals) {
+    public ScriptEndEventEqualsTest(ScriptEvent actual, ScriptEvent expected, boolean equals) {
         super(actual, expected, equals);
     }
 

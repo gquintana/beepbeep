@@ -48,15 +48,24 @@ public abstract class ResourceScript extends Script {
 
     private static class FromClass extends ResourceScript {
         private final Class clazz;
-
-        public FromClass(Class clazz, String fullName) {
-            super(fullName);
+        private final String localName;
+        public FromClass(Class clazz, String localName) {
+            super(getResourceFullName(clazz, localName));
             this.clazz = clazz;
+            this.localName = localName;
         }
 
         @Override
         protected InputStream doGetStream() {
-            return clazz.getResourceAsStream(fullName);
+            return clazz.getResourceAsStream(localName);
+        }
+    }
+
+    public static String getResourceFullName(Class clazz, String localName) {
+        if (localName.startsWith("/")) {
+            return localName.substring(1);
+        } else {
+            return clazz.getPackage().getName().replaceAll("\\.", "/") + "/" + localName;
         }
     }
 

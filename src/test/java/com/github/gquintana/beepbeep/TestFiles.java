@@ -1,18 +1,24 @@
 package com.github.gquintana.beepbeep;
 
+import com.github.gquintana.beepbeep.script.ResourceScript;
+
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 public class TestFiles {
+    public static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
+        byte[] buffer = new byte[4096];
+        int bufferLen;
+        while ((bufferLen = inputStream.read(buffer)) >= 0) {
+            outputStream.write(buffer, 0, bufferLen);
+        }
+    }
+
     public static void writeResource(String sourceResource, File targetFile) throws IOException {
         try (InputStream inputStream = getResourceAsStream(sourceResource);
              FileOutputStream outputStream = new FileOutputStream(targetFile)) {
-            byte[] buffer = new byte[4096];
-            int bufferLen;
-            while ((bufferLen = inputStream.read(buffer)) >= 0) {
-                outputStream.write(buffer, 0, bufferLen);
-            }
+            copy(inputStream, outputStream);
         }
     }
 
@@ -54,7 +60,7 @@ public class TestFiles {
     }
 
     public static String getResourceFullName(String resource) {
-        return TestFiles.class.getPackage().getName().replaceAll("\\.","/")+"/"+resource;
+        return ResourceScript.getResourceFullName(TestFiles.class, resource);
     }
 
     public static FolderNode folder(String name, Node... children) {
