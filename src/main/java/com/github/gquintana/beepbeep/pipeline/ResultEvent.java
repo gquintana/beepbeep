@@ -29,12 +29,13 @@ public class ResultEvent extends ScriptEvent {
         if (o == null || getClass() != o.getClass()) return false;
         ResultEvent lineEvent = (ResultEvent) o;
         return lineNumber == lineEvent.lineNumber &&
+                Objects.equals(getScript(), lineEvent.getScript()) &&
                 Objects.equals(result, lineEvent.result);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lineNumber, result);
+        return Objects.hash(lineNumber, getScript(), result);
     }
 
     @Override

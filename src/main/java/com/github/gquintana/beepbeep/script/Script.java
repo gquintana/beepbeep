@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 public abstract class Script {
     protected Long size;
@@ -56,5 +57,20 @@ public abstract class Script {
             analyze();
         }
         return sha1Hex;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Script script = (Script) o;
+        return Objects.equals(getFullName(), script.getFullName()) &&
+            Objects.equals(getSize(), script.getSize()) &&
+            Objects.equals(getSha1Hex(), script.getSha1Hex());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getFullName(), size, sha1Hex);
     }
 }
