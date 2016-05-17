@@ -1,5 +1,6 @@
 package com.github.gquintana.beepbeep.pipeline;
 
+import com.github.gquintana.beepbeep.BeepBeepException;
 import com.github.gquintana.beepbeep.script.Script;
 
 import java.io.*;
@@ -19,14 +20,18 @@ public class ScriptReaderProducer extends Producer<ScriptEvent> implements Consu
         produce(event);
         int lineNumber = 1;
         String line;
-        try(BufferedReader lineReader = new BufferedReader(new InputStreamReader(script.getStream(), charset))) {
-            while((line = lineReader.readLine()) != null) {
+        try (BufferedReader lineReader = new BufferedReader(new InputStreamReader(script.getStream(), charset))) {
+            while ((line = lineReader.readLine()) != null) {
                 produce(new LineEvent(script, lineNumber, line));
                 lineNumber++;
             }
             produce(new ScriptEndEvent(script, lineNumber));
-        } catch (Exception e) {
+        } catch (IOException e) {
             produce(new ScriptEndEvent(script, lineNumber, e));
+            throw new BeepBeepException("I/O failure reading " + script.getName(), e);
+        } catch (RuntimeException e) {
+            produce(new ScriptEndEvent(script, lineNumber, e));
+            throw e;
         }
 
     }

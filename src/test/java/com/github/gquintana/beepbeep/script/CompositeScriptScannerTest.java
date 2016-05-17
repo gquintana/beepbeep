@@ -13,11 +13,11 @@ public class CompositeScriptScannerTest {
     public void testScan() throws Exception {
         // Given
         TestConsumer<ScriptStartEvent> end = new TestConsumer<>();
-        final String folder = TestFiles.getResourceFullName("sql/init");
+        final String folder = TestFiles.getResourceFullName("sql/init/");
         CompositeScriptScanner scanner = ScriptScanners.composite(end)
             .resources(getClass().getClassLoader(),
                 (String r) -> r.endsWith(".sql") && r.startsWith(folder))
-            .resource(getClass().getClassLoader(), folder+"/script_not_found.sql");
+            .resource(getClass().getClassLoader(), folder+"script_not_found.sql");
         // When
         scanner.scan();
         // Then
