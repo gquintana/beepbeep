@@ -27,7 +27,7 @@ public abstract class LineExecutor extends Processor<ScriptEvent, ScriptEvent> {
         }
     }
 
-    private void executeEnd(boolean success) {
+    protected void executeEnd(boolean success) {
 
     }
 

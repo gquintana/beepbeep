@@ -1,6 +1,7 @@
 package com.github.gquintana.beepbeep.sql;
 
 import com.github.gquintana.beepbeep.BeepBeepException;
+import com.github.gquintana.beepbeep.LineException;
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.TestFiles;
 import com.github.gquintana.beepbeep.pipeline.ResultEvent;
@@ -17,6 +18,7 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -46,9 +48,10 @@ public class SqlPipelineBuilderTest {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
         File scriptFolder = temporaryFolder.newFolder("script");
+        File h2dbFolder = temporaryFolder.newFolder("h2db");
         ScriptScanners.resources(getClass().getClassLoader(), "com/github/gquintana/beepbeep/sql/init/*.sql",
             e -> writeResource(e, scriptFolder)).scan();
-        DriverSqlConnectionProvider connectionProvider = createSqlConnectionProvider();
+        DriverSqlConnectionProvider connectionProvider = createSqlConnectionProvider(h2dbFolder);
         SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
             .withConnectionProvider(connectionProvider.getDriverClass().getName(), connectionProvider.getUrl(), connectionProvider.getUsername(), connectionProvider.getPassword())
             .withVariable("variable", "value")
@@ -128,6 +131,36 @@ public class SqlPipelineBuilderTest {
         output.assertNoScriptEndFailed();
         assertThat(output.events).isNotEmpty();
         assertThat(output.eventStream(ResultEvent.class).map(e -> e.getResult()).collect(Collectors.toSet())).contains("0;wile;wile.coyote@warnerbros.com");
+        close(connectionProvider);
+    }
+
+    @Test
+    public void testConsume_Transaction() throws Exception {
+        // Given
+        TestConsumer<ScriptEvent> output = new TestConsumer<>();
+        SingleSqlConnectionProvider connectionProvider = new SingleSqlConnectionProvider(createSqlConnectionProvider());
+        Predicate<String> resourceFilter = name -> name.startsWith("com/github/gquintana/beepbeep/sql/init_tx/") && name.endsWith(".sql");
+        SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
+            .withConnectionProvider(connectionProvider)
+            .withEndConsumer(output)
+            .withManualCommit()
+            .withResourcesScriptScanner(getClass().getClassLoader(), resourceFilter);
+        // When
+        try {
+            pipelineBuilder.scan();
+            fail("Exception expected");
+        } catch (LineException e) {
+            assertThat(e.getLineEvent().getScript().getName()).isEqualTo("02_data.sql");
+            assertThat(e.getLineEvent().getLineNumber()).isEqualTo(2);
+        }
+        // Then transaction was rollbacked
+        try (Connection connection = connectionProvider.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("select count(*) from person")
+        ) {
+            assertThat(resultSet.next()).isTrue();
+            assertThat(resultSet.getInt(1)).isEqualTo(0);
+        }
         close(connectionProvider);
     }
 

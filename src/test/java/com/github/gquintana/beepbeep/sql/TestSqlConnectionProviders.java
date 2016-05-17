@@ -1,6 +1,12 @@
 package com.github.gquintana.beepbeep.sql;
 
+import java.io.File;
+
 public class TestSqlConnectionProviders {
+    public static DriverSqlConnectionProvider createSqlConnectionProvider(File folder) {
+        return DriverSqlConnectionProvider.create("jdbc:h2:file:" + folder.getPath(), "sa", "");
+    }
+
     public static DriverSqlConnectionProvider createSqlConnectionProvider() {
         return DriverSqlConnectionProvider.create("jdbc:h2:mem:test", "sa", "");
     }

@@ -14,4 +14,8 @@ public class LineException extends BeepBeepException {
         super(message, cause);
         this.lineEvent = lineEvent;
     }
+
+    public LineEvent getLineEvent() {
+        return lineEvent;
+    }
 }

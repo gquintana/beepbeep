@@ -27,6 +27,7 @@ public class SqlLineExecutor extends LineExecutor {
         this(connectionProvider, true, consumer);
     }
 
+    @Override
     protected void executeEnd(boolean success) {
         try {
             if (!autoCommit) {
@@ -45,6 +46,7 @@ public class SqlLineExecutor extends LineExecutor {
         }
     }
 
+    @Override
     protected void executeStart() {
         if (connection == null) {
             try {
