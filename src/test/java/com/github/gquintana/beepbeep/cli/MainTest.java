@@ -61,7 +61,7 @@ public class MainTest {
             "--username", "sa",
             "--files", "target/test-classes/com/github/gquintana/beepbeep/**/*.sql");
         // When
-        PipelineBuilder pipelineBuilder = main.createPipelineBuilder(cmdLineParser);
+        PipelineBuilder pipelineBuilder = main.createPipelineBuilder();
         // Then
         assertThat(main.url).isEqualTo("jdbc:h2:mem:test");
         assertThat(pipelineBuilder).isInstanceOf(SqlPipelineBuilder.class);
@@ -78,7 +78,7 @@ public class MainTest {
             "--url", "http://localhost:9200",
             "--files", "target/test-classes/com/github/gquintana/beepbeep/**/*.json");
         // When
-        PipelineBuilder pipelineBuilder = main.createPipelineBuilder(cmdLineParser);
+        PipelineBuilder pipelineBuilder = main.createPipelineBuilder();
         // Then
         assertThat(main.url).isEqualTo("http://localhost:9200");
         assertThat(pipelineBuilder).isInstanceOf(ElasticsearchPipelineBuilder.class);

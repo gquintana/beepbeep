@@ -9,7 +9,9 @@ import com.github.gquintana.beepbeep.store.ScriptStoreUpdater;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -140,7 +142,7 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
         ScriptScanner create(Consumer<ScriptStartEvent> consumer);
     }
 
-    private B withScriptScanner(ScriptScannerFactory scriptScriptScannerFactory) {
+    B withScriptScanner(ScriptScannerFactory scriptScriptScannerFactory) {
         this.scriptScannerFactory = scriptScriptScannerFactory;
         return self();
     }
@@ -201,4 +203,40 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
         return withScriptScanner(x -> ScriptScanners.resources(classLoader, resourceGlob, x));
     }
 
+    public CompositeScriptScannerBuilder<B> withCompositeScriptScanner() {
+        return new CompositeScriptScannerBuilder<>((B) this);
+    }
+    public static class CompositeScriptScannerBuilder<B extends PipelineBuilder<B>>  {
+        private final B parentBuilder;
+        private final List<ScriptScannerFactory> scriptScannerFactories = new ArrayList<>();
+
+        public CompositeScriptScannerBuilder(B parentBuilder) {
+            this.parentBuilder = parentBuilder;
+        }
+
+        private CompositeScriptScannerBuilder withScriptScanner(ScriptScannerFactory scriptScannerFactory) {
+            scriptScannerFactories.add(scriptScannerFactory);
+            return this;
+        }
+
+        /**
+         * Scan and use muliples scripts from file system using file glob syntax
+         */
+        public CompositeScriptScannerBuilder withFilesScriptScanner(String fileGlob) {
+            return withScriptScanner(x -> ScriptScanners.files(fileGlob, x));
+        }
+
+        private CompositeScriptScanner create(Consumer<ScriptStartEvent> output) {
+            CompositeScriptScanner scanner = new CompositeScriptScanner(output);
+            for(ScriptScannerFactory scannerFactory: scriptScannerFactories) {
+                scanner.scanner(scannerFactory.create(output));
+            }
+            return scanner;
+        }
+        public B end() {
+            ScriptScannerFactory scannerFactory = this::create;
+            return parentBuilder.withScriptScanner(scannerFactory);
+        }
+
+    }
 }

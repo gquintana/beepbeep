@@ -18,9 +18,13 @@ public class SqlPipelineBuilder extends PipelineBuilder<SqlPipelineBuilder> {
         return withConnectionProvider(new DriverSqlConnectionProvider(driverClass, url, username, password));
     }
 
-    public SqlPipelineBuilder withManualCommit() {
-        this.autoCommit = false;
+    public SqlPipelineBuilder withAutoCommit(boolean autoCommit) {
+        this.autoCommit = autoCommit;
         return self();
+    }
+
+    public SqlPipelineBuilder withManualCommit() {
+        return withAutoCommit(false);
     }
 
     public SqlPipelineBuilder withEndOfLineRegex(String regex) {

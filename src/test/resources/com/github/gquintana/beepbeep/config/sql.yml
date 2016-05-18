@@ -1,0 +1,13 @@
+---
+type: sql
+charset: UTF-8
+url: jdbc:h2:mem:test
+username: sa
+password:
+autoCommit: false
+scriptStore: beepbeep
+scripts:
+  - sql/init/*.sql
+variables:
+  test.1: "Test 1"
+  test.2: 2
