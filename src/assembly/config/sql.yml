@@ -7,7 +7,7 @@ password:
 autoCommit: false
 scriptStore: beepbeep
 scripts:
-  - sql/init/*.sql
+  - sql/**/*.sql
 variables:
   test.1: "Test 1"
   test.2: 2

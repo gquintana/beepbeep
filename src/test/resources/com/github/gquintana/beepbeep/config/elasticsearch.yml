@@ -1,0 +1,9 @@
+---
+type: elasticsearch
+charset: ISO-8859-1
+url: http://localhost:9200
+scriptStore: beepbeep/script
+scripts: elasticsearch/init/*.sql
+variables:
+  test.1: "Test 1"
+  test.2: 2

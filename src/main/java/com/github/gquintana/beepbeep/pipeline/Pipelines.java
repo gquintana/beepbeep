@@ -1,6 +1,7 @@
 package com.github.gquintana.beepbeep.pipeline;
 
 import com.github.gquintana.beepbeep.BeepBeepException;
+import com.github.gquintana.beepbeep.config.ConfigurationException;
 import com.github.gquintana.beepbeep.elasticsearch.ElasticsearchPipelineBuilder;
 import com.github.gquintana.beepbeep.http.HttpPipelineBuilder;
 import com.github.gquintana.beepbeep.sql.SqlPipelineBuilder;
@@ -17,6 +18,9 @@ public final class Pipelines {
 
     public static PipelineBuilder create(String type) {
         PipelineBuilder pipelineBuilder;
+        if (type == null) {
+            throw new ConfigurationException("Null pipeline type");
+        }
         switch (type) {
             case "sql":
                 pipelineBuilder = new SqlPipelineBuilder();
@@ -31,7 +35,7 @@ public final class Pipelines {
                 try {
                     pipelineBuilder = (PipelineBuilder) Class.forName(type).newInstance();
                 } catch (ReflectiveOperationException e) {
-                    throw new BeepBeepException("Invalid pipeline type " + type, e);
+                    throw new ConfigurationException("Invalid pipeline type " + type, e);
                 }
         }
         return pipelineBuilder;

@@ -18,6 +18,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.gquintana.beepbeep.TestReflect.getField;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MainTest {
@@ -65,6 +66,23 @@ public class MainTest {
         // Then
         assertThat(main.url).isEqualTo("jdbc:h2:mem:test");
         assertThat(pipelineBuilder).isInstanceOf(SqlPipelineBuilder.class);
+
+    }
+
+    @Test
+    public void testCreatePipelineBuilder_SqlConfiguration() throws Exception {
+        // Given
+        File configFile = new File(temporaryFolder.getRoot(), "sql.yml");
+        TestFiles.writeResource("config/sql1.yml", configFile);
+        Main main = new Main();
+        CmdLineParser cmdLineParser = new CmdLineParser(main);
+        cmdLineParser.parseArgument(
+            "--config", configFile.getPath());
+        // When
+        PipelineBuilder pipelineBuilder = main.createPipelineBuilder();
+        // Then
+        assertThat(pipelineBuilder).isInstanceOf(SqlPipelineBuilder.class);
+        assertThat(getField(pipelineBuilder, "url")).isEqualTo("jdbc:h2:mem:test");
 
     }
 

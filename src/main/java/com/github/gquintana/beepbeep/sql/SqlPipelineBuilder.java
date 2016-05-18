@@ -33,8 +33,7 @@ public class SqlPipelineBuilder extends PipelineBuilder<SqlPipelineBuilder> {
     }
 
     public SqlPipelineBuilder withEndOfLineMarker(String marker) {
-        this.endOfLineRegex = Pattern.quote(marker) + "\\s*$";
-        return self();
+        return withEndOfLineRegex(Pattern.quote(marker) + "\\s*$");
     }
 
     /**

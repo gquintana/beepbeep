@@ -1,0 +1,10 @@
+---
+type: elasticsearch
+charset: UTF-8
+url: http://localhost:9200
+scriptStore: beepbeep/script
+scripts:
+  - elasticsearch/**/*.json
+variables:
+  test.1: "Test 1"
+  test.2: 2

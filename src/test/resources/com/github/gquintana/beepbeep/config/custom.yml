@@ -1,0 +1,6 @@
+---
+type: com.github.gquintana.beepbeep.config.TestPipelineBuilder
+charset: UTF-8
+scripts:
+  - sql/init/*.sql
+

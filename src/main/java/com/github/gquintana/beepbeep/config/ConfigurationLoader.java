@@ -5,9 +5,13 @@ import com.github.gquintana.beepbeep.pipeline.Pipelines;
 import com.github.gquintana.beepbeep.util.Strings;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -16,6 +20,24 @@ import static java.util.Arrays.asList;
 public class ConfigurationLoader {
     private final Yaml yaml = new Yaml();
 
+    public PipelineBuilder loadFile(Path configurationFile) {
+        try (FileInputStream inputStream = new FileInputStream(configurationFile.toFile())) {
+            return load(inputStream);
+        } catch (IOException e) {
+            throw new ConfigurationException("Failed to read configuration " + configurationFile);
+        }
+    }
+
+    public PipelineBuilder loadResource(String resource) {
+        try (InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource)) {
+            if (inputStream == null) {
+                throw new FileNotFoundException("Resource not found");
+            }
+            return load(inputStream);
+        } catch (IOException e) {
+            throw new ConfigurationException("Failed to read configuration " + resource, e);
+        }
+    }
 
     public PipelineBuilder load(InputStream inputStream) {
         Map<String, Object> map = yaml.loadAs(inputStream, Map.class);
@@ -25,23 +47,33 @@ public class ConfigurationLoader {
             if (keyValue.getKey().equals("type")) {
                 // Skip
             } else if (keyValue.getKey().equals("scripts")) {
-                if (keyValue.getValue() instanceof List) {
-                    List scripts = (List) keyValue.getValue();
-                    PipelineBuilder.CompositeScriptScannerBuilder compositeBuilder = pipelineBuilder.withCompositeScriptScanner();
-                    for (Object script : scripts) {
-                        compositeBuilder.files(convertToString(script));
-                    }
-                    compositeBuilder.end();
-                } else {
-                    pipelineBuilder.withFilesScriptScanner(convertToString(keyValue.getKey()));
-                }
+                applyWithScriptScanner(pipelineBuilder, keyValue.getValue());
             } else if (keyValue.getKey().equals("variables")) {
-
+                applyWithVariables(pipelineBuilder, keyValue.getValue());
             } else {
                 applyWith(pipelineBuilder, keyValue.getKey(), keyValue.getValue());
             }
         }
         return pipelineBuilder;
+    }
+
+    private void applyWithScriptScanner(PipelineBuilder pipelineBuilder, Object value) {
+        if (value instanceof List) {
+            List scripts = (List) value;
+            PipelineBuilder.CompositeScriptScannerBuilder compositeBuilder = pipelineBuilder.withCompositeScriptScanner();
+            for (Object script : scripts) {
+                compositeBuilder.files(convertToString(script));
+            }
+            compositeBuilder.end();
+        } else {
+            pipelineBuilder.withFilesScriptScanner(convertToString(value));
+        }
+    }
+
+    private void applyWithVariables(PipelineBuilder pipelineBuilder, Object value) {
+        if (value instanceof Map) {
+            pipelineBuilder.withVariables((Map) value);
+        }
     }
 
     /**

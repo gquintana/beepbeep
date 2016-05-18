@@ -1,6 +1,7 @@
 package com.github.gquintana.beepbeep.pipeline;
 
 import com.github.gquintana.beepbeep.BeepBeepException;
+import com.github.gquintana.beepbeep.config.ConfigurationException;
 import com.github.gquintana.beepbeep.script.*;
 import com.github.gquintana.beepbeep.store.ScriptStore;
 import com.github.gquintana.beepbeep.store.ScriptStoreFilter;
@@ -119,7 +120,7 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
      */
     public ScriptScanner createScriptScanner() {
         if (scriptScannerFactory == null) {
-            throw new BeepBeepException("No script scanner configured");
+            throw new ConfigurationException("No scripts configured to run");
         }
         Consumer<ScriptStartEvent> consumer = createConsumers();
         return scriptScannerFactory.create(consumer);
