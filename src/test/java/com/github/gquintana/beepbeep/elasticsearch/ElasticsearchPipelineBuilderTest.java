@@ -2,12 +2,7 @@ package com.github.gquintana.beepbeep.elasticsearch;
 
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.http.HttpClientProvider;
-import com.github.gquintana.beepbeep.pipeline.Consumer;
 import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
-import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
-import com.github.gquintana.beepbeep.script.ResourceScript;
-import com.github.gquintana.beepbeep.script.ResourceScriptScanner;
-import com.github.gquintana.beepbeep.script.ScriptScanners;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;

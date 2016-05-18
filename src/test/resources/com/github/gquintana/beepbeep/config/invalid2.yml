@@ -1,0 +1,4 @@
+---
+type: com.github.gquintana.beepbeep.config.TestPipelineBuilder
+charset: UTF-8
+class: java.lang.Integer

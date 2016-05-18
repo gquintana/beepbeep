@@ -1,16 +1,10 @@
 package com.github.gquintana.beepbeep.cli;
 
 import com.github.gquintana.beepbeep.TestFiles;
-import com.github.gquintana.beepbeep.http.HttpPipelineBuilder;
-import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
 import com.github.gquintana.beepbeep.sql.DriverSqlConnectionProvider;
-import com.github.gquintana.beepbeep.sql.SqlPipelineBuilder;
-import com.github.gquintana.beepbeep.sql.TestSqlConnectionProviders;
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.kohsuke.args4j.CmdLineParser;
 
 import java.io.File;
 import java.sql.Connection;

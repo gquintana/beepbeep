@@ -5,7 +5,6 @@ import com.github.gquintana.beepbeep.pipeline.LineEvent;
 import com.github.gquintana.beepbeep.pipeline.RegexReplacerProcessor;
 import com.github.gquintana.beepbeep.pipeline.ResultEvent;
 import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
-import org.h2.Driver;
 import org.junit.Test;
 
 import java.util.List;
