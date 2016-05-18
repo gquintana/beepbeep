@@ -17,13 +17,11 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.Map;
 
 import static com.github.gquintana.beepbeep.TestReflect.getField;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 public class ConfigurationLoaderTest {
     @Rule

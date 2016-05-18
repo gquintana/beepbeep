@@ -2,10 +2,8 @@ package com.github.gquintana.beepbeep.cli;
 
 import com.github.gquintana.beepbeep.BeepBeepException;
 import com.github.gquintana.beepbeep.config.ConfigurationLoader;
-import com.github.gquintana.beepbeep.pipeline.Consumer;
 import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
 import com.github.gquintana.beepbeep.pipeline.Pipelines;
-import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;

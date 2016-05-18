@@ -3,7 +3,6 @@ package com.github.gquintana.beepbeep.cli;
 import com.github.gquintana.beepbeep.TestFiles;
 import com.github.gquintana.beepbeep.elasticsearch.ElasticsearchRule;
 import com.github.gquintana.beepbeep.http.HttpClientProvider;
-import com.github.gquintana.beepbeep.sql.DriverSqlConnectionProvider;
 import org.apache.http.client.methods.HttpDelete;
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,13 +10,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;

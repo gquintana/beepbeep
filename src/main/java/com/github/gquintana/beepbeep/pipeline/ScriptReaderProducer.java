@@ -3,7 +3,9 @@ package com.github.gquintana.beepbeep.pipeline;
 import com.github.gquintana.beepbeep.BeepBeepException;
 import com.github.gquintana.beepbeep.script.Script;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 public class ScriptReaderProducer extends Producer<ScriptEvent> implements Consumer<ScriptStartEvent> {

@@ -14,7 +14,7 @@ import org.junit.Test;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 public class ScriptStoreUpdaterTest {
     private TestConsumer<ScriptEvent> output;

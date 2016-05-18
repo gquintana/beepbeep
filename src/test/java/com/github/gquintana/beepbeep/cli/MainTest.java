@@ -2,9 +2,7 @@ package com.github.gquintana.beepbeep.cli;
 
 import com.github.gquintana.beepbeep.TestFiles;
 import com.github.gquintana.beepbeep.elasticsearch.ElasticsearchPipelineBuilder;
-import com.github.gquintana.beepbeep.http.HttpPipelineBuilder;
 import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
-import com.github.gquintana.beepbeep.sql.DriverSqlConnectionProvider;
 import com.github.gquintana.beepbeep.sql.SqlPipelineBuilder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,11 +10,6 @@ import org.junit.rules.TemporaryFolder;
 import org.kohsuke.args4j.CmdLineParser;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.github.gquintana.beepbeep.TestReflect.getField;
 import static org.assertj.core.api.Assertions.assertThat;

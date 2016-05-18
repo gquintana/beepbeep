@@ -1,6 +1,5 @@
 package com.github.gquintana.beepbeep.pipeline;
 
-import com.github.gquintana.beepbeep.BeepBeepException;
 import com.github.gquintana.beepbeep.config.ConfigurationException;
 import com.github.gquintana.beepbeep.script.*;
 import com.github.gquintana.beepbeep.store.ScriptStore;
@@ -10,9 +9,7 @@ import com.github.gquintana.beepbeep.store.ScriptStoreUpdater;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 

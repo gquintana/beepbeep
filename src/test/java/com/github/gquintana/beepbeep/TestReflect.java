@@ -2,8 +2,6 @@ package com.github.gquintana.beepbeep;
 
 import java.lang.reflect.Field;
 
-import static org.assertj.core.api.Assertions.fail;
-
 public class TestReflect {
     /**
      * Get field value by reflection

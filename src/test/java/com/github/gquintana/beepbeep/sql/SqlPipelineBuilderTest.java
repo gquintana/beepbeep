@@ -10,7 +10,6 @@ import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import com.github.gquintana.beepbeep.script.Script;
 import com.github.gquintana.beepbeep.script.ScriptScanners;
-import org.h2.Driver;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;

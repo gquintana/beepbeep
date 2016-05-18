@@ -1,11 +1,9 @@
 package com.github.gquintana.beepbeep.pipeline;
 
-import com.github.gquintana.beepbeep.BeepBeepException;
 import com.github.gquintana.beepbeep.config.ConfigurationException;
 import com.github.gquintana.beepbeep.elasticsearch.ElasticsearchPipelineBuilder;
 import com.github.gquintana.beepbeep.http.HttpPipelineBuilder;
 import com.github.gquintana.beepbeep.sql.SqlPipelineBuilder;
-import org.kohsuke.args4j.CmdLineException;
 
 /**
  * Pipeline factory
