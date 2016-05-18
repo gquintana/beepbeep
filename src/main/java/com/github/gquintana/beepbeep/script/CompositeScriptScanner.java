@@ -13,99 +13,126 @@ import java.util.function.Predicate;
  * Execute several scripts or several file globs
  */
 public class CompositeScriptScanner extends ScriptScanner {
-    private final List<ScriptScanner> scanners = new ArrayList<>();
+    private final List<ScriptScannerFactory> scannerFactories;
 
-    public CompositeScriptScanner(Consumer<ScriptStartEvent> consumer) {
+    private CompositeScriptScanner(List<ScriptScannerFactory> scannerFactories, Consumer<ScriptStartEvent> consumer) {
         super(consumer);
+        this.scannerFactories = scannerFactories;
     }
 
-    public CompositeScriptScanner scanner(ScriptScanner scanner) {
-        scanners.add(scanner);
-        return this;
+    public static Builder builder() {
+        return new Builder();
     }
 
-    /**
-     * Add single script
-     */
-    public CompositeScriptScanner script(Script script) {
-        return scanner(ScriptScanners.script(script, consumer));
-    }
+    public static class Builder<B extends Builder<B>> {
+        private final List<ScriptScannerFactory> scannerFactories = new ArrayList<>();
 
-    /**
-     * Add single script from file system
-     */
-    public CompositeScriptScanner file(Path file) {
-        return script(new FileScript(file));
-    }
-
-    /**
-     * Add multiple scripts from file system
-     */
-    public CompositeScriptScanner files(Path... files) {
-        for (Path file : files) {
-            file(file);
+        protected B self() {
+            return (B) this;
         }
-        return this;
-    }
 
-    /**
-     * Add single script from class path
-     */
-    public CompositeScriptScanner resource(Class clazz, String resource) {
-        return script(ResourceScript.create(clazz, resource));
-    }
-
-    /**
-     * Add multiple scripts from class path
-     */
-    public CompositeScriptScanner resources(Class clazz, String... resources) {
-        for (String resource : resources) {
-            resource(clazz, resource);
+        public B scanner(ScriptScannerFactory scannerFactory) {
+            scannerFactories.add(scannerFactory);
+            return self();
         }
-        return this;
-    }
 
-    /**
-     * Add single script from class path
-     */
-    public CompositeScriptScanner resource(ClassLoader classLoader, String resource) {
-        return script(ResourceScript.create(classLoader, resource));
-    }
-
-    /**
-     * Add multiple scripts from class path
-     */
-    public CompositeScriptScanner resources(ClassLoader classLoader, String... resources) {
-        for (String resource : resources) {
-            resource(classLoader, resource);
+        /**
+         * Add single script
+         */
+        public B script(Script script) {
+            return scanner(ScriptScannerFactories.script(script));
         }
-        return this;
-    }
 
-    /**
-     * Scan and add script from file system
-     */
-    public CompositeScriptScanner files(Path folder, Predicate<Path> fileFilter) {
-        return scanner(ScriptScanners.files(folder, fileFilter, consumer));
-    }
+        /**
+         * Add single script from file system
+         */
+        public B file(Path file) {
+            return script(new FileScript(file));
+        }
 
-    /**
-     * Scan and add script from file system, using file glob
-     */
-    public CompositeScriptScanner files(String fileGlob, Predicate<Path> fileFilter) {
-        return scanner(ScriptScanners.files(fileGlob, consumer));
-    }
+        /**
+         * Add multiple scripts from file system
+         */
+        public B files(Path... files) {
+            for (Path file : files) {
+                file(file);
+            }
+            return self();
+        }
 
-    /**
-     * Scan and add script from class path
-     */
-    public CompositeScriptScanner resources(ClassLoader classLoader, Predicate<String> resourceFilter) {
-        return scanner(ScriptScanners.resources(classLoader, resourceFilter, consumer));
+        /**
+         * Add single script from class path
+         */
+        public B resource(Class clazz, String resource) {
+            return scanner(ScriptScannerFactories.resource(clazz, resource));
+        }
+
+        /**
+         * Add multiple scripts from class path
+         */
+        public B resources(Class clazz, String... resources) {
+            for (String resource : resources) {
+                resource(clazz, resource);
+            }
+            return self();
+        }
+
+        /**
+         * Add single script from class path
+         */
+        public B resource(ClassLoader classLoader, String resource) {
+            return scanner(ScriptScannerFactories.resource(classLoader, resource));
+        }
+
+        /**
+         * Add multiple scripts from class path
+         */
+        public B resources(ClassLoader classLoader, String... resources) {
+            for (String resource : resources) {
+                resource(classLoader, resource);
+            }
+            return self();
+        }
+
+        /**
+         * Scan and add script from file system
+         */
+        public B files(Path folder, Predicate<Path> fileFilter) {
+            return scanner(ScriptScannerFactories.files(folder, fileFilter));
+        }
+
+        /**
+         * Scan and add script from file system, using file glob
+         */
+        public B files(String fileGlob) {
+            return scanner(ScriptScannerFactories.files(fileGlob));
+        }
+
+        /**
+         * Scan and add script from class path
+         */
+        public B resources(ClassLoader classLoader, Predicate<String> resourceFilter) {
+            return scanner(ScriptScannerFactories.resources(classLoader, resourceFilter));
+        }
+
+        public CompositeScriptScanner build(Consumer<ScriptStartEvent> consumer) {
+            return new CompositeScriptScanner(scannerFactories, consumer);
+        }
+
+        public ScriptScannerFactory factory() {
+            switch (scannerFactories.size()) {
+                case 1:
+                    return scannerFactories.get(0);
+                default:
+                    return this::build;
+            }
+        }
     }
 
     @Override
     public void scan() throws IOException {
-        for (ScriptScanner scanner : scanners) {
+        for (ScriptScannerFactory scannerFactory : scannerFactories) {
+            ScriptScanner scanner = scannerFactory.create(consumer);
             scanner.scan();
         }
     }

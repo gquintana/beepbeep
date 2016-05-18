@@ -2,8 +2,6 @@ package com.github.gquintana.beepbeep.config;
 
 import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
 import com.github.gquintana.beepbeep.pipeline.Pipelines;
-import com.github.gquintana.beepbeep.script.ScriptScanner;
-import com.github.gquintana.beepbeep.script.ScriptScanners;
 import com.github.gquintana.beepbeep.util.Strings;
 import org.yaml.snakeyaml.Yaml;
 
@@ -29,15 +27,11 @@ public class ConfigurationLoader {
             } else if (keyValue.getKey().equals("scripts")) {
                 if (keyValue.getValue() instanceof List) {
                     List scripts = (List) keyValue.getValue();
-                    if (scripts.size() == 1) {
-                        pipelineBuilder.withFilesScriptScanner(convertToString(scripts.get(0)));
-                    } else {
-                        PipelineBuilder.CompositeScriptScannerBuilder compositeBuilder = pipelineBuilder.withCompositeScriptScanner();
-                        for (Object script : scripts) {
-                            compositeBuilder.withFilesScriptScanner(convertToString(script));
-                        }
-                        compositeBuilder.end();
+                    PipelineBuilder.CompositeScriptScannerBuilder compositeBuilder = pipelineBuilder.withCompositeScriptScanner();
+                    for (Object script : scripts) {
+                        compositeBuilder.files(convertToString(script));
                     }
+                    compositeBuilder.end();
                 } else {
                     pipelineBuilder.withFilesScriptScanner(convertToString(keyValue.getKey()));
                 }
@@ -85,10 +79,6 @@ public class ConfigurationLoader {
             return false;
         }
         if (method.getName().equals(setterName)) {
-            return true;
-        }
-        Configuration annotation = method.getAnnotation(Configuration.class);
-        if (annotation != null && annotation.name() != null && annotation.name().equals(fieldName)) {
             return true;
         }
         return false;

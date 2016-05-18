@@ -47,7 +47,7 @@ public class MainTest {
             "--username", "sa",
             "--files", "target/test-classes/com/github/gquintana/beepbeep/**/*.sql");
         // Then
-        assertThat(exit).isEqualTo(1);
+        assertThat(exit).isEqualTo(2);
     }
 
     @Test

@@ -108,6 +108,7 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
 
     /**
      * Create consumer chain
+     *
      * @return Head of consumer chain
      */
     public abstract Consumer<ScriptStartEvent> createConsumers();
@@ -137,11 +138,6 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
         scriptScanner.scan();
     }
 
-    @FunctionalInterface
-    private interface ScriptScannerFactory {
-        ScriptScanner create(Consumer<ScriptStartEvent> consumer);
-    }
-
     B withScriptScanner(ScriptScannerFactory scriptScriptScannerFactory) {
         this.scriptScannerFactory = scriptScriptScannerFactory;
         return self();
@@ -151,91 +147,71 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
      * Use single script
      */
     public B withScriptScanner(Script script) {
-        return withScriptScanner(c -> ScriptScanners.script(script, c));
+        return withScriptScanner(ScriptScannerFactories.script(script));
     }
 
     /**
      * Use single scripts from file system
      */
     public B withFileScriptScanner(Path file) {
-        return withScriptScanner(c -> ScriptScanners.file(file, c));
+        return withScriptScanner(ScriptScannerFactories.file(file));
     }
 
     /**
      * Use single scripts from class path
      */
     public B withResourceScriptScanner(Class clazz, String resource) {
-        return withScriptScanner(x -> ScriptScanners.resource(clazz, resource, x));
+        return withScriptScanner(ScriptScannerFactories.resource(clazz, resource));
     }
 
     /**
      * Use single scripts from class path
      */
     public B withResourceScriptScanner(ClassLoader classLoader, String resource) {
-        return withScriptScanner(x -> ScriptScanners.resource(classLoader, resource, x));
+        return withScriptScanner(ScriptScannerFactories.resource(classLoader, resource));
     }
 
     /**
      * Scan and use muliples scripts from file system
      */
     public B withFilesScriptScanner(Path folder, Predicate<Path> fileFilter) {
-        return withScriptScanner(x -> ScriptScanners.files(folder, fileFilter, x));
+        return withScriptScanner(ScriptScannerFactories.files(folder, fileFilter));
     }
 
     /**
      * Scan and use muliples scripts from file system using file glob syntax
      */
     public B withFilesScriptScanner(String fileGlob) {
-        return withScriptScanner(x -> ScriptScanners.files(fileGlob, x));
+        return withScriptScanner(ScriptScannerFactories.files(fileGlob));
     }
 
     /**
      * Scan and use muliple scripts from class path
      */
     public B withResourcesScriptScanner(ClassLoader classLoader, Predicate<String> resourceFilter) {
-        return withScriptScanner(x -> ScriptScanners.resources(classLoader, resourceFilter, x));
+        return withScriptScanner(ScriptScannerFactories.resources(classLoader, resourceFilter));
     }
 
     /**
      * Scan and use muliple scripts from class path using resource glob syntact
      */
     public B withResourcesScriptScanner(ClassLoader classLoader, String resourceGlob) {
-        return withScriptScanner(x -> ScriptScanners.resources(classLoader, resourceGlob, x));
+        return withScriptScanner(ScriptScannerFactories.resources(classLoader, resourceGlob));
     }
 
     public CompositeScriptScannerBuilder<B> withCompositeScriptScanner() {
         return new CompositeScriptScannerBuilder<>((B) this);
     }
-    public static class CompositeScriptScannerBuilder<B extends PipelineBuilder<B>>  {
+
+    public static class CompositeScriptScannerBuilder<B extends PipelineBuilder<B>> extends CompositeScriptScanner.Builder<CompositeScriptScannerBuilder<B>> {
         private final B parentBuilder;
-        private final List<ScriptScannerFactory> scriptScannerFactories = new ArrayList<>();
 
         public CompositeScriptScannerBuilder(B parentBuilder) {
             this.parentBuilder = parentBuilder;
         }
 
-        private CompositeScriptScannerBuilder withScriptScanner(ScriptScannerFactory scriptScannerFactory) {
-            scriptScannerFactories.add(scriptScannerFactory);
-            return this;
-        }
-
-        /**
-         * Scan and use muliples scripts from file system using file glob syntax
-         */
-        public CompositeScriptScannerBuilder withFilesScriptScanner(String fileGlob) {
-            return withScriptScanner(x -> ScriptScanners.files(fileGlob, x));
-        }
-
-        private CompositeScriptScanner create(Consumer<ScriptStartEvent> output) {
-            CompositeScriptScanner scanner = new CompositeScriptScanner(output);
-            for(ScriptScannerFactory scannerFactory: scriptScannerFactories) {
-                scanner.scanner(scannerFactory.create(output));
-            }
-            return scanner;
-        }
         public B end() {
-            ScriptScannerFactory scannerFactory = this::create;
-            return parentBuilder.withScriptScanner(scannerFactory);
+            return parentBuilder.withScriptScanner(factory());
         }
 
     }

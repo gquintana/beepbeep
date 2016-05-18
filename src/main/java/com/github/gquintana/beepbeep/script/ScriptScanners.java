@@ -69,7 +69,7 @@ public final class ScriptScanners {
     /**
      * Mix and use multiple scripts from file system and class path
      */
-    public static CompositeScriptScanner composite(Consumer<ScriptStartEvent> scriptConsumer) {
-        return new CompositeScriptScanner(scriptConsumer);
+    public static CompositeScriptScanner.Builder composite() {
+        return CompositeScriptScanner.builder();
     }
 }
