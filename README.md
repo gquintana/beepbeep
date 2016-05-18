@@ -42,3 +42,17 @@ new SqlPipelineBuilder()
       "com/github/gquintana/beepbeep/script/**/*.sql")
     .scan();
 ```
+
+## Installation
+
+### Build from source
+
+1. Install Java DK 8 and Apache Maven 3
+2. Run Maven `mvn install`
+
+### Command line tool
+
+1. Grab the `target\beepbeep-x.y-bin.zip` and unzip it anywhere
+2. If necessary, add your JDBC driver Jar in the `lib` folder
+3. If necessary, edit the configuration files in the `config` 
+

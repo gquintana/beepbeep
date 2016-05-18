@@ -183,4 +183,44 @@
 
     </plugins>
   </build>
+
+  <scm>
+    <connection>scm:git:https://github.com/gquintana/beepbeep.git</connection>
+    <developerConnection>scm:git:https://github.com/gquintana/beepbeep.git</developerConnection>
+    <url>https://github.com/gquintana/beepbeep.git</url>
+  </scm>
+  <prerequisites>
+    <maven>3.0.4</maven>
+  </prerequisites>
+  <distributionManagement>
+    <repository>
+      <id>nexus-releases</id>
+      <name>Nexus Release Repository</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Nexus Snapshot Repository</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
+  <issueManagement>
+    <url>https://github.com/gquintana/beepbeep/issues</url>
+    <system>Github Issues</system>
+  </issueManagement>
+  <inceptionYear>2016</inceptionYear>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/licenses/MIT</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <name>Gérald Quintana</name>
+      <roles>
+        <role>Main Developer</role>
+      </roles>
+    </developer>
+  </developers>
 </project>
