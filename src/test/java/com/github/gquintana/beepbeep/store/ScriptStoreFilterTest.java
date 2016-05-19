@@ -1,5 +1,6 @@
 package com.github.gquintana.beepbeep.store;
 
+import com.github.gquintana.beepbeep.BeepBeepException;
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.TestFiles;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
@@ -13,6 +14,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
 
 public class ScriptStoreFilterTest {
 
@@ -48,6 +50,9 @@ public class ScriptStoreFilterTest {
         assertThat(output.events).hasSize(1);
     }
 
+    // ------------------------------------------------------------------------
+    // Re run same
+
     @Test
     public void testFilter_DontReRunSameWhenSucceeded() {
         // Given
@@ -64,6 +69,7 @@ public class ScriptStoreFilterTest {
         // Given
         Instant now = Instant.now();
         storeScript(now, now.plusSeconds(10), ScriptStatus.FAILED);
+        filter.setReRunFailed(false);
         // When
         filter.consume(new ScriptStartEvent(script));
         // Then
@@ -72,7 +78,7 @@ public class ScriptStoreFilterTest {
 
 
     @Test
-    public void testFilter_ReRunSameWhenFailedAndFlag() {
+    public void testFilter_ReRunSameWhenFailedAndRRFFlag() {
         // Given
         Instant now = Instant.now();
         storeScript(now, now.plusSeconds(10), ScriptStatus.FAILED);
@@ -84,13 +90,18 @@ public class ScriptStoreFilterTest {
     }
 
     @Test
-    public void testFilter_DontReRunSameWhenStarted() {
+    public void testFilter_FailSameWhenStarted() {
         // Given
         Instant now = Instant.now();
         storeScript(now, null, ScriptStatus.STARTED);
         filter.setReRunStartedTimeout(Duration.ofMinutes(1));
         // When
-        filter.consume(new ScriptStartEvent(script));
+        try {
+            filter.consume(new ScriptStartEvent(script));
+            fail("Exception expected");
+        } catch (BeepBeepException e) {
+            e.printStackTrace();
+        }
         // Then
         assertThat(output.events).isEmpty();
     }
@@ -107,19 +118,26 @@ public class ScriptStoreFilterTest {
         assertThat(output.events).hasSize(1);
     }
 
+    // ------------------------------------------------------------------------
+    // Re run changed
+
     @Test
-    public void testFilter_DontReRunChangedWhenSucceeded() {
+    public void testFilter_FailChangedWhenSucceeded() {
         // Given
         Instant now = Instant.now();
         storeScriptChanged(now, now.plusSeconds(10), ScriptStatus.SUCCEEDED);
         // When
-        filter.consume(new ScriptStartEvent(script));
+        try {
+            filter.consume(new ScriptStartEvent(script));
+            fail("Exception expected");
+        } catch (Exception e) {
+        }
         // Then
         assertThat(output.events).isEmpty();
     }
 
     @Test
-    public void testFilter_ReRunChangedSucceededAndFlag() {
+    public void testFilter_ReRunChangedSucceededAndRRCFlag() {
         // Given
         Instant now = Instant.now();
         storeScriptChanged(now, now.plusSeconds(10), ScriptStatus.SUCCEEDED);
@@ -131,23 +149,27 @@ public class ScriptStoreFilterTest {
     }
 
     @Test
-    public void testFilter_DontReRunChangedWhenFailed() {
+    public void testFilter_FailChangedWhenFailed() {
         // Given
         Instant now = Instant.now();
         storeScriptChanged(now, now.plusSeconds(10), ScriptStatus.FAILED);
         // When
-        filter.consume(new ScriptStartEvent(script));
+        try {
+            filter.consume(new ScriptStartEvent(script));
+            fail("Exception expected");
+        } catch (BeepBeepException e) {
+        }
         // Then
         assertThat(output.events).isEmpty();
     }
 
 
     @Test
-    public void testFilter_ReRunChangedWhenFailedAndFlag() {
+    public void testFilter_ReRunChangedWhenFailedAndRRCFlag() {
         // Given
         Instant now = Instant.now();
         storeScriptChanged(now, now.plusSeconds(10), ScriptStatus.FAILED);
-        filter.setReRunFailed(true);
+        filter.setReRunChanged(true);
         // When
         filter.consume(new ScriptStartEvent(script));
         // Then
@@ -155,23 +177,28 @@ public class ScriptStoreFilterTest {
     }
 
     @Test
-    public void testFilter_DontReRunChangedWhenStarted() {
+    public void testFilter_FailChangedWhenStarted() {
         // Given
         Instant now = Instant.now();
         storeScriptChanged(now, null, ScriptStatus.STARTED);
         filter.setReRunStartedTimeout(Duration.ofMinutes(1));
         // When
-        filter.consume(new ScriptStartEvent(script));
+        try {
+            filter.consume(new ScriptStartEvent(script));
+            fail("Exception expected");
+        } catch (Exception e) {
+        }
         // Then
         assertThat(output.events).isEmpty();
     }
 
     @Test
-    public void testFilter_ReRunChangedWhenStartedButTimeout() {
+    public void testFilter_ReRunChangedWhenStartedWhenRRCFlagButTimeout() {
         // Given
         Instant now = Instant.now().minus(30, ChronoUnit.MINUTES);
         storeScriptChanged(now, null, ScriptStatus.STARTED);
         filter.setReRunStartedTimeout(Duration.ofMinutes(1));
+        filter.setReRunChanged(true);
         // When
         filter.consume(new ScriptStartEvent(script));
         // Then
