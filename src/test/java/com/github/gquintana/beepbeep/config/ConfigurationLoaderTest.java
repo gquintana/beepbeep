@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.Map;
 
 import static com.github.gquintana.beepbeep.TestReflect.getField;
@@ -78,6 +79,37 @@ public class ConfigurationLoaderTest {
         // Then
         assertThat(pipelineBuilder).isInstanceOf(SqlPipelineBuilder.class);
     }
+
+    @Test
+    public void testSqlSnakeCaseYml_File() throws Exception {
+        // Given
+        ConfigurationLoader configurationLoader = new ConfigurationLoader();
+        File configurationFile = new File(temporaryFolder.getRoot(), "sql.yml");
+        TestFiles.writeResource("config/sql_snakecase.yml", configurationFile);
+        // When
+        PipelineBuilder pipelineBuilder = configurationLoader.loadFile(configurationFile.toPath());
+        // Then
+        assertThat(pipelineBuilder).isInstanceOf(SqlPipelineBuilder.class);
+        SqlScriptStore scriptStore = (SqlScriptStore) getField(pipelineBuilder, "scriptStore");
+        assertThat(getField(scriptStore, "table")).isEqualTo("snake");
+        assertThat(getField(pipelineBuilder, "autoCommit")).isEqualTo(false);
+    }
+
+    @Test
+    public void testSqlScripStoreYml_File() throws Exception {
+        // Given
+        ConfigurationLoader configurationLoader = new ConfigurationLoader();
+        File configurationFile = new File(temporaryFolder.getRoot(), "sql.yml");
+        TestFiles.writeResource("config/sql_scriptstore.yml", configurationFile);
+        // When
+        PipelineBuilder pipelineBuilder = configurationLoader.loadFile(configurationFile.toPath());
+        // Then
+        assertThat(pipelineBuilder).isInstanceOf(SqlPipelineBuilder.class);
+        assertThat(getField(pipelineBuilder, "scriptStoreReRunChanged")).isEqualTo(true);
+        assertThat(getField(pipelineBuilder, "scriptStoreReRunFailed")).isEqualTo(false);
+        assertThat(getField(pipelineBuilder, "scriptStoreReRunStartedTimeout")).isEqualTo(Duration.ofMinutes(5L));
+    }
+
     @Test
     public void testSql2Yml() throws Exception {
         // Given

@@ -9,6 +9,7 @@ import com.github.gquintana.beepbeep.store.ScriptStoreUpdater;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.time.temporal.TemporalAmount;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -19,6 +20,18 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
     protected String username;
     protected String password;
     protected ScriptStore scriptStore;
+    /**
+     * Re run script when it is modified
+     */
+    private Boolean scriptStoreReRunChanged;
+    /**
+     * Re run script when it previously failed
+     */
+    private Boolean scriptStoreReRunFailed;
+    /**
+     * Re run script when it's stuck in started state after given timeout
+     */
+    private TemporalAmount scriptStoreReRunStartedTimeout;
     private Map<String, Object> variables;
     protected Consumer<ScriptEvent> endConsumer = event -> {
     };
@@ -82,6 +95,28 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
 
     public abstract B withScriptStore(String name);
 
+    /**
+     * Re run script when it is modified
+     */
+    public B withScriptStoreReRunChanged(boolean reRunChanged) {
+        this.scriptStoreReRunChanged = reRunChanged;
+        return self();
+    }
+    /**
+     * Re run script when it previously failed
+     */
+    public B withScriptStoreReRunFailed(boolean reRunFailed) {
+        this.scriptStoreReRunFailed = reRunFailed;
+        return self();
+    }
+    /**
+     * Re run script when it's stuck in started state after given timeout
+     */
+    public B withScriptStoreReRunStartedTimeout(TemporalAmount reRunStartedTimeout) {
+        this.scriptStoreReRunStartedTimeout = reRunStartedTimeout;
+        return self();
+    }
+
     protected Consumer<ScriptEvent> notNullNorEmptyFilter(Consumer<ScriptEvent> consumer) {
         return LineFilter.<ScriptEvent>notNulNotEmptyFilter(consumer);
     }
@@ -99,7 +134,11 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
         }
         Consumer<ScriptStartEvent> startConsumer = new ScriptReaderProducer(consumer, charset);
         if (scriptStore != null) {
-            startConsumer = new ScriptStoreFilter(scriptStore, startConsumer);
+            ScriptStoreFilter filter = new ScriptStoreFilter(scriptStore, startConsumer);
+            if (scriptStoreReRunFailed != null) filter.setReRunFailed(scriptStoreReRunFailed);
+            if (scriptStoreReRunChanged != null) filter.setReRunChanged(scriptStoreReRunChanged);
+            if (scriptStoreReRunStartedTimeout != null) filter.setReRunStartedTimeout(scriptStoreReRunStartedTimeout);
+            startConsumer = filter;
         }
         return startConsumer;
     }

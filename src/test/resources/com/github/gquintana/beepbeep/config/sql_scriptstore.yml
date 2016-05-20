@@ -1,0 +1,14 @@
+---
+type: sql
+charset: UTF-8
+url: jdbc:h2:mem:test
+username: sa
+password:
+autoCommit: false
+scriptStore:
+  name: beepbeep
+  reRunChanged: true
+  reRunFailed: false
+  reRunStartedTimeout: 5m
+scripts:
+  - sql/init/*.sql

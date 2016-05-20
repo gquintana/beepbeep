@@ -1,0 +1,11 @@
+---
+type: sql
+charset: UTF-8
+url: jdbc:h2:mem:test
+username: sa
+password:
+auto_commit: false
+script_store: snake
+scripts:
+  - sql/init/*.sql
+  - sql/other/*.sql

@@ -1,5 +1,8 @@
 package com.github.gquintana.beepbeep.util;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 /**
  * String utilities
  */
@@ -46,4 +49,16 @@ public final class Strings {
         }
         return new String(hexChars);
     }
+
+    public static String toCamelCase(String key) {
+        return Arrays.stream(key.split("[._-]"))
+            .map(Strings::upperCaseFirstChar)
+            .collect(Collectors.joining());
+    }
+
+    public static String upperCaseFirstChar(String word) {
+        return word.isEmpty() ? "" :
+            Character.toUpperCase(word.charAt(0)) + Strings.right(word, 1);
+    }
+
 }
