@@ -1,5 +1,6 @@
 package com.github.gquintana.beepbeep.elasticsearch;
 
+import com.github.gquintana.beepbeep.http.BasicHttpClientProvider;
 import com.github.gquintana.beepbeep.http.HttpClientProvider;
 import com.github.gquintana.beepbeep.store.ScriptInfo;
 import com.github.gquintana.beepbeep.store.ScriptStatus;
@@ -24,7 +25,7 @@ public class ElasticsearchScriptStoreTest {
 
     @Before
     public void setUp() {
-        httpClientProvider = new HttpClientProvider("http://" + elasticsearch.getElasticsearch().getHttpAddress());
+        httpClientProvider = new BasicHttpClientProvider("http://" + elasticsearch.getElasticsearch().getHttpAddress());
         store = new ElasticsearchScriptStore(httpClientProvider, ".beepbeep/beepbeep");
         store.prepare();
     }

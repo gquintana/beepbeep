@@ -2,6 +2,7 @@ package com.github.gquintana.beepbeep.cli;
 
 import com.github.gquintana.beepbeep.TestFiles;
 import com.github.gquintana.beepbeep.elasticsearch.ElasticsearchRule;
+import com.github.gquintana.beepbeep.http.BasicHttpClientProvider;
 import com.github.gquintana.beepbeep.http.HttpClientProvider;
 import org.apache.http.client.methods.HttpDelete;
 import org.junit.Rule;
@@ -69,7 +70,7 @@ public class ElasticsearchMainTest {
 
     public void deleteIndices(String esUrl, String... indices) {
         try {
-            HttpClientProvider httpClientProvider = new HttpClientProvider(esUrl);
+            HttpClientProvider httpClientProvider = new BasicHttpClientProvider(esUrl);
             HttpDelete httpRequest = new HttpDelete(Arrays.stream(indices).collect(Collectors.joining(",")) + "?ignore_unavailable=true");
             httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), httpRequest);
         } catch (IOException e) {

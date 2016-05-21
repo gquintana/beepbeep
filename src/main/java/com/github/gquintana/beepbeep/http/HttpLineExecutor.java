@@ -1,5 +1,6 @@
 package com.github.gquintana.beepbeep.http;
 
+import com.github.gquintana.beepbeep.BeepBeepException;
 import com.github.gquintana.beepbeep.LineException;
 import com.github.gquintana.beepbeep.pipeline.Consumer;
 import com.github.gquintana.beepbeep.pipeline.LineEvent;
@@ -11,6 +12,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,6 +34,18 @@ public class HttpLineExecutor extends LineExecutor {
         if (httpClient == null) {
             httpClient = httpClientProvider.getHttpClient();
         }
+    }
+
+    @Override
+    protected void executeEnd(boolean success) {
+        if (httpClient instanceof CloseableHttpClient) {
+            try {
+                ((CloseableHttpClient) httpClient).close();
+            } catch (IOException e) {
+                throw new BeepBeepException("Failed to closee HTTP client", e);
+            }
+        }
+        httpClient = null;
     }
 
     private HttpRequestBase createHttpRequest(HttpLine httpLine) throws UnsupportedEncodingException {

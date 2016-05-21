@@ -22,7 +22,7 @@ public class HttpLineExecutorTest {
     public void testGetGoogle() {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
-        HttpClientProvider httpClientProvider = new HttpClientProvider("http://www.google.com");
+        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://www.google.com");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
@@ -39,7 +39,7 @@ public class HttpLineExecutorTest {
             .willReturn(aResponse().withStatus(200).withHeader("Content-type", "application/json")
                 .withBody("{\"body\":\"Hello world\"}")));
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
-        HttpClientProvider httpClientProvider = new HttpClientProvider("http://localhost:8080/");
+        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://localhost:8080/");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
@@ -61,7 +61,7 @@ public class HttpLineExecutorTest {
                 .withHeader("Content-type", "application/json; charset=UTF-8")
                 .withBody("{\"created\":\"true\"}")));
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
-        HttpClientProvider httpClientProvider = new HttpClientProvider("http://localhost:8080/");
+        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://localhost:8080/");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
@@ -78,7 +78,7 @@ public class HttpLineExecutorTest {
     public void testEmpty() {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
-        HttpClientProvider httpClientProvider = new HttpClientProvider("http://localhost:8080/");
+        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://localhost:8080/");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
@@ -93,7 +93,7 @@ public class HttpLineExecutorTest {
     public void testParseFailure() {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
-        HttpClientProvider httpClientProvider = new HttpClientProvider("http://localhost:8080/");
+        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://localhost:8080/");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         processor.consume(new LineEvent(null, 1, "FAIL /at/url"));
@@ -105,7 +105,7 @@ public class HttpLineExecutorTest {
     public void test404Error() {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
-        HttpClientProvider httpClientProvider = new HttpClientProvider("http://localhost:8080/");
+        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://localhost:8080/");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         processor.consume(new LineEvent(null, 1, "GET /unknown/url"));
@@ -117,7 +117,7 @@ public class HttpLineExecutorTest {
     public void testConnectionError() {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
-        HttpClientProvider httpClientProvider = new HttpClientProvider("http://unknown");
+        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://unknown");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         processor.consume(new LineEvent(null, 1, "GET /unknown/url"));

@@ -4,7 +4,7 @@ import com.github.gquintana.beepbeep.pipeline.*;
 import com.github.gquintana.beepbeep.store.MemoryScriptStore;
 
 public class HttpPipelineBuilder<B extends HttpPipelineBuilder<B>> extends PipelineBuilder<B> {
-    private HttpClientProvider httpClientProvider = new HttpClientProvider();
+    private HttpClientProvider httpClientProvider = new BasicHttpClientProvider();
 
     public B withHttpClientProvider(HttpClientProvider httpClientProvider) {
         this.httpClientProvider = httpClientProvider;
@@ -12,10 +12,15 @@ public class HttpPipelineBuilder<B extends HttpPipelineBuilder<B>> extends Pipel
     }
 
     public HttpClientProvider getHttpClientProvider() {
-        httpClientProvider.setUrl(url);
-        httpClientProvider.setUsername(username);
-        httpClientProvider.setPassword(password);
-        return httpClientProvider;
+        if (httpClientProvider instanceof BasicHttpClientProvider) {
+            BasicHttpClientProvider baseHttpClientProvider = (BasicHttpClientProvider) httpClientProvider;
+            baseHttpClientProvider.setUrl(url);
+            baseHttpClientProvider.setUsername(username);
+            baseHttpClientProvider.setPassword(password);
+            return baseHttpClientProvider;
+        } else {
+            return httpClientProvider;
+        }
     }
 
     @Override
@@ -33,7 +38,8 @@ public class HttpPipelineBuilder<B extends HttpPipelineBuilder<B>> extends Pipel
         return scriptReader(consumer);
     }
 
-    public static HttpPipelineBuilder builder() {
-        return new HttpPipelineBuilder();
+    @Override
+    public Pipeline build() {
+        return new HttpPipeline(getScriptStore(), createScriptScanner(), getHttpClientProvider());
     }
 }

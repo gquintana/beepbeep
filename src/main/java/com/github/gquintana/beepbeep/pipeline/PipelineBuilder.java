@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
+public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements AutoCloseable {
     protected Charset charset = Charset.forName("UTF-8");
     protected String url;
     protected String username;
@@ -162,17 +162,16 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
         return scriptScannerFactory.create(consumer);
     }
 
+    public Pipeline build() {
+        return new Pipeline(getScriptStore(), createScriptScanner());
+    }
     /**
      * Create consumer chain and scanner, then run scanner
      */
     public void scan() throws IOException {
-        // Prepare script store if needed
-        if (scriptStore != null) {
-            scriptStore.prepare();
+        try(Pipeline pipeline = build()) {
+            pipeline.run();
         }
-        // Run script scanner
-        ScriptScanner scriptScanner = createScriptScanner();
-        scriptScanner.scan();
     }
 
     B withScriptScanner(ScriptScannerFactory scriptScriptScannerFactory) {
@@ -250,6 +249,11 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
         public B end() {
             return parentBuilder.withScriptScanner(factory());
         }
+
+    }
+
+    @Override
+    public void close() throws Exception {
 
     }
 }

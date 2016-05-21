@@ -42,15 +42,18 @@ public class SqlPipelineBuilderTest {
         }
     }
 
+    public DriverSqlConnectionProvider createFileConnectionProvider() throws IOException {
+        File h2dbFolder = temporaryFolder.newFolder("h2db");
+        return createSqlConnectionProvider(h2dbFolder);
+    }
     @Test
     public void testConsume() throws Exception {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
         File scriptFolder = temporaryFolder.newFolder("script");
-        File h2dbFolder = temporaryFolder.newFolder("h2db");
         ScriptScanners.resources(getClass().getClassLoader(), "com/github/gquintana/beepbeep/sql/init/*.sql",
             e -> writeResource(e, scriptFolder)).scan();
-        DriverSqlConnectionProvider connectionProvider = createSqlConnectionProvider(h2dbFolder);
+        DriverSqlConnectionProvider connectionProvider = createFileConnectionProvider();
         SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
             .withConnectionProvider(connectionProvider.getDriverClass().getName(), connectionProvider.getUrl(), connectionProvider.getUsername(), connectionProvider.getPassword())
             .withVariable("variable", "value")
@@ -71,7 +74,7 @@ public class SqlPipelineBuilderTest {
     public void testConsume_ScriptStore() throws Exception {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
-        SingleSqlConnectionProvider connectionProvider = new SingleSqlConnectionProvider(createSqlConnectionProvider());
+        SingleSqlConnectionProvider connectionProvider = createSqlConnectionProvider().single();
         Predicate<String> resourceFilter = name -> name.startsWith("com/github/gquintana/beepbeep/init/sql/") && name.endsWith(".sql");
         SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
             .withConnectionProvider(connectionProvider)
@@ -114,7 +117,7 @@ public class SqlPipelineBuilderTest {
     public void testConsume_Variables() throws Exception {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
-        SingleSqlConnectionProvider connectionProvider = new SingleSqlConnectionProvider(createSqlConnectionProvider());
+        SingleSqlConnectionProvider connectionProvider = createSqlConnectionProvider().single();
         Predicate<String> resourceFilter = name -> name.startsWith("com/github/gquintana/beepbeep/sql/init_vars/") && name.endsWith(".sql");
         HashMap<String, Object> vars = new HashMap<>();
         vars.put("person.login", "wile");
@@ -137,7 +140,7 @@ public class SqlPipelineBuilderTest {
     public void testConsume_Transaction() throws Exception {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
-        SingleSqlConnectionProvider connectionProvider = new SingleSqlConnectionProvider(createSqlConnectionProvider());
+        SingleSqlConnectionProvider connectionProvider = createFileConnectionProvider().single();
         Predicate<String> resourceFilter = name -> name.startsWith("com/github/gquintana/beepbeep/sql/init_tx/") && name.endsWith(".sql");
         SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
             .withConnectionProvider(connectionProvider)
@@ -167,7 +170,7 @@ public class SqlPipelineBuilderTest {
     public void testConsume_Fail() throws Exception {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
-        SingleSqlConnectionProvider connectionProvider = new SingleSqlConnectionProvider(createSqlConnectionProvider());
+        SingleSqlConnectionProvider connectionProvider = createSqlConnectionProvider().single();
         Predicate<String> resourceFilter = name -> name.startsWith("com/github/gquintana/beepbeep/sql/init_fail/") && name.endsWith(".sql");
         SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
             .withConnectionProvider(connectionProvider)
@@ -191,18 +194,20 @@ public class SqlPipelineBuilderTest {
         try (Connection connection = connectionProvider.getConnection();
              Statement statement = connection.createStatement()) {
             if (store) {
-                statement.execute("DROP TABLE beepbeep");
+                dropTable(statement, "beepbeep");
             }
-            try {
-                statement.execute("DROP TABLE person");
-            } catch (SQLException e) {
-
-            }
+            dropTable(statement, "person");
             // When using sequences
             // statement.execute("DROP SEQUENCE beepbeep_seq");
         }
-        if (connectionProvider instanceof SingleSqlConnectionProvider) {
-            ((SingleSqlConnectionProvider) connectionProvider).close();
+        connectionProvider.close();
+    }
+
+    private static void dropTable(Statement statement, String table) {
+        try {
+            statement.execute("DROP TABLE " + table);
+        } catch (SQLException e) {
+
         }
     }
 

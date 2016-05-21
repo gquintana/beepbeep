@@ -15,7 +15,11 @@ public class SqlPipelineBuilder extends PipelineBuilder<SqlPipelineBuilder> {
     }
 
     public SqlPipelineBuilder withConnectionProvider(String driverClass, String url, String username, String password) {
-        return withConnectionProvider(new DriverSqlConnectionProvider(driverClass, url, username, password));
+        return withConnectionProvider(createConnectionProvider(driverClass, url, username, password));
+    }
+
+    protected SingleSqlConnectionProvider createConnectionProvider(String driverClass, String url, String username, String password) {
+        return new DriverSqlConnectionProvider(driverClass, url, username, password).single();
     }
 
     public SqlPipelineBuilder withAutoCommit(boolean autoCommit) {
@@ -69,4 +73,10 @@ public class SqlPipelineBuilder extends PipelineBuilder<SqlPipelineBuilder> {
             DriverSqlConnectionProvider.create(url, username, password) :
             connectionProvider;
     }
+
+    @Override
+    public SqlPipeline build() {
+        return new SqlPipeline(getScriptStore(), createScriptScanner(), getConnectionProvider());
+    }
+
 }

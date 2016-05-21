@@ -1,12 +1,14 @@
 package com.github.gquintana.beepbeep.sql;
 
+import com.github.gquintana.beepbeep.util.BaseInvocationHandler;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class SingleSqlConnectionProvider implements SqlConnectionProvider, AutoCloseable {
+public class SingleSqlConnectionProvider implements SqlConnectionProvider {
     private final SqlConnectionProvider connectionProvider;
     private Connection connection;
     private Connection wrappedConnection;
@@ -34,14 +36,12 @@ public class SingleSqlConnectionProvider implements SqlConnectionProvider, AutoC
     }
 
     private Connection wrapConnection(final Connection connection) {
-        return (Connection) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{Connection.class}, new ConnectionInvocationHandler(connection));
+        return new ConnectionInvocationHandler(connection).newProxy(Connection.class);
     }
 
-    private static class ConnectionInvocationHandler implements InvocationHandler {
-        private final Connection connection;
-
-        public ConnectionInvocationHandler(Connection connection) {
-            this.connection = connection;
+    private static class ConnectionInvocationHandler extends BaseInvocationHandler<Connection> {
+        public ConnectionInvocationHandler(Connection delegate) {
+            super(delegate);
         }
 
         @Override
@@ -51,13 +51,13 @@ public class SingleSqlConnectionProvider implements SqlConnectionProvider, AutoC
             } else if (method.getName().equals("isWrapperFor") && args.length == 1 && Connection.class.equals(args[0])) {
                 return true;
             } else if (method.getName().equals("unwrap") && args.length == 1 && Connection.class.equals(args[0])) {
-                if (connection.isWrapperFor(Connection.class)) {
-                    return connection.unwrap(Connection.class);
+                if (delegate.isWrapperFor(Connection.class)) {
+                    return delegate.unwrap(Connection.class);
                 } else {
-                    return connection;
+                    return delegate;
                 }
             } else {
-                return method.invoke(connection, args);
+                return delegate(method,args);
             }
         }
     }

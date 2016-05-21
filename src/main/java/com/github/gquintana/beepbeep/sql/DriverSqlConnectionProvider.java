@@ -78,4 +78,13 @@ public class DriverSqlConnectionProvider implements SqlConnectionProvider {
         }
         return new DriverSqlConnectionProvider(driverClassName, url, username, password);
     }
+
+    public SingleSqlConnectionProvider single() {
+        return new SingleSqlConnectionProvider(this);
+    }
+
+    @Override
+    public void close() {
+
+    }
 }

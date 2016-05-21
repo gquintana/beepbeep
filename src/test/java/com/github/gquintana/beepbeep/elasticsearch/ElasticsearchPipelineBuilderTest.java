@@ -1,7 +1,7 @@
 package com.github.gquintana.beepbeep.elasticsearch;
 
 import com.github.gquintana.beepbeep.TestConsumer;
-import com.github.gquintana.beepbeep.http.HttpClientProvider;
+import com.github.gquintana.beepbeep.http.BasicHttpClientProvider;
 import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class ElasticsearchPipelineBuilderTest {
     public void testGetHealth() throws IOException {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
-        HttpClientProvider clientProvider = new HttpClientProvider();
+        BasicHttpClientProvider clientProvider = new BasicHttpClientProvider();
         ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder().withUrl(getElasticsearchUri())
             .withHttpClientProvider(clientProvider)
             .withEndConsumer(output)
@@ -41,7 +41,7 @@ public class ElasticsearchPipelineBuilderTest {
     public void testCreateSearchDelete() throws IOException {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
-        HttpClientProvider clientProvider = new HttpClientProvider();
+        BasicHttpClientProvider clientProvider = new BasicHttpClientProvider();
         String scriptGlob = getClass().getPackage().getName().replaceAll("\\.", "/") + "/index*.json";
         ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder()
             .withUrl(getElasticsearchUri())
@@ -59,7 +59,7 @@ public class ElasticsearchPipelineBuilderTest {
     public void testStore() throws IOException {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
-        HttpClientProvider clientProvider = new HttpClientProvider();
+        BasicHttpClientProvider clientProvider = new BasicHttpClientProvider();
         String scriptGlob = getClass().getPackage().getName().replaceAll("\\.", "/") + "/index*.json";
         ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder()
             .withUrl(getElasticsearchUri())
