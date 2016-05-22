@@ -147,7 +147,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
 
     private class GetByFullNameResponseHandler1 implements ResponseHandler<ScriptInfo<String>> {
         @Override
-        public ScriptInfo<String> handleResponse(HttpResponse httpResponse) throws ClientProtocolException, IOException {
+        public ScriptInfo<String> handleResponse(HttpResponse httpResponse) throws IOException {
             if (httpResponse.getStatusLine().getStatusCode() == 404) {
                 return null;
             }
@@ -165,7 +165,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
         }
 
         @Override
-        public ScriptInfo<String> handleResponse(HttpResponse httpResponse) throws ClientProtocolException, IOException {
+        public ScriptInfo<String> handleResponse(HttpResponse httpResponse) throws IOException {
             checkError(httpResponse);
             if (httpResponse.getStatusLine().getStatusCode() != 200) {
                 throw new ScriptStoreException("Search script " + fullName + " failed, " + httpResponse.getStatusLine().getReasonPhrase());
@@ -199,7 +199,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
         }
 
         @Override
-        public ScriptInfo<String> handleResponse(HttpResponse httpResponse) throws ClientProtocolException, IOException {
+        public ScriptInfo<String> handleResponse(HttpResponse httpResponse) throws IOException {
             checkError(httpResponse);
             if (httpResponse.getStatusLine().getStatusCode() != 201) {
                 throw new ScriptStoreException("Create script " + info.getFullName() + " failed, " + httpResponse.getStatusLine().getReasonPhrase());
@@ -234,7 +234,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
         }
 
         @Override
-        public ScriptInfo<String> handleResponse(HttpResponse httpResponse) throws ClientProtocolException, IOException {
+        public ScriptInfo<String> handleResponse(HttpResponse httpResponse) throws IOException {
             checkError(httpResponse);
             if (httpResponse.getStatusLine().getStatusCode() != 200) { // 409 means conflicts
                 throw new ScriptStoreException("Update script " + info.getFullName() + " failed, " + httpResponse.getStatusLine().getReasonPhrase());

@@ -43,6 +43,7 @@ public class ConfigurationLoader {
     }
 
     public PipelineBuilder load(InputStream inputStream) {
+        @SuppressWarnings("unchecked")
         Map<String, Object> map = yaml.loadAs(inputStream, Map.class);
         String type = convertToString(map.get("type"));
         PipelineBuilder pipelineBuilder = Pipelines.create(type);
@@ -68,6 +69,7 @@ public class ConfigurationLoader {
      */
     private void applyWithScriptStore(PipelineBuilder pipelineBuilder, String key, Object value) {
         if (value instanceof Map) {
+            @SuppressWarnings("unchecked")
             Map<String, Object> valueMap = (Map<String, Object>) value;
             Object storeName = valueMap.remove("name");
             if (storeName != null) {
@@ -100,6 +102,7 @@ public class ConfigurationLoader {
     /**
      * Inject variables in PipelineBuilder
      */
+    @SuppressWarnings("unchecked")
     private void applyWithVariables(PipelineBuilder pipelineBuilder, Object value) {
         if (value instanceof Map) {
             pipelineBuilder.withVariables((Map) value);
@@ -113,7 +116,7 @@ public class ConfigurationLoader {
         String setterName = "with" + Strings.toCamelCase(key);
         Class clazz = pipelineBuilder.getClass();
         List<Method> methods = Arrays.stream(clazz.getMethods())
-            .filter(m -> isMethod(m, key, setterName))
+            .filter(m -> isMethod(m, setterName))
             .collect(Collectors.toList());
         if (methods.isEmpty()) {
             throw new ConfigurationException("Invalid configuration " + key);
@@ -133,7 +136,7 @@ public class ConfigurationLoader {
     /**
      * Find withXXX method on PipelineBuilder
      */
-    private static boolean isMethod(Method method, String fieldName, String setterName) {
+    private static boolean isMethod(Method method, String setterName) {
         if (method.getParameterCount() != 1) {
             return false;
         }
@@ -150,6 +153,7 @@ public class ConfigurationLoader {
     /**
      * Convert withXXX method parameter to appropriate type
      */
+    @SuppressWarnings("unchecked")
     private <T> T convert(Object object, Class<T> clazz) {
         Object result;
         if (object == null || clazz.isInstance(object)) {

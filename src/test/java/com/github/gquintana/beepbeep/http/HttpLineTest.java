@@ -49,12 +49,6 @@ public class HttpLineTest {
     }
 
     @Test
-    public void testParse() throws Exception {
-        // Given
-
-    }
-
-    @Test
     public void testParsePostBody() throws UnsupportedEncodingException {
         // Given
         String eol = System.lineSeparator();

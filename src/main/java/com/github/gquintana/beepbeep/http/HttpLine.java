@@ -78,7 +78,7 @@ public class HttpLine {
         return lines.subList(start, end);
     }
 
-    public static HttpLine parse(LineEvent lineEvent) throws UnsupportedEncodingException {
+    public static HttpLine parse(LineEvent lineEvent) {
         // Remove empty and comment lines at beginning and end
         List<String> subLines = new BufferedReader(new StringReader(lineEvent.getLine())).lines().collect(Collectors.toList());
         subLines = removeUselessLines(subLines);

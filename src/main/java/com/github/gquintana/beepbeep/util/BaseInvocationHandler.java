@@ -18,7 +18,7 @@ public abstract class BaseInvocationHandler<T> implements InvocationHandler {
         return method.invoke(delegate, args);
     }
 
-    public <T> T newProxy(Class<T> proxyInterface) {
+    public <I> I newProxy(Class<I> proxyInterface) {
         return proxyInterface.cast(Proxy.newProxyInstance(getClass().getClassLoader(),
             new Class[]{proxyInterface},
             this));

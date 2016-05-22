@@ -15,10 +15,6 @@ public class ScriptEqualsTest extends BaseEqualsHashcodeTest<Script> {
         super(actual, expected, equals);
     }
 
-    @BeforeClass
-    public static void setUpClass() throws IOException {
-    }
-
     @Parameterized.Parameters
     public static List<Object[]> getParameters() {
         Script script1 = ResourceScript.create(TestFiles.class, "sql/init/01_create.sql");

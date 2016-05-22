@@ -128,6 +128,7 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements A
         return consumer;
     }
 
+    @SuppressWarnings("unchecked")
     protected Consumer<ScriptStartEvent> scriptReader(Consumer<ScriptEvent> consumer) {
         if (scriptStore != null) {
             consumer = new ScriptStoreUpdater(scriptStore, consumer);
@@ -236,7 +237,7 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements A
     }
 
     public CompositeScriptScannerBuilder<B> withCompositeScriptScanner() {
-        return new CompositeScriptScannerBuilder<>((B) this);
+        return new CompositeScriptScannerBuilder<>(self());
     }
 
     public static class CompositeScriptScannerBuilder<B extends PipelineBuilder<B>> extends CompositeScriptScanner.Builder<CompositeScriptScannerBuilder<B>> {

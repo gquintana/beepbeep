@@ -27,6 +27,7 @@ public class CompositeScriptScanner extends ScriptScanner {
     public static class Builder<B extends Builder<B>> {
         private final List<ScriptScannerFactory> scannerFactories = new ArrayList<>();
 
+        @SuppressWarnings("unchecked")
         protected B self() {
             return (B) this;
         }

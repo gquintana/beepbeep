@@ -109,7 +109,7 @@ public class SqlPipelineBuilderTest {
         // Then
         output.assertNoScriptEndFailed();
         assertThat(output.events).isNotEmpty();
-        assertThat(output.eventStream(ResultEvent.class).map(e -> e.getResult()).collect(Collectors.toSet())).contains("0;wile;wile.coyote@warnerbros.com");
+        assertThat(output.eventStream(ResultEvent.class).map(ResultEvent::getResult).collect(Collectors.toSet())).contains("0;wile;wile.coyote@warnerbros.com");
         close(connectionProvider);
     }
 
@@ -132,7 +132,7 @@ public class SqlPipelineBuilderTest {
         // Then
         output.assertNoScriptEndFailed();
         assertThat(output.events).isNotEmpty();
-        assertThat(output.eventStream(ResultEvent.class).map(e -> e.getResult()).collect(Collectors.toSet())).contains("0;wile;wile.coyote@warnerbros.com");
+        assertThat(output.eventStream(ResultEvent.class).map(ResultEvent::getResult).collect(Collectors.toSet())).contains("0;wile;wile.coyote@warnerbros.com");
         close(connectionProvider);
     }
 

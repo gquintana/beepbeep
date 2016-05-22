@@ -57,7 +57,7 @@ public class ElasticsearchScriptStoreTest {
         assertThat(store.getByFullName(info.getFullName())).isNotNull();
     }
 
-    @Test(expected = ScriptStoreException.class) @Ignore // TODO
+    @Test(expected = ScriptStoreException.class) // TODO
     public void testCreate_AlreadyExists() throws Exception {
         // Given
         ScriptInfo<String> info = createInfo();

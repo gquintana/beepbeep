@@ -50,7 +50,7 @@ public class SqlMainTest {
             assertThat(logins).contains("jdoe", "sconnor");
             statement.execute("DROP TABLE person");
         }
-        dropTables(h2Url, "person");
+        dropTables("person");
     }
 
     @Test
@@ -82,10 +82,10 @@ public class SqlMainTest {
             assertThat(scripts).hasSize(2);
             statement.execute("DROP TABLE person");
         }
-        dropTables(h2Url, "person", "beepbeep");
+        dropTables("person", "beepbeep");
     }
 
-    public void dropTables(String h2Url, String... tables) {
+    public void dropTables(String... tables) {
         try (Connection connection = createSqlConnectionProvider().getConnection();
              Statement statement = connection.createStatement()) {
             for (String table : tables) {

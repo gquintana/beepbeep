@@ -2,9 +2,7 @@ package com.github.gquintana.beepbeep.sql;
 
 import com.github.gquintana.beepbeep.util.BaseInvocationHandler;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 

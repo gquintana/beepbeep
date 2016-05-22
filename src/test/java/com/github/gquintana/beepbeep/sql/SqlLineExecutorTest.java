@@ -29,7 +29,7 @@ public class SqlLineExecutorTest {
             processor.consume(event(3, "select login,email from person order by login asc;"));
             // Then
             assertThat(end.events).hasSize(5);
-            List<String> results = end.eventStream(ResultEvent.class).map(r -> r.getResult()).collect(Collectors.toList());
+            List<String> results = end.eventStream(ResultEvent.class).map(ResultEvent::getResult).collect(Collectors.toList());
             assertThat(results).contains(
                     "0 updates",
                     "1 updates",

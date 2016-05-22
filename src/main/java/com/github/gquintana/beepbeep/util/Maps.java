@@ -11,6 +11,7 @@ public final class Maps {
     private Maps() {
     }
 
+    @SuppressWarnings("unchecked")
     private static void flatten(Object object, String prefix, Map<String, Object> collector) {
         String longPrefix = prefix == null ? "" : prefix + ".";
         if (object instanceof Map) {
@@ -52,7 +53,7 @@ public final class Maps {
      * Helper to fill a Map
      */
     public static <K, V> Builder<K, V> builder() {
-        return builder(new HashMap<K, V>());
+        return builder(new HashMap<>());
     }
 
     public static class Builder<K, V> {

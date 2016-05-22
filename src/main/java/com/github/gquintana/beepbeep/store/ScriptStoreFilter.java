@@ -1,6 +1,5 @@
 package com.github.gquintana.beepbeep.store;
 
-import com.github.gquintana.beepbeep.BeepBeepException;
 import com.github.gquintana.beepbeep.pipeline.Consumer;
 import com.github.gquintana.beepbeep.pipeline.Filter;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;

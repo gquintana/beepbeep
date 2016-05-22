@@ -79,7 +79,7 @@ public class HttpLineExecutor extends LineExecutor {
                 request = new HttpPatch(uri);
                 break;
             default:
-                request = null;
+                throw new BeepBeepException("Unsupported HTTP method " + httpLine.getMethod());
         }
         // Headers
         String contentType = null;

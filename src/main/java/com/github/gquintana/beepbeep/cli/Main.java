@@ -37,7 +37,7 @@ public class Main {
         pipelineBuilder.scan();
     }
 
-    PipelineBuilder createPipelineBuilder() throws CmdLineException {
+    PipelineBuilder createPipelineBuilder() {
         PipelineBuilder pipelineBuilder;
         if (configurationFile ==null) {
             pipelineBuilder = Pipelines.create(type);
