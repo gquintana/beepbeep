@@ -21,12 +21,7 @@ public class FileScriptScannerTest {
     @Test
     public void testScanFolder() throws IOException {
         // Given
-        File createFolder = temporaryFolder.newFolder("create");
-        File dropFolder = temporaryFolder.newFolder("drop");
-        File createFile = new File(createFolder, "create.sql");
-        TestFiles.writeResource("sql/init/01_create.sql", createFile);
-        TestFiles.writeResource("sql/init/02_data.sql", new File(createFolder, "data.sql"));
-        TestFiles.writeResource("sql//clean/drop.sql", new File(dropFolder, "drop.sql"));
+        File createFile = copySqlFiles(temporaryFolder.getRoot());
         TestConsumer<ScriptStartEvent> consumer = new TestConsumer<>();
         FileScriptScanner scanner = new FileScriptScanner(temporaryFolder.getRoot().toPath(),
             path -> path.toString().endsWith(".sql"), consumer);
@@ -41,6 +36,18 @@ public class FileScriptScannerTest {
         assertThat(scripts.get(0).getSize()).isEqualTo(TestFiles.getResourceSize("sql/init/01_create.sql"));
         assertThat(scripts.get(1).getName()).isEqualTo("data.sql");
         assertThat(scripts.get(2).getName()).isEqualTo("drop.sql");
+    }
+
+    private File copySqlFiles(File targetFolder) throws IOException {
+        File createFolder = new File(targetFolder, "create");
+        createFolder.mkdirs();
+        File dropFolder = new File(targetFolder, "drop");
+        dropFolder.mkdirs();
+        File createFile = new File(createFolder, "create.sql");
+        TestFiles.writeResource("sql/init/01_create.sql", createFile);
+        TestFiles.writeResource("sql/init/02_data.sql", new File(createFolder, "data.sql"));
+        TestFiles.writeResource("sql/clean/drop.sql", new File(dropFolder, "drop.sql"));
+        return createFile;
     }
 
 }

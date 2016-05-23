@@ -5,6 +5,11 @@ import com.github.gquintana.beepbeep.script.ResourceScript;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.regex.Pattern;
 
 public class TestFiles {
     public static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
@@ -114,4 +119,32 @@ public class TestFiles {
             return file;
         }
     }
+
+    /**
+     * Recursively delete a directory
+     */
+    public static void delete(Path path) throws IOException {
+        Files.walkFileTree(path, Collections.emptySet(), 5, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                file.toFile().delete();
+                return super.visitFile(file, attrs);
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                dir.toFile().delete();
+                return super.postVisitDirectory(dir, exc);
+            }
+        });
+
+    }
+
+    /**
+     * Fix Windows file separator in paths
+     */
+    public static String adaptFileSeparator(String path) {
+        return File.separatorChar == '/' ? path : path.replaceAll("/", Pattern.quote(File.separator));
+    }
+
 }

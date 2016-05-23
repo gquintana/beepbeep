@@ -17,7 +17,9 @@ public class FileScriptScanner extends ScriptScanner {
      */
     private static final Pattern FILE_GLOB_PREFIX_PATTERN = Pattern.compile("^([^*]*/)?([^*/]*\\*.*)$");
 
-
+    /**
+     * Folder from where are search files.
+     */
     private final Path folder;
     private final Predicate<Path> fileFilter;
     private final int maxDepth;
@@ -28,6 +30,7 @@ public class FileScriptScanner extends ScriptScanner {
         this.fileFilter = fileFilter;
         this.maxDepth = maxDepth;
     }
+
     public FileScriptScanner(Path folder, Predicate<Path> fileFilter, Consumer<ScriptStartEvent> scriptConsumer) {
         this(folder, fileFilter, Integer.MAX_VALUE, scriptConsumer);
     }
@@ -55,6 +58,9 @@ public class FileScriptScanner extends ScriptScanner {
         }
     }
 
+    /**
+     * Create a ScriptScanner based on file globs
+     */
     public static ScriptScanner fileGlob(String fileGlob, Consumer<ScriptStartEvent> scriptConsumer) {
         fileGlob = fixFileSeparator(fileGlob);
         String[] prefixSuffix = fileGlobPrefixSuffix(fileGlob);
@@ -72,14 +78,19 @@ public class FileScriptScanner extends ScriptScanner {
         } else {
             // ** or *.sql suffix
             boolean deepSearch = fileGlob.contains("**");
-            Path folder = Paths.get(prefixSuffix[0] == null ? System.getProperty("user.dir") : prefixSuffix[0]);
-            RegexPathPredicate fileFilter = new RegexPathPredicate(folder, fileGlobToRegex(prefixSuffix[1]));
-            scanner = new FileScriptScanner(folder,
+            Path searchFolder = prefixSuffix[0] == null ? currentPath() : Paths.get(prefixSuffix[0]);
+            RegexPathPredicate fileFilter = new RegexPathPredicate(searchFolder, fileGlobToRegex(prefixSuffix[1]));
+            scanner = new FileScriptScanner(
+                searchFolder,
                 fileFilter,
                 deepSearch ? Integer.MAX_VALUE : 1,
                 scriptConsumer);
         }
         return scanner;
+    }
+
+    public static Path currentPath() {
+        return Paths.get(System.getProperty("user.dir"));
     }
 
     /**
