@@ -35,7 +35,7 @@ public class BasicHttpClientProvider implements HttpClientProvider {
         }
         CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY,
-            new UsernamePasswordCredentials("username", "password"));
+            new UsernamePasswordCredentials(username, password));
         return credentialsProvider;
     }
 
