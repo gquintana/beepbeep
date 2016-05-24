@@ -61,7 +61,7 @@ public class FileScriptScannerGlobTest {
         assertThat(end.events).hasSize(3);
         List<String> fullNames = getFullNames(end);
         assertThat(fullNames).contains("target/root/sub/foo.sql", "target/root/sub/inner/bar.sql");
-        TestFiles.delete(targetFolder.toPath());
+        TestFiles.delete(rootFolder.toPath());
     }
 
     private static List<String> getFullNames(TestConsumer<ScriptStartEvent> end) {

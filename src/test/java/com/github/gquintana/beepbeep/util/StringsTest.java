@@ -39,4 +39,9 @@ public class StringsTest {
         assertEquals("AbcDefGhi", Strings.toCamelCase("abc..def.ghi"));
         assertEquals("", Strings.toCamelCase(""));
     }
+
+    @Test
+    public void testReplaceAll() {
+        assertEquals("abc/def/ghi", "abc\\def\\ghi".replace('\\', '/'));
+    }
 }

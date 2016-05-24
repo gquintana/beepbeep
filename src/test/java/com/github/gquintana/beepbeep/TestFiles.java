@@ -1,6 +1,7 @@
 package com.github.gquintana.beepbeep;
 
 import com.github.gquintana.beepbeep.script.ResourceScript;
+import com.github.gquintana.beepbeep.util.Strings;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -137,14 +138,12 @@ public class TestFiles {
                 return super.postVisitDirectory(dir, exc);
             }
         });
-
     }
 
     /**
-     * Fix Windows file separator in paths
+     * Convert Unix file separator to Unix/Windows file separator
      */
     public static String adaptFileSeparator(String path) {
-        return File.separatorChar == '/' ? path : path.replaceAll("/", Pattern.quote(File.separator));
+        return File.separatorChar == '/' ? path : path.replace('/', File.separatorChar);
     }
-
 }
