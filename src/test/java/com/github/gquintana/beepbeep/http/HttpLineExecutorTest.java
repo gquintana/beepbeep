@@ -15,7 +15,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class HttpLineExecutorTest {
     @Rule
-    public WireMockRule wireMock = new WireMockRule(WireMockConfiguration.wireMockConfig().port(8080));
+    public WireMockRule wireMock = new WireMockRule(WireMockConfiguration.wireMockConfig().dynamicPort());
+
+    private BasicHttpClientProvider getBasicHttpClientProviderOnWireMock() {
+        return new BasicHttpClientProvider("http://localhost:"+wireMock.port()+"/");
+    }
 
     @Test
     @Ignore
@@ -39,7 +43,7 @@ public class HttpLineExecutorTest {
             .willReturn(aResponse().withStatus(200).withHeader("Content-type", "application/json")
                 .withBody("{\"body\":\"Hello world\"}")));
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
-        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://localhost:8080/");
+        HttpClientProvider httpClientProvider = getBasicHttpClientProviderOnWireMock();
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
@@ -61,7 +65,7 @@ public class HttpLineExecutorTest {
                 .withHeader("Content-type", "application/json; charset=UTF-8")
                 .withBody("{\"created\":\"true\"}")));
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
-        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://localhost:8080/");
+        HttpClientProvider httpClientProvider = getBasicHttpClientProviderOnWireMock();
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
@@ -78,7 +82,7 @@ public class HttpLineExecutorTest {
     public void testEmpty() {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
-        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://localhost:8080/");
+        HttpClientProvider httpClientProvider = getBasicHttpClientProviderOnWireMock();
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         String eol = System.lineSeparator();
@@ -93,7 +97,7 @@ public class HttpLineExecutorTest {
     public void testParseFailure() {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
-        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://localhost:8080/");
+        HttpClientProvider httpClientProvider = getBasicHttpClientProviderOnWireMock();
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         processor.consume(new LineEvent(null, 1, "FAIL /at/url"));
@@ -105,7 +109,7 @@ public class HttpLineExecutorTest {
     public void test404Error() {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
-        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://localhost:8080/");
+        HttpClientProvider httpClientProvider = getBasicHttpClientProviderOnWireMock();
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
         // When
         processor.consume(new LineEvent(null, 1, "GET /unknown/url"));
