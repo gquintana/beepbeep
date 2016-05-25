@@ -55,7 +55,7 @@ public class ScriptScannersTest {
 
 
     @Test
-    public void testAuto_Raw() throws Exception {
+    public void testScheme_Raw() throws Exception {
         // Given
         TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
         // When
@@ -69,7 +69,7 @@ public class ScriptScannersTest {
     }
 
     @Test
-    public void testAuto_File() throws Exception {
+    public void testScheme_File() throws Exception {
         // Given
         TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
         // When
@@ -79,11 +79,11 @@ public class ScriptScannersTest {
         // Then
         assertThat(output.events).hasSize(1);
         ScriptStartEvent event = output.events(ScriptStartEvent.class).get(0);
-        assertThat(event.getScript().getFullName()).isEqualTo(resourceFullName);
+        assertThat(event.getScript().getFullName()).isEqualTo(TestFiles.adaptFileSeparator(resourceFullName));
     }
 
     @Test
-    public void testAuto_Class() throws Exception {
+    public void testScheme_Class() throws Exception {
         // Given
         TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
         // When
@@ -97,7 +97,7 @@ public class ScriptScannersTest {
     }
 
     @Test
-    public void testAutos_Raw() throws Exception {
+    public void testSchemes_Raw() throws Exception {
         // Given
         TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
         // When
@@ -109,7 +109,7 @@ public class ScriptScannersTest {
     }
 
     @Test
-    public void testAutos_Class() throws Exception {
+    public void testSchemes_Class() throws Exception {
         // Given
         TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
         // When
@@ -121,7 +121,7 @@ public class ScriptScannersTest {
     }
 
     @Test
-    public void testAutos_File() throws Exception {
+    public void testSchemes_File() throws Exception {
         // Given
         TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
         // When
@@ -133,7 +133,7 @@ public class ScriptScannersTest {
     }
 
     @Test
-    public void testAuto_Invalidscheme() throws Exception {
+    public void testScheme_Invalidscheme() throws Exception {
         // Given
         TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
         // When
