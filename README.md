@@ -5,7 +5,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/gquintana/beepbeep/badge.svg?branch=master)](https://coveralls.io/github/gquintana/beepbeep?branch=master)
 
 
-Bip bip is runs scripts on SQL and NoSQL databases and track already ran/new scripts.
+Beep beep can run scripts on SQL and NoSQL databases,
+track ran scripts and not run them again.
 
 It can be used to:
 * Create tables/indices/collections and populate them with data
@@ -57,3 +58,6 @@ new SqlPipelineBuilder()
 2. If necessary, add your JDBC driver Jar in the `lib` folder
 3. If necessary, edit the configuration files in the `config` 
 
+## Documentation
+
+Documentation is in GitHub [Wiki](https://github.com/gquintana/beepbeep/wiki)
