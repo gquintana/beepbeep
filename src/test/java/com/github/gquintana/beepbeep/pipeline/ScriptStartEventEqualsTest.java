@@ -6,6 +6,7 @@ import com.github.gquintana.beepbeep.script.Script;
 import com.github.gquintana.beepbeep.util.ParametersBuilder;
 import org.junit.runners.Parameterized;
 
+import java.time.Instant;
 import java.util.List;
 
 public class ScriptStartEventEqualsTest extends BaseEqualsHashcodeTest<ScriptEvent> {
@@ -20,7 +21,7 @@ public class ScriptStartEventEqualsTest extends BaseEqualsHashcodeTest<ScriptEve
         return new ParametersBuilder()
             .add(new ScriptStartEvent(script1), new ScriptStartEvent(script1), true)
             .add(new ScriptStartEvent(script1), new ScriptStartEvent(script2), false)
-            .add(new ScriptStartEvent(script1), new ScriptEndEvent(script1, 1), false)
+            .add(new ScriptStartEvent(script1), new ScriptEndEvent(script1, 1, Instant.now().minusMillis(10L)), false)
             .build();
     }
 

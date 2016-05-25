@@ -74,9 +74,10 @@ public class ScriptStoreUpdaterTest {
     @Test
     public void testTransform_EndSuccessUpdate() throws Exception {
         // Given
-        storeScript(Instant.now().minusSeconds(10L), null, ScriptStatus.STARTED);
+        Instant start = Instant.now();
+        storeScript(start.minusSeconds(10L), null, ScriptStatus.STARTED);
         // When
-        updater.consume(new ScriptEndEvent(script, 12));
+        updater.consume(new ScriptEndEvent(script, 12, start));
         // Then
         assertThat(output.events).hasSize(1);
         ScriptInfo<Integer> info = store.getByFullName(script.getFullName());
@@ -92,9 +93,10 @@ public class ScriptStoreUpdaterTest {
     @Test
     public void testTransform_EndFailUpdate() throws Exception {
         // Given
-        storeScript(Instant.now().minusSeconds(10L), null, ScriptStatus.STARTED);
+        Instant start = Instant.now().minusSeconds(10L);
+        storeScript(start, null, ScriptStatus.STARTED);
         // When
-        updater.consume(new ScriptEndEvent(script, 12, new IllegalStateException()));
+        updater.consume(new ScriptEndEvent(script, 12, new IllegalStateException(), start));
         // Then
         assertThat(output.events).hasSize(1);
         ScriptInfo<Integer> info = store.getByFullName(script.getFullName());
@@ -111,7 +113,7 @@ public class ScriptStoreUpdaterTest {
         // Given
         // When
         try {
-            updater.consume(new ScriptEndEvent(script, 12, new IllegalStateException()));
+            updater.consume(new ScriptEndEvent(script, 12, new IllegalStateException(), Instant.now().minusMillis(10L)));
             fail("Exception expected");
         } catch (BeepBeepException e) {
 

@@ -27,12 +27,12 @@ public class ScriptReaderProducer extends Producer<ScriptEvent> implements Consu
                 produce(new LineEvent(script, lineNumber, line));
                 lineNumber++;
             }
-            produce(new ScriptEndEvent(script, lineNumber));
+            produce(new ScriptEndEvent(script, lineNumber, event.getInstant()));
         } catch (IOException e) {
-            produce(new ScriptEndEvent(script, lineNumber, e));
+            produce(new ScriptEndEvent(script, lineNumber, e, event.getInstant()));
             throw new BeepBeepException("I/O failure reading " + script.getName(), e);
         } catch (RuntimeException e) {
-            produce(new ScriptEndEvent(script, lineNumber, e));
+            produce(new ScriptEndEvent(script, lineNumber, e, event.getInstant()));
             throw e;
         }
 

@@ -2,7 +2,6 @@ package com.github.gquintana.beepbeep.store;
 
 import com.github.gquintana.beepbeep.pipeline.*;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +25,7 @@ public class ScriptStoreUpdater<ID> extends Transformer<ScriptEvent, ScriptEvent
                 info.setFullName(fullName);
                 info.setSize(event.getScript().getSize());
             }
-            info.setStartDate(Instant.now());
+            info.setStartDate(event.getInstant());
             info.setEndDate(null);
             info.setStatus(ScriptStatus.STARTED);
             info.setSize(event.getScript().getSize());
@@ -43,7 +42,7 @@ public class ScriptStoreUpdater<ID> extends Transformer<ScriptEvent, ScriptEvent
             if (info == null) {
                 throw new ScriptStoreException("Script end not in store " + event.getScript());
             }
-            info.setEndDate(Instant.now());
+            info.setEndDate(event.getInstant());
             if (endEvent.isSuccess()) {
                 info.setStatus(ScriptStatus.SUCCEEDED);
             } else {

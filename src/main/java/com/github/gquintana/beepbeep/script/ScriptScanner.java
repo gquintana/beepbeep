@@ -3,7 +3,6 @@ package com.github.gquintana.beepbeep.script;
 import com.github.gquintana.beepbeep.pipeline.Consumer;
 import com.github.gquintana.beepbeep.pipeline.Producer;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
-import com.github.gquintana.beepbeep.util.Strings;
 
 import java.io.File;
 import java.io.IOException;

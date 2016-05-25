@@ -2,11 +2,13 @@ package com.github.gquintana.beepbeep.pipeline;
 
 import com.github.gquintana.beepbeep.script.Script;
 
+import java.time.Instant;
 import java.util.Objects;
 
 public class ScriptEvent {
     private final String type;
     private final Script script;
+    private final Instant instant = Instant.now();
 
     public ScriptEvent(String type, Script script) {
         this.type = type;
@@ -19,6 +21,10 @@ public class ScriptEvent {
 
     public String getType() {
         return type;
+    }
+
+    public Instant getInstant() {
+        return instant;
     }
 
     @Override
