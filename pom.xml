@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.github.gquintana.beepbeep</groupId>
   <artifactId>beepbeep</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <packaging>jar</packaging>
 
   <name>beepbeep</name>
@@ -123,7 +122,7 @@
             <id>enforce</id>
             <configuration>
               <rules>
-                <dependencyConvergence/>
+                <dependencyConvergence />
                 <requireJavaVersion>
                   <version>${java.version}</version>
                 </requireJavaVersion>
@@ -199,6 +198,7 @@
     <connection>scm:git:https://github.com/gquintana/beepbeep.git</connection>
     <developerConnection>scm:git:https://github.com/gquintana/beepbeep.git</developerConnection>
     <url>https://github.com/gquintana/beepbeep.git</url>
+    <tag>v0.1.0</tag>
   </scm>
   <prerequisites>
     <maven>3.0.4</maven>
