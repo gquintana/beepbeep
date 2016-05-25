@@ -5,6 +5,8 @@ import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.ClusterAdminClient;
+import org.elasticsearch.common.logging.ESLoggerFactory;
+import org.elasticsearch.common.logging.slf4j.Slf4jESLoggerFactory;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.BoundTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
@@ -32,6 +34,11 @@ public class EmbeddedElasticsearch implements Closeable {
     private String httpAddress;
     private String transportAddress;
 
+    static {
+        System.setProperty("es.logger.prefix", "org.elasticsearch.");
+        Slf4jESLoggerFactory esLoggerFactory = new Slf4jESLoggerFactory();
+        ESLoggerFactory.setDefaultFactory(esLoggerFactory);
+    }
     public EmbeddedElasticsearch(File homeHolder) {
         this.homeHolder = homeHolder;
     }
@@ -44,6 +51,7 @@ public class EmbeddedElasticsearch implements Closeable {
             .put("cluster.name", CLUSTER_NAME)
             .put("node.name", NODE_NAME)
             .put("path.home", homeHolder.getPath())
+            .put("logger.prefix", "org.elasticsearch.")
             .build();
         node = NodeBuilder.nodeBuilder()
             .clusterName(CLUSTER_NAME)
