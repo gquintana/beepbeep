@@ -35,6 +35,7 @@ public class FileScriptScanner extends ScriptScanner {
         this(folder, fileFilter, Integer.MAX_VALUE, scriptConsumer);
     }
 
+    @Override
     @SuppressWarnings("Convert2MethodRef")
     public void scan() throws IOException {
         ScriptsFileVisitor fileVisitor = new ScriptsFileVisitor();

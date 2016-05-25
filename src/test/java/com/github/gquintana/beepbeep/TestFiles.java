@@ -1,16 +1,16 @@
 package com.github.gquintana.beepbeep;
 
 import com.github.gquintana.beepbeep.script.ResourceScript;
-import com.github.gquintana.beepbeep.util.Strings;
 
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
-import java.util.EnumSet;
-import java.util.regex.Pattern;
 
 public class TestFiles {
     public static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
@@ -99,6 +99,7 @@ public class TestFiles {
             }
         }
 
+        @Override
         public File create(File rootFolder) throws IOException {
             File folder = new File(rootFolder, name);
             folder.mkdir();
@@ -114,6 +115,7 @@ public class TestFiles {
             super(name);
         }
 
+        @Override
         public File create(File rootFolder) throws IOException {
             File file = new File(rootFolder, name);
             file.createNewFile();

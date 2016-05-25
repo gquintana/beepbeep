@@ -58,6 +58,7 @@ public class SqlLineExecutor extends LineExecutor {
         }
     }
 
+    @Override
     protected void executeLine(LineEvent lineEvent) {
         String line = lineEvent.getLine();
         executeStart();

@@ -117,6 +117,7 @@ public class EmbeddedElasticsearch implements Closeable {
     /**
      * Stop Elasticsearch node and wipe data folder
      */
+    @Override
     public void close() {
         stop();
         try {

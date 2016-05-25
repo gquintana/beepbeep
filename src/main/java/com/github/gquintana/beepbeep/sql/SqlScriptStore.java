@@ -85,6 +85,7 @@ public class SqlScriptStore implements ScriptStore<Integer> {
         }
     }
 
+    @Override
     public void prepare() {
         try (Connection connection = connectionProvider.getConnection()) {
             if (doesTableExist(connection)) {

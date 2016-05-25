@@ -58,6 +58,7 @@ public class ResourceScriptScanner extends ScriptScanner {
         return classPath;
     }
 
+    @Override
     public void scan() throws IOException {
         // Same ressource can be present multiple times in class path
         Set<String> resources = new HashSet<>();

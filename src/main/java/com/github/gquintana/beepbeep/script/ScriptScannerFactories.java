@@ -7,7 +7,7 @@ public final class ScriptScannerFactories {
     /**
      * Use single script
      */
-    public static ScriptScannerFactory script(Script script) {
+    public static ScriptScannerFactory<ScriptScanner> script(Script script) {
         return c -> ScriptScanners.script(script, c);
     }
 

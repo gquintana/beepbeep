@@ -118,7 +118,7 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements A
     }
 
     protected Consumer<ScriptEvent> notNullNorEmptyFilter(Consumer<ScriptEvent> consumer) {
-        return LineFilter.<ScriptEvent>notNulNotEmptyFilter(consumer);
+        return LineFilter.notNulNotEmptyFilter(consumer);
     }
 
     protected Consumer<ScriptEvent> variableReplacer(Consumer<ScriptEvent> consumer) {

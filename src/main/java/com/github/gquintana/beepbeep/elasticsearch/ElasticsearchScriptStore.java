@@ -13,7 +13,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
@@ -80,6 +79,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
     /**
      * Create index with settings if needed
      */
+    @Override
     public void prepare() {
         String[] splitIndex = indexType.split("/");
         String index = splitIndex[0];

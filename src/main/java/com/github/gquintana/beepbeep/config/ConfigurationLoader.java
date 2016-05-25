@@ -144,10 +144,7 @@ public class ConfigurationLoader {
         if (!SUPPORTED_PARAMETER_TYPES.contains(parameterClass)) {
             return false;
         }
-        if (method.getName().equals(setterName)) {
-            return true;
-        }
-        return false;
+        return method.getName().equals(setterName);
     }
 
     /**

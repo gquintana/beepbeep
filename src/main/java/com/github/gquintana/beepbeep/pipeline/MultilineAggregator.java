@@ -45,6 +45,7 @@ public class MultilineAggregator extends Processor<ScriptEvent,ScriptEvent> {
         this(endOfLineRegex, LineMarkerStrategy.END, true, consumer);
     }
 
+    @Override
     public void consume(ScriptEvent event) {
         if (!(event instanceof LineEvent)) {
             // End Of file

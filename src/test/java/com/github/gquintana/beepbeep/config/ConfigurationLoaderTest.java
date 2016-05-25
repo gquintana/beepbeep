@@ -134,7 +134,7 @@ public class ConfigurationLoaderTest {
         assertThat(scriptStore).isInstanceOf(ElasticsearchScriptStore.class);
         assertThat(getField(scriptStore, "indexType")).isEqualTo("beepbeep/script");
         assertThat(scriptScanner).isInstanceOf(FileScriptScanner.class);
-        Map variables = (Map) getField(pipelineBuilder, "variables");
+        Map<String, Object> variables = (Map<String, Object>) getField(pipelineBuilder, "variables");
         assertThat(variables).hasSize(2);
         assertThat(variables.get("test.1")).isEqualTo("Test 1");
         assertThat(variables.get("test.2")).isEqualTo(2);
