@@ -30,6 +30,8 @@ public class Main {
     public String store;
     @Option(name = "--config", aliases = {"-c"}, usage = "YAML Configuration file location")
     public String configurationFile;
+    @Option(name = "--verbose", aliases = {"-v"}, usage = "Verbose, print execution results")
+    public boolean verbose = false;
 
 
     public void run() throws IOException, CmdLineException {
@@ -50,7 +52,7 @@ public class Main {
         if (password != null) pipelineBuilder.withPassword(password);
         if (store != null) pipelineBuilder.withScriptStore(store);
         if (files != null) pipelineBuilder.withSchemesScriptScanner(files);
-        pipelineBuilder.withEndConsumer(new PrintConsumer<>());
+        pipelineBuilder.withEndConsumer(new PrintConsumer<>(verbose));
         return pipelineBuilder;
     }
 
