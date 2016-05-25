@@ -2,6 +2,7 @@ package com.github.gquintana.beepbeep.script;
 
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.TestFiles;
+import com.github.gquintana.beepbeep.config.ConfigurationException;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import org.junit.Test;
 
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class ScriptScannersTest {
 
@@ -49,5 +51,97 @@ public class ScriptScannersTest {
         ScriptStartEvent event = output.events(ScriptStartEvent.class).get(0);
         assertThat(event.getScript().getFullName()).isEqualTo(resourceFullName);
         assertThat(readAsString(event.getScript()).trim()).isEqualTo("DROP TABLE person;");
+    }
+
+
+    @Test
+    public void testAuto_Raw() throws Exception {
+        // Given
+        TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
+        // When
+        String resourceFullName = TestFiles.adaptFileSeparator("target/test-classes/" + TestFiles.getResourceFullName("sql/clean/drop.sql"));
+        ScriptScanner scanner = ScriptScanners.schemes(resourceFullName, output);
+        scanner.scan();
+        // Then
+        assertThat(output.events).hasSize(1);
+        ScriptStartEvent event = output.events(ScriptStartEvent.class).get(0);
+        assertThat(event.getScript().getFullName()).isEqualTo(resourceFullName);
+    }
+
+    @Test
+    public void testAuto_File() throws Exception {
+        // Given
+        TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
+        // When
+        String resourceFullName = "target/test-classes/" + TestFiles.getResourceFullName("sql/clean/drop.sql");
+        ScriptScanner scanner = ScriptScanners.schemes("file:" + resourceFullName, output);
+        scanner.scan();
+        // Then
+        assertThat(output.events).hasSize(1);
+        ScriptStartEvent event = output.events(ScriptStartEvent.class).get(0);
+        assertThat(event.getScript().getFullName()).isEqualTo(resourceFullName);
+    }
+
+    @Test
+    public void testAuto_Class() throws Exception {
+        // Given
+        TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
+        // When
+        String resourceFullName = TestFiles.getResourceFullName("sql/clean/drop.sql");
+        ScriptScanner scanner = ScriptScanners.schemes("classpath:" + resourceFullName, output);
+        scanner.scan();
+        // Then
+        assertThat(output.events).hasSize(1);
+        ScriptStartEvent event = output.events(ScriptStartEvent.class).get(0);
+        assertThat(event.getScript().getFullName()).isEqualTo(resourceFullName);
+    }
+
+    @Test
+    public void testAutos_Raw() throws Exception {
+        // Given
+        TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
+        // When
+        String resourceFullName = TestFiles.adaptFileSeparator("target/test-classes/" + TestFiles.getResourceFullName("sql/init/*.sql"));
+        ScriptScanner scanner = ScriptScanners.schemes(resourceFullName, output);
+        scanner.scan();
+        // Then
+        assertThat(output.events).hasSize(2);
+    }
+
+    @Test
+    public void testAutos_Class() throws Exception {
+        // Given
+        TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
+        // When
+        String resourceFullName = TestFiles.getResourceFullName("sql/init/*.sql");
+        ScriptScanner scanner = ScriptScanners.schemes("classpath:" + resourceFullName, output);
+        scanner.scan();
+        // Then
+        assertThat(output.events).hasSize(2);
+    }
+
+    @Test
+    public void testAutos_File() throws Exception {
+        // Given
+        TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
+        // When
+        String resourceFullName = "target/test-classes/" + TestFiles.getResourceFullName("sql/init/*.sql");
+        ScriptScanner scanner = ScriptScanners.schemes("file:" + resourceFullName, output);
+        scanner.scan();
+        // Then
+        assertThat(output.events).hasSize(2);
+    }
+
+    @Test
+    public void testAuto_Invalidscheme() throws Exception {
+        // Given
+        TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
+        // When
+        try {
+            ScriptScanner scanner = ScriptScanners.schemes("ftp://server/test.sql", output);
+            fail("Exception expected");
+        } catch (ConfigurationException e) {
+        }
+        // Then
     }
 }

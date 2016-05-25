@@ -91,7 +91,7 @@ public class ConfigurationLoader {
             List scripts = (List) value;
             PipelineBuilder.CompositeScriptScannerBuilder compositeBuilder = pipelineBuilder.withCompositeScriptScanner();
             for (Object script : scripts) {
-                compositeBuilder.files(convertToString(script));
+                compositeBuilder.schemes(convertToString(script));
             }
             compositeBuilder.end();
         } else {

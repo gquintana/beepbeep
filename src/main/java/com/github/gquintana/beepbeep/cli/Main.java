@@ -49,7 +49,7 @@ public class Main {
         if (username != null) pipelineBuilder.withUsername(username);
         if (password != null) pipelineBuilder.withPassword(password);
         if (store != null) pipelineBuilder.withScriptStore(store);
-        if (files != null) pipelineBuilder.withFilesScriptScanner(files);
+        if (files != null) pipelineBuilder.withSchemesScriptScanner(files);
         pipelineBuilder.withEndConsumer(new PrintConsumer<>());
         return pipelineBuilder;
     }

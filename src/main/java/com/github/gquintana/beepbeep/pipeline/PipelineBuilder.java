@@ -230,10 +230,21 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements A
     }
 
     /**
-     * Scan and use muliple scripts from class path using resource glob syntact
+     * Scan and use muliple scripts from class path using resource glob syntax
      */
     public B withResourcesScriptScanner(ClassLoader classLoader, String resourceGlob) {
         return withScriptScanner(ScriptScannerFactories.resources(classLoader, resourceGlob));
+    }
+
+    /**
+     * Scan and use muliple scripts from class path or file (dependending on scheme) using glob syntax.
+     * Examples:<ul>
+     *     <li>classpath:folder/script*.sql</li>
+     *     <li>file:///folder/script*.sql</li>
+     * </ul>
+     */
+    public B withSchemesScriptScanner(String glob) {
+        return withScriptScanner(ScriptScannerFactories.schemes(glob));
     }
 
     public CompositeScriptScannerBuilder<B> withCompositeScriptScanner() {

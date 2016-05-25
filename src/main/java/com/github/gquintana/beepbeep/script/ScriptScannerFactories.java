@@ -59,5 +59,17 @@ public final class ScriptScannerFactories {
     public static ScriptScannerFactory<ScriptScanner> resources(ClassLoader classLoader, String resourceGlob) {
         return x -> ScriptScanners.resources(classLoader, resourceGlob, x);
     }
+    /**
+     * Scan and use muliple scripts from class path (using classpath: scheme) or file system (using file: or no scheme)
+     */
+    public static ScriptScannerFactory<ScriptScanner> schemes(String glob) {
+        return x -> ScriptScanners.schemes(glob, x);
+    }
 
+    /**
+     * Use single script from class path (using classpath: scheme) or file system (using file: or no scheme)
+     */
+    public static ScriptScannerFactory<ScriptScanner> scheme(String glob) {
+        return x -> ScriptScanners.scheme(glob, x);
+    }
 }

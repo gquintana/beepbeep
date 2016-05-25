@@ -116,6 +116,13 @@ public class CompositeScriptScanner extends ScriptScanner {
             return scanner(ScriptScannerFactories.resources(classLoader, resourceFilter));
         }
 
+        /**
+         * Scan and use muliple scripts from class path (using classpath: scheme) or file system (using file: or no scheme)
+         */
+        public B schemes(String glob) {
+            return scanner(ScriptScannerFactories.schemes(glob));
+        }
+
         public CompositeScriptScanner build(Consumer<ScriptStartEvent> consumer) {
             return new CompositeScriptScanner(scannerFactories, consumer);
         }
