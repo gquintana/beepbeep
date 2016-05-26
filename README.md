@@ -1,4 +1,4 @@
-# Bip bip: the Script Runner
+# Beep beep: the Script Runner
 
 [![Circle CI](https://circleci.com/gh/gquintana/beepbeep.svg?style=shield)](https://circleci.com/gh/gquintana/beepbeep)
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/1cx4rg3ysqodcc8l?svg=true)](https://ci.appveyor.com/project/gquintana/beepbeep)
