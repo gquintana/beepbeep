@@ -3,7 +3,7 @@
 [![Circle CI](https://circleci.com/gh/gquintana/beepbeep.svg?style=shield)](https://circleci.com/gh/gquintana/beepbeep)
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/1cx4rg3ysqodcc8l?svg=true)](https://ci.appveyor.com/project/gquintana/beepbeep)
 [![Coverage Status](https://coveralls.io/repos/github/gquintana/beepbeep/badge.svg?branch=master)](https://coveralls.io/github/gquintana/beepbeep?branch=master)
-
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.gquintana/beepbeep/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.gquintana/beepbeep)
 
 Beep beep can run scripts on SQL and NoSQL databases,
 track ran scripts and not run them again.
