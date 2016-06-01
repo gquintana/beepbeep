@@ -5,13 +5,13 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RegexReplacerProcessorTest {
+public class RegexReplacerTest {
 
     @Test
     public void testTransform() throws Exception {
         // Given
         TestConsumer<ScriptEvent> end = new TestConsumer<>();
-        RegexReplacerProcessor processor = new RegexReplacerProcessor(";\\s*$", "", end);
+        RegexReplacer processor = new RegexReplacer(";\\s*$", "", end);
         String eol = System.lineSeparator();
         // When
         processor.consume(event(0, "insert into table1(column1, column2) values(1, 'One');"));

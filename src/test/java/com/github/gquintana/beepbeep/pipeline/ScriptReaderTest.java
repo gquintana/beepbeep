@@ -10,14 +10,14 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ScriptReaderProducerTest {
+public class ScriptReaderTest {
 
     @Test
     public void testRead() {
         // Given
         ResourceScript script = ResourceScript.create(TestFiles.class, "sql/init/02_data.sql");
         TestConsumer<ScriptEvent> end = new TestConsumer<>();
-        ScriptReaderProducer scriptReader = new ScriptReaderProducer(end, Charset.forName("UTF-8"));
+        ScriptReader scriptReader = new ScriptReader(end, Charset.forName("UTF-8"));
         // When
         scriptReader.consume(new ScriptStartEvent(script));
         // Then

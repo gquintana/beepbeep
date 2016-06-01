@@ -123,7 +123,7 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements A
 
     protected Consumer<ScriptEvent> variableReplacer(Consumer<ScriptEvent> consumer) {
         if (variables != null && !variables.isEmpty()) {
-            consumer = new VariableReplacerProcessor(variables, consumer);
+            consumer = new VariableReplacer(variables, consumer);
         }
         return consumer;
     }
@@ -133,7 +133,7 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements A
         if (scriptStore != null) {
             consumer = new ScriptStoreUpdater(scriptStore, consumer);
         }
-        Consumer<ScriptStartEvent> startConsumer = new ScriptReaderProducer(consumer, charset);
+        Consumer<ScriptStartEvent> startConsumer = new ScriptReader(consumer, charset);
         if (scriptStore != null) {
             ScriptStoreFilter filter = new ScriptStoreFilter(scriptStore, startConsumer);
             if (scriptStoreReRunFailed != null) filter.setReRunFailed(scriptStoreReRunFailed);

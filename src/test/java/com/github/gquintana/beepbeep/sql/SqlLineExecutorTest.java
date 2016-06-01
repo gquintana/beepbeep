@@ -2,7 +2,7 @@ package com.github.gquintana.beepbeep.sql;
 
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.pipeline.LineEvent;
-import com.github.gquintana.beepbeep.pipeline.RegexReplacerProcessor;
+import com.github.gquintana.beepbeep.pipeline.RegexReplacer;
 import com.github.gquintana.beepbeep.pipeline.ResultEvent;
 import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class SqlLineExecutorTest {
         TestConsumer<ScriptEvent> end = new TestConsumer<>();
         SqlConnectionProvider connectionProvider = createSqlConnectionProvider();
         try(SingleSqlConnectionProvider connectionProvider2 = new SingleSqlConnectionProvider(connectionProvider)) {
-            RegexReplacerProcessor processor = new RegexReplacerProcessor(";\\s*$", "", new SqlLineExecutor(connectionProvider2, end));
+            RegexReplacer processor = new RegexReplacer(";\\s*$", "", new SqlLineExecutor(connectionProvider2, end));
             // When
             processor.consume(event(0, "create table person(login varchar(64), email varchar(256), constraint person_pk primary key (login));"));
             processor.consume(event(1, "insert into person(login, email) values('jdoe', 'john.doe@unknown.com');"));

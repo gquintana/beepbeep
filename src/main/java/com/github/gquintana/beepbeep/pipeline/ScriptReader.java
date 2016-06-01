@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
-public class ScriptReaderProducer extends Producer<ScriptEvent> implements Consumer<ScriptStartEvent> {
+public class ScriptReader extends Producer<ScriptEvent> implements Consumer<ScriptStartEvent> {
     private final Charset charset;
 
-    public ScriptReaderProducer(Consumer<ScriptEvent> consumer, Charset charset) {
+    public ScriptReader(Consumer<ScriptEvent> consumer, Charset charset) {
         super(consumer);
         this.charset = charset;
     }

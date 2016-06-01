@@ -8,7 +8,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class VariableReplacerProcessorTest {
+public class VariableReplacerTest {
 
     @Test
     public void testConsume() throws Exception {
@@ -16,7 +16,7 @@ public class VariableReplacerProcessorTest {
         TestConsumer<ScriptEvent> end = new TestConsumer<>();
         Map<String, Object> variables = new HashMap<>();
         variables.put("column2.1", "One");
-        VariableReplacerProcessor processor = new VariableReplacerProcessor(variables, end);
+        VariableReplacer processor = new VariableReplacer(variables, end);
         String eol = System.lineSeparator();
         // When
         processor.consume(event(0, "insert into table1(column1, column2) values(1, '${column2.1}');"));
@@ -44,7 +44,7 @@ public class VariableReplacerProcessorTest {
         variables.put("column2.default", "X");
         variables.put("column2.1", "<${column2.default}>");
         variables.put("column2.2", "<${column2.default}>");
-        VariableReplacerProcessor processor = new VariableReplacerProcessor(variables, end);
+        VariableReplacer processor = new VariableReplacer(variables, end);
         String eol = System.lineSeparator();
         // When
         processor.consume(event(0, "insert into table1(column1, column2) values(1, '${column2.1}');"));

@@ -4,17 +4,17 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class VariableReplacerProcessor extends LineTransformer {
+public class VariableReplacer extends LineTransformer {
     private final Map<String, Object> variables;
     private final Pattern variablePattern;
 
-    public VariableReplacerProcessor(Pattern variablePattern, Map<String, Object> variables, Consumer<ScriptEvent> consumer) {
+    public VariableReplacer(Pattern variablePattern, Map<String, Object> variables, Consumer<ScriptEvent> consumer) {
         super(consumer);
         this.variablePattern = variablePattern;
         this.variables = variables;
     }
 
-    public VariableReplacerProcessor(Map<String, Object> variables,Consumer<ScriptEvent> consumer) {
+    public VariableReplacer(Map<String, Object> variables, Consumer<ScriptEvent> consumer) {
         this(Pattern.compile("\\$\\{([^\\}]+)\\}"), variables, consumer);
     }
 
