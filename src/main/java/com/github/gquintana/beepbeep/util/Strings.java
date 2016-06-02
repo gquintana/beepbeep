@@ -20,6 +20,14 @@ public final class Strings {
         return !isNullOrEmpty(line);
     }
 
+    public static String trimToNull(String s) {
+        if (s  == null) {
+            return null;
+        }
+        s = s.trim();
+        return  s.isEmpty() ? null : s;
+    }
+
     public static String left(String line, int end) {
         if (end >= line.length()) {
             return line;

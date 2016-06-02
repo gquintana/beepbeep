@@ -2,6 +2,7 @@ package com.github.gquintana.beepbeep.config;
 
 import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
 import com.github.gquintana.beepbeep.pipeline.Pipelines;
+import com.github.gquintana.beepbeep.util.Converters;
 import com.github.gquintana.beepbeep.util.Strings;
 import org.yaml.snakeyaml.Yaml;
 
@@ -45,7 +46,7 @@ public class ConfigurationLoader {
     public PipelineBuilder load(InputStream inputStream) {
         @SuppressWarnings("unchecked")
         Map<String, Object> map = yaml.loadAs(inputStream, Map.class);
-        String type = convertToString(map.get("type"));
+        String type = Converters.convertToString(map.get("type"));
         PipelineBuilder pipelineBuilder = Pipelines.create(type);
         for (Map.Entry<String, Object> keyValue : map.entrySet()) {
             String key = Strings.toCamelCase(keyValue.getKey());
@@ -91,11 +92,11 @@ public class ConfigurationLoader {
             List scripts = (List) value;
             PipelineBuilder.CompositeScriptScannerBuilder compositeBuilder = pipelineBuilder.withCompositeScriptScanner();
             for (Object script : scripts) {
-                compositeBuilder.schemes(convertToString(script));
+                compositeBuilder.schemes(Converters.convertToString(script));
             }
             compositeBuilder.end();
         } else {
-            pipelineBuilder.withFilesScriptScanner(convertToString(value));
+            pipelineBuilder.withFilesScriptScanner(Converters.convertToString(value));
         }
     }
 
@@ -152,24 +153,6 @@ public class ConfigurationLoader {
      */
     @SuppressWarnings("unchecked")
     private <T> T convert(Object object, Class<T> clazz) {
-        Object result;
-        if (object == null || clazz.isInstance(object)) {
-            result = object;
-        } else if (clazz.equals(String.class)) {
-            result = (object instanceof String ? (String) object : object.toString());
-        } else if (clazz.equals(Charset.class)) {
-            result = Charset.forName(convertToString(object));
-        } else if (clazz.equals(Boolean.class) || clazz.equals(Boolean.TYPE)) {
-            result = Boolean.valueOf(convertToString(object));
-        } else if (clazz.equals(TemporalAmount.class) || clazz.equals(Duration.class)) {
-            result = Duration.parse("PT" + convertToString(object).toUpperCase());
-        } else {
-            throw new ConfigurationException("Don't known how to convert to " + clazz);
-        }
-        return clazz.isPrimitive() ? (T) result : clazz.cast(result);
-    }
-
-    private String convertToString(Object object) {
-        return convert(object, String.class).trim();
+        return Converters.convert(object, clazz);
     }
 }

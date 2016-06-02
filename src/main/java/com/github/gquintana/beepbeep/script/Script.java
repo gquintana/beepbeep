@@ -3,15 +3,19 @@ package com.github.gquintana.beepbeep.script;
 import com.github.gquintana.beepbeep.BeepBeepException;
 import com.github.gquintana.beepbeep.util.Strings;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.MessageDigest;
+import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
+import java.util.Optional;
 
 public abstract class Script {
+    private boolean analyzed;
     protected Long size;
     protected String sha1Hex;
+    private final ScriptConfiguration configuration = new ScriptConfiguration();
 
     public Script() {
     }
@@ -26,18 +30,24 @@ public abstract class Script {
 
     public abstract InputStream getStream() throws IOException;
 
+    /**
+     * Analyze script and extract, size, checksum and configuration
+     */
     protected final void analyze() {
-        try (InputStream inputStream = getStream()) {
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] buffer = new byte[4096];
-            int bufferLen;
-            long currentSize = 0L;
-            while ((bufferLen = inputStream.read(buffer)) >= 0) {
-                currentSize += bufferLen;
-                md.update(buffer, 0, bufferLen);
+        if (analyzed) {
+            return;
+        }
+        try (InputStream inputStream = getStream();
+             AnalyzerInputStream analyzerInputStream = new AnalyzerInputStream(inputStream, "SHA-1");
+             InputStreamReader reader = new InputStreamReader(analyzerInputStream, "UTF-8");
+             BufferedReader lineReader = new BufferedReader(reader)) {
+            String line;
+            while ((line = lineReader.readLine()) != null) {
+                configuration.parse(line);
             }
-            size = currentSize;
-            sha1Hex = Strings.bytesToHex(md.digest());
+            size = analyzerInputStream.getSize();
+            sha1Hex = Strings.bytesToHex(analyzerInputStream.getDigest());
+            analyzed = true;
         } catch (IOException e) {
             throw new BeepBeepException("Failed to get script " + getName() + " size", e);
         } catch (NoSuchAlgorithmException e) {
@@ -53,11 +63,19 @@ public abstract class Script {
     }
 
     public String getSha1Hex() {
-        if (sha1Hex == null) {
-            analyze();
-        }
+        analyze();
         return sha1Hex;
     }
+
+    public <T> Optional<T> getConfiguration(String name, Class<T> type) {
+        analyze();
+        return configuration.getValue(name, type);
+    }
+
+    public <T> void setConfiguration(String name, T value) {
+        configuration.setValue(name, value);
+    }
+
 
     @Override
     public boolean equals(Object o) {

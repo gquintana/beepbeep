@@ -3,6 +3,7 @@ package com.github.gquintana.beepbeep.util;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class StringsTest {
 
@@ -44,4 +45,12 @@ public class StringsTest {
     public void testReplaceAll() {
         assertEquals("abc/def/ghi", "abc\\def\\ghi".replace('\\', '/'));
     }
+
+    @Test
+    public void testTrimToNull() {
+        assertEquals("foo", Strings.trimToNull("\tfoo \n"));
+        assertNull(Strings.trimToNull("\t \n"));
+        assertNull(Strings.trimToNull(null));
+    }
+
 }
