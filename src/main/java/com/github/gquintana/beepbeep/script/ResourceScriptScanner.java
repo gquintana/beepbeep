@@ -65,39 +65,44 @@ public class ResourceScriptScanner extends ScriptScanner {
         for (Path path: getClassPath()) {
             String pathString = path.toString();
             File pathFile = path.toFile();
+            List<String> resourcesList = new ArrayList<>();
             if (pathFile.isFile() && pathString.endsWith(".jar")) {
-                scanJar(path, resources);
+                scanJar(path, resources, resourcesList);
             } else if (pathFile.isDirectory()) {
-                scanFolder(path, resources);
+                scanFolder(path, resources, resourcesList);
+            }
+            Collections.sort(resourcesList);
+            for(String resource:resourcesList) {
+                produce(ResourceScript.create(classLoader, resource));
             }
         }
     }
 
-    private void scanJar(Path jarPath, Set<String> resources) throws IOException {
+    private void scanJar(Path jarPath, Set<String> knownResources, List<String> resources) throws IOException {
         try (JarInputStream jarStream = new JarInputStream(Files.newInputStream(jarPath))) {
             JarEntry jarEntry;
             while ((jarEntry = jarStream.getNextJarEntry()) != null) {
                 String jarEntryName = jarEntry.getName();
-                scanResource(jarEntryName, resources);
+                scanResource(jarEntryName, knownResources, resources);
             }
         }
     }
 
-    private void scanFolder(Path folderPath, Set<String> resources) throws IOException {
+    private void scanFolder(Path folderPath, Set<String> knownResources, List<String> resources) throws IOException {
         Files.walkFileTree(folderPath, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 String filePath = fixFileSeparator(folderPath.relativize(file).toString());
-                scanResource(filePath, resources);
+                scanResource(filePath, knownResources, resources);
                 return super.visitFile(file, attrs);
             }
         });
     }
 
-    private void scanResource(String name, Set<String> resources) {
-        if (nameFilter.test(name) && !resources.contains(name)) {
+    private void scanResource(String name, Set<String> knownResources, List<String> resources) {
+        if (nameFilter.test(name) && !knownResources.contains(name)) {
+            knownResources.add(name);
             resources.add(name);
-            produce(ResourceScript.create(classLoader, name));
         }
     }
 
