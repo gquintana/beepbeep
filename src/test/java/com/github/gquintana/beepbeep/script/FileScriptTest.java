@@ -28,8 +28,8 @@ public class FileScriptTest {
         assertThat(script.getFullName()).isEqualTo(file.getPath());
         assertThat(script.getSize()).isEqualTo(TestFiles.getResourceSize("sql/init/01_create.sql"));
         // Scripts depend on Git crlf settings
-        assertThat(script.getSize()).isEqualTo(135L);
-        assertThat(script.getSha1Hex()).isIn("b250b56d15bd419ee45ab9f5985a6bda81c7b2ea", "ebc6b90deaa80cbdf9a4719a27a214589f277164");
+        assertThat(script.getSize()).isIn(135L, 141L);
+        assertThat(script.getSha1Hex()).isIn("b250b56d15bd419ee45ab9f5985a6bda81c7b2ea", "ebc6b90deaa80cbdf9a4719a27a214589f277164", "cf46c864faab785b2d7660f5ed17ce8eff088583");
     }
 
 }
