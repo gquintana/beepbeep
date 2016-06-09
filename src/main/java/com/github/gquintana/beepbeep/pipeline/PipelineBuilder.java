@@ -32,6 +32,7 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements A
      * Re run script when it's stuck in started state after given timeout
      */
     private TemporalAmount scriptStoreReRunStartedTimeout;
+    private Boolean scriptReaderIgnoreErrors;
     private Map<String, Object> variables;
     protected Consumer<ScriptEvent> endConsumer = event -> {
     };
@@ -117,6 +118,14 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements A
         return self();
     }
 
+    /**
+     * Continue executing scripts when an error occurs
+     */
+    public B withScriptReaderIgnoreErrors(Boolean ignoreErrors) {
+        this.scriptReaderIgnoreErrors = ignoreErrors;
+        return self();
+    }
+
     protected Consumer<ScriptEvent> notNullNorEmptyFilter(Consumer<ScriptEvent> consumer) {
         return LineFilter.notNulNotEmptyFilter(consumer);
     }
@@ -133,7 +142,12 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements A
         if (scriptStore != null) {
             consumer = new ScriptStoreUpdater(scriptStore, consumer);
         }
-        Consumer<ScriptStartEvent> startConsumer = new ScriptReader(consumer, charset);
+        Consumer<ScriptStartEvent> startConsumer;
+        if (scriptReaderIgnoreErrors == null) {
+            startConsumer = new ScriptReader(consumer, charset);
+        }  else {
+            startConsumer = new ScriptReader(consumer, charset, scriptReaderIgnoreErrors);
+        }
         if (scriptStore != null) {
             ScriptStoreFilter filter = new ScriptStoreFilter(scriptStore, startConsumer);
             if (scriptStoreReRunFailed != null) filter.setReRunFailed(scriptStoreReRunFailed);

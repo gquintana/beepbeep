@@ -10,10 +10,16 @@ import java.nio.charset.Charset;
 
 public class ScriptReader extends Producer<ScriptEvent> implements Consumer<ScriptStartEvent> {
     private final Charset charset;
+    private final boolean ignoreErrors;
 
-    public ScriptReader(Consumer<ScriptEvent> consumer, Charset charset) {
+    public ScriptReader(Consumer<ScriptEvent> consumer, Charset charset, boolean ignoreErrors) {
         super(consumer);
         this.charset = charset;
+        this.ignoreErrors = ignoreErrors;
+    }
+
+    public ScriptReader(Consumer<ScriptEvent> consumer, Charset charset) {
+        this(consumer, charset, false);
     }
 
     @Override
@@ -23,19 +29,47 @@ public class ScriptReader extends Producer<ScriptEvent> implements Consumer<Scri
         int lineNumber = 1;
         String line;
         try (BufferedReader lineReader = new BufferedReader(new InputStreamReader(script.getStream(), charset))) {
+            Exception firstException = null;
             while ((line = lineReader.readLine()) != null) {
-                produce(new LineEvent(script, lineNumber, line));
+                if (ignoreErrors) {
+                    try {
+                        produceLine(script, lineNumber, line);
+                    } catch (Exception e) {
+                        if (firstException == null) {
+                            firstException = e;
+                        }
+                        produce(new ResultEvent(script, lineNumber, "ERROR " + e.getMessage()));
+                    }
+                } else {
+                    produceLine(script, lineNumber, line);
+                }
                 lineNumber++;
             }
-            produce(new ScriptEndEvent(script, lineNumber, event.getInstant()));
+            if (firstException == null) {
+                produceEndSuccess(script, lineNumber, event);
+            } else {
+                produceEndFail(script, lineNumber, firstException, event);
+            }
         } catch (IOException e) {
-            produce(new ScriptEndEvent(script, lineNumber, e, event.getInstant()));
+            produceEndFail(script, lineNumber, e, event);
             throw new BeepBeepException("I/O failure reading " + script.getName(), e);
         } catch (RuntimeException e) {
-            produce(new ScriptEndEvent(script, lineNumber, e, event.getInstant()));
+            produceEndFail(script, lineNumber, e, event);
             throw e;
         }
 
+    }
+
+    private void produceLine(Script script, int lineNumber, String line) {
+        produce(new LineEvent(script, lineNumber, line));
+    }
+
+    private void produceEndSuccess(Script script, int lineNumber, ScriptStartEvent event) {
+        produce(new ScriptEndEvent(script, lineNumber, event.getInstant()));
+    }
+
+    private void produceEndFail(Script script, int lineNumber, Exception exception, ScriptStartEvent event) {
+        produce(new ScriptEndEvent(script, lineNumber, exception, event.getInstant()));
     }
 
 }

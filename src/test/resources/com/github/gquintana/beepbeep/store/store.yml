@@ -1,0 +1,25 @@
+- id: 1
+  full_name: path/script1.sql
+  version: 1
+  size: 12
+  sha1: ABC
+  end_date: '2016-06-07T18:59:56.731Z'
+  start_date: '2016-06-07T18:59:46.731Z'
+  status: SUCCEEDED
+
+- id: 2
+  full_name: path/script2.sql
+  version: 2
+  size: 23
+  sha1: '012'
+  start_date: '2016-06-07T18:59:56.734Z'
+  status: STARTED
+
+- id: 3
+  full_name: other/script1.sql
+  version: 1
+  size: 34
+  sha1: 1B2
+  start_date: '2016-06-07T19:00:06.734Z'
+  end_date: '2016-06-07T19:00:11.734Z'
+  status: FAILED
