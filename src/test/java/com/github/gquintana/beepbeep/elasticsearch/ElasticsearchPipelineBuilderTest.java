@@ -33,7 +33,7 @@ public class ElasticsearchPipelineBuilderTest {
         assertThat(output.events.get(1).toString()).contains("200,OK");
     }
 
-    String getElasticsearchUri() {
+    private String getElasticsearchUri() {
         return "http://" + elasticsearch.getElasticsearch().getHttpAddress();
     }
 
@@ -42,7 +42,7 @@ public class ElasticsearchPipelineBuilderTest {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
         BasicHttpClientProvider clientProvider = new BasicHttpClientProvider();
-        String scriptGlob = getClass().getPackage().getName().replaceAll("\\.", "/") + "/index*.json";
+        String scriptGlob = getJsonScripts();
         ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder()
             .withUrl(getElasticsearchUri())
             .withHttpClientProvider(clientProvider)
@@ -60,7 +60,7 @@ public class ElasticsearchPipelineBuilderTest {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
         BasicHttpClientProvider clientProvider = new BasicHttpClientProvider();
-        String scriptGlob = getClass().getPackage().getName().replaceAll("\\.", "/") + "/index*.json";
+        String scriptGlob = getJsonScripts();
         ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder()
             .withUrl(getElasticsearchUri())
             .withHttpClientProvider(clientProvider).withEndConsumer(output)
@@ -73,5 +73,29 @@ public class ElasticsearchPipelineBuilderTest {
         // Then
         output.assertNoScriptEndFailed();
         assertThat(output.events).isEmpty();
+    }
+
+    @Test
+    public void testMemStore() throws IOException {
+        // Given
+        TestConsumer<ScriptEvent> output = new TestConsumer<>();
+        BasicHttpClientProvider clientProvider = new BasicHttpClientProvider();
+        String scriptGlob = getJsonScripts();
+        ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder()
+            .withUrl(getElasticsearchUri())
+            .withHttpClientProvider(clientProvider).withEndConsumer(output)
+            .withScriptStore("mem:test")
+            .withResourcesScriptScanner(Thread.currentThread().getContextClassLoader(), scriptGlob);
+        pipelineBuilder.scan();
+        output.clear();
+        // When
+        pipelineBuilder.scan();
+        // Then
+        output.assertNoScriptEndFailed();
+        assertThat(output.events).isEmpty();
+    }
+
+    private String getJsonScripts() {
+        return getClass().getPackage().getName().replaceAll("\\.", "/") + "/index*.json";
     }
 }

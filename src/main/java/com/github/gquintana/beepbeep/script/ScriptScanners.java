@@ -3,22 +3,16 @@ package com.github.gquintana.beepbeep.script;
 import com.github.gquintana.beepbeep.config.ConfigurationException;
 import com.github.gquintana.beepbeep.pipeline.Consumer;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
-import com.github.gquintana.beepbeep.util.Strings;
+import com.github.gquintana.beepbeep.util.Uri;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public final class ScriptScanners {
     private ScriptScanners() {
     }
 
-    /**
-     * Regular expression to analyze scheme:///path/to/file*.txt
-     */
-    private static Pattern AUTO_PATTERN = Pattern.compile("^(?:([a-z]+):)?(/*)(.*)$");
 
     /**
      * Use single script
@@ -83,33 +77,25 @@ public final class ScriptScanners {
         return CompositeScriptScanner.builder();
     }
 
-    private static String[] splitAutoGlob(String glob) {
-        Matcher matcher = AUTO_PATTERN.matcher(glob.trim());
-        if (!matcher.matches()) {
-            throw new ConfigurationException("Invalid glob " + glob);
-        }
-        String scheme = matcher.group(1);
+    private static Uri parseUri(String glob) {
+        Uri uri = Uri.valueOf(glob);
+        String scheme = uri.getScheme();
         if (!(scheme == null || scheme.equals("file") || scheme.equals("classpath"))) {
             throw new ConfigurationException("Invalid scheme " + scheme);
         }
-        String slash = matcher.group(2);
-        if (!(slash == null || slash.length() < 4)) {
-            throw new ConfigurationException("Invalid slash " + glob);
-        }
-        String path = matcher.group(3);
-        return new String[]{scheme, slash == null ? "" : Strings.left(slash, 1), path};
+        return uri;
     }
 
     /**
      * Scan and use muliple scripts from class path (using classpath: scheme) or file system (using file: or no scheme)
      */
     public static ScriptScanner schemes(String glob, Consumer<ScriptStartEvent> consumer) {
-        String[] parts = splitAutoGlob(glob);
-        String scheme = parts[0];
+        Uri uri = parseUri(glob);
+        String scheme = uri.getScheme();
         if (scheme == null || scheme.equals("file")) {
-            return files(parts[1] + parts[2], consumer);
+            return files(uri.getPath(), consumer);
         } else if (scheme.equals("classpath")) {
-            return resources(Thread.currentThread().getContextClassLoader(), parts[2], consumer);
+            return resources(Thread.currentThread().getContextClassLoader(), uri.getPath(), consumer);
         } else {
             throw new ConfigurationException("Invalid glob " + glob);
         }
@@ -119,12 +105,12 @@ public final class ScriptScanners {
      * Use single script from class path (using classpath: scheme) or file system (using file: or no scheme)
      */
     public static ScriptScanner scheme(String script, Consumer<ScriptStartEvent> consumer) {
-        String[] parts = splitAutoGlob(script);
-        String scheme = parts[0];
+        Uri uri = parseUri(script);
+        String scheme = uri.getScheme();
         if (scheme == null || scheme.equals("file")) {
-            return file(Paths.get(parts[1] + parts[2]), consumer);
+            return file(Paths.get(uri.getPath()), consumer);
         } else if (scheme.equals("classpath")) {
-            return resource(Thread.currentThread().getContextClassLoader(), parts[2], consumer);
+            return resource(Thread.currentThread().getContextClassLoader(), uri.getPath(), consumer);
         } else {
             throw new ConfigurationException("Invalid glob " + script);
         }

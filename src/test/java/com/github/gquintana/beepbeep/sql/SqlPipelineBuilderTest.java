@@ -70,17 +70,41 @@ public class SqlPipelineBuilderTest {
         close(connectionProvider);
     }
 
+    private static boolean isInitSqlScript(String name) {
+        return name.startsWith("com/github/gquintana/beepbeep/init/sql/") && name.endsWith(".sql");
+    }
+
     @Test
     public void testConsume_ScriptStore() throws Exception {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
         SingleSqlConnectionProvider connectionProvider = createSqlConnectionProvider().single();
-        Predicate<String> resourceFilter = name -> name.startsWith("com/github/gquintana/beepbeep/init/sql/") && name.endsWith(".sql");
         SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
             .withConnectionProvider(connectionProvider)
             .withScriptStore("beepbeep")
             .withEndConsumer(output)
-            .withResourcesScriptScanner(getClass().getClassLoader(), resourceFilter);
+            .withResourcesScriptScanner(getClass().getClassLoader(), SqlPipelineBuilderTest::isInitSqlScript);
+        store = true;
+        pipelineBuilder.scan();
+        output.clear();
+        // When
+        pipelineBuilder.scan();
+        // Then
+        output.assertNoScriptEndFailed();
+        assertThat(output.events).isEmpty();
+        close(connectionProvider);
+    }
+
+    @Test
+    public void testConsume_FileScriptStore() throws Exception {
+        // Given
+        TestConsumer<ScriptEvent> output = new TestConsumer<>();
+        SingleSqlConnectionProvider connectionProvider = createSqlConnectionProvider().single();
+        SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
+            .withConnectionProvider(connectionProvider)
+            .withScriptStore(temporaryFolder.newFile("store.yml").toURI().toString())
+            .withEndConsumer(output)
+            .withResourcesScriptScanner(getClass().getClassLoader(), SqlPipelineBuilderTest::isInitSqlScript);
         store = true;
         pipelineBuilder.scan();
         output.clear();

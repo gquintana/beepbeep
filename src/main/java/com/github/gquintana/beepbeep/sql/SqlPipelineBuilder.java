@@ -1,6 +1,8 @@
 package com.github.gquintana.beepbeep.sql;
 
 import com.github.gquintana.beepbeep.pipeline.*;
+import com.github.gquintana.beepbeep.script.ScriptStores;
+import com.github.gquintana.beepbeep.store.ScriptStore;
 
 import java.util.regex.Pattern;
 
@@ -55,7 +57,12 @@ public class SqlPipelineBuilder extends PipelineBuilder<SqlPipelineBuilder> {
      */
     @Override
     public SqlPipelineBuilder withScriptStore(String name) {
-        return withScriptStore(name, false);
+        ScriptStore store = ScriptStores.scheme(name);
+        if (store == null) {
+            return withScriptStore(name, false);
+        } else {
+            return withScriptStore(scriptStore);
+        }
     }
 
     @Override
