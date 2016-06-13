@@ -29,6 +29,21 @@ public class ConvertersTest {
         assertThat(Converters.convert("1m53s", Duration.class)).isEqualTo(Duration.ofSeconds(60+53));
         assertThat(Converters.convert("", Duration.class)).isNull();
     }
+
+    @Test
+    public void testConvertInteger() throws Exception {
+        assertThat(Converters.convert("123", Integer.class)).isEqualTo(123);
+        assertThat(Converters.convert("456", Integer.TYPE)).isEqualTo(456);
+        assertThat(Converters.convert("", Integer.class)).isNull();
+    }
+
+    @Test
+    public void testConvertLong() throws Exception {
+        assertThat(Converters.convert("123", Long.class)).isEqualTo(123L);
+        assertThat(Converters.convert("456", Long.TYPE)).isEqualTo(456L);
+        assertThat(Converters.convert("", Long.class)).isNull();
+    }
+
     @Test
     public void testConvertCharset() throws Exception {
         assertThat(Converters.convert("utf-8", Charset.class)).isEqualTo(Charset.forName("UTF-8"));

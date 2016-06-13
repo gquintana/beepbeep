@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,5 +38,18 @@ public class ResourceScriptTest {
         assertThat(script.getName()).isEqualTo("01_create.sql");
         assertThat(script.getFullName()).isEqualTo(resource);
         assertThat(script.getSize()).isEqualTo(TestFiles.getResourceSize("sql/init/01_create.sql"));
+    }
+
+    @Test
+    public void testConfiguration() throws IOException {
+        // Given
+        String resource = TestFiles.getResourceFullName("sql/init/01_create.sql");
+        ResourceScript script = ResourceScript.create(Thread.currentThread().getContextClassLoader(), resource);
+        // When
+        script.setConfiguration("timeUnit", "SECONDS");
+        // Then
+        assertThat(script.getConfiguration("timeUnit", String.class).get()).isEqualTo("SECONDS");
+        assertThat(script.getConfiguration("timeUnit", TimeUnit.class).get()).isEqualTo(TimeUnit.SECONDS);
+        assertThat(script.getConfiguration("unknown", String.class).isPresent()).isFalse();
     }
 }
