@@ -6,7 +6,6 @@ import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import com.github.gquintana.beepbeep.util.Uri;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.function.Predicate;
 
 public final class ScriptScanners {
@@ -108,7 +107,7 @@ public final class ScriptScanners {
         Uri uri = parseUri(script);
         String scheme = uri.getScheme();
         if (scheme == null || scheme.equals("file")) {
-            return file(Paths.get(uri.getPath()), consumer);
+            return file(uri.toPath(), consumer);
         } else if (scheme.equals("classpath")) {
             return resource(Thread.currentThread().getContextClassLoader(), uri.getPath(), consumer);
         } else {

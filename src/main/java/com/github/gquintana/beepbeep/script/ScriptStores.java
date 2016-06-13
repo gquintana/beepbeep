@@ -9,7 +9,6 @@ import com.github.gquintana.beepbeep.store.ScriptStoreException;
 import com.github.gquintana.beepbeep.util.Uri;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,7 +55,7 @@ public final class ScriptStores {
         if (parsedUri.getScheme() == null) {
             return null;
         } else if ("file".equals(parsedUri.getScheme())) {
-            return file(Paths.get(uri));
+            return file(parsedUri.toPath());
         } else if ("mem".equals(parsedUri.getScheme())) {
             return memory(uri);
         } else {

@@ -2,6 +2,10 @@ package com.github.gquintana.beepbeep.util;
 
 import com.github.gquintana.beepbeep.config.ConfigurationException;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,10 +37,26 @@ public class Uri {
         }
         String scheme = matcher.group(1);
         String slash = matcher.group(2);
-        if (!(slash == null || slash.length() < 4)) {
+        if (slash == null || slash.length() == 0 || slash.length() == 2) {
+            slash = ""; // Relative path
+        } else if (slash.length() == 1 || slash.length() == 3) {
+            slash = "/"; // Absolute path
+        } else {
             throw new ConfigurationException("Invalid slash " + uri);
         }
         String path = matcher.group(3);
-        return new Uri(scheme, slash == null ? "" : Strings.left(slash, 1) + path);
+        return new Uri(scheme, slash + path);
+    }
+
+    public URI toURI() throws URISyntaxException {
+        return new URI(scheme + "://" + path);
+    }
+
+    public Path toPath() {
+        try {
+            return Paths.get(toURI());
+        } catch (URISyntaxException e) {
+            throw new ConfigurationException("Invalid path " + path);
+        }
     }
 }
