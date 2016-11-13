@@ -3,6 +3,7 @@ package com.github.gquintana.beepbeep.elasticsearch;
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.http.BasicHttpClientProvider;
 import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
+import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -13,16 +14,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ElasticsearchPipelineBuilderTest {
     @ClassRule
-    public static TemporaryFolder temporaryFolder = new TemporaryFolder();
-    @ClassRule
-    public static ElasticsearchRule elasticsearch = new ElasticsearchRule(temporaryFolder);
+    public static final RemoteElasticsearchRule ELASTICSEARCH = new RemoteElasticsearchRule();
+
+    @After
+    public void tearDown() throws IOException {
+        ELASTICSEARCH.deleteIndex("person");
+    }
 
     @Test
     public void testGetHealth() throws IOException {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
         BasicHttpClientProvider clientProvider = new BasicHttpClientProvider();
-        ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder().withUrl(getElasticsearchUri())
+        ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder().withUrl(ELASTICSEARCH.getUrl())
             .withHttpClientProvider(clientProvider)
             .withEndConsumer(output)
             .withResourceScriptScanner(getClass(), "cluster_health.json");
@@ -33,10 +37,6 @@ public class ElasticsearchPipelineBuilderTest {
         assertThat(output.events.get(1).toString()).contains("200,OK");
     }
 
-    private String getElasticsearchUri() {
-        return "http://" + elasticsearch.getElasticsearch().getHttpAddress();
-    }
-
     @Test
     public void testCreateSearchDelete() throws IOException {
         // Given
@@ -44,7 +44,7 @@ public class ElasticsearchPipelineBuilderTest {
         BasicHttpClientProvider clientProvider = new BasicHttpClientProvider();
         String scriptGlob = getJsonScripts();
         ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder()
-            .withUrl(getElasticsearchUri())
+            .withUrl(ELASTICSEARCH.getUrl())
             .withHttpClientProvider(clientProvider)
             .withEndConsumer(output)
             .withResourcesScriptScanner(getClass().getClassLoader(), scriptGlob);
@@ -62,7 +62,7 @@ public class ElasticsearchPipelineBuilderTest {
         BasicHttpClientProvider clientProvider = new BasicHttpClientProvider();
         String scriptGlob = getJsonScripts();
         ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder()
-            .withUrl(getElasticsearchUri())
+            .withUrl(ELASTICSEARCH.getUrl())
             .withHttpClientProvider(clientProvider).withEndConsumer(output)
             .withScriptStore(".beepbeep/script")
             .withResourcesScriptScanner(Thread.currentThread().getContextClassLoader(), scriptGlob);
@@ -82,7 +82,7 @@ public class ElasticsearchPipelineBuilderTest {
         BasicHttpClientProvider clientProvider = new BasicHttpClientProvider();
         String scriptGlob = getJsonScripts();
         ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder()
-            .withUrl(getElasticsearchUri())
+            .withUrl(ELASTICSEARCH.getUrl())
             .withHttpClientProvider(clientProvider).withEndConsumer(output)
             .withScriptStore("mem:test")
             .withResourcesScriptScanner(Thread.currentThread().getContextClassLoader(), scriptGlob);

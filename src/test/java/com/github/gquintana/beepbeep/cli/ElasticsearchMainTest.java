@@ -1,10 +1,11 @@
 package com.github.gquintana.beepbeep.cli;
 
 import com.github.gquintana.beepbeep.TestFiles;
-import com.github.gquintana.beepbeep.elasticsearch.ElasticsearchRule;
+import com.github.gquintana.beepbeep.elasticsearch.RemoteElasticsearchRule;
 import com.github.gquintana.beepbeep.http.BasicHttpClientProvider;
 import com.github.gquintana.beepbeep.http.HttpClientProvider;
 import org.apache.http.client.methods.HttpDelete;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -20,16 +21,12 @@ public class ElasticsearchMainTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Rule
-    public final ElasticsearchRule elasticsearchRule = new ElasticsearchRule(temporaryFolder);
+    @ClassRule
+    public static final RemoteElasticsearchRule ELASTICSEARCH = new RemoteElasticsearchRule();
 
     protected void writeScripts(File scriptFolder) throws IOException {
         TestFiles.writeResource("elasticsearch/index_create.json", new File(scriptFolder, "01_create.json"));
         TestFiles.writeResource("elasticsearch/index_data.json", new File(scriptFolder, "02_data.json"));
-    }
-
-    protected String getEsUrl() {
-        return "http://" + elasticsearchRule.getElasticsearch().getHttpAddress();
     }
 
     @Test
@@ -37,7 +34,7 @@ public class ElasticsearchMainTest {
         // Given
         File scriptFolder = temporaryFolder.newFolder("script");
         writeScripts(scriptFolder);
-        String esUrl = getEsUrl();
+        String esUrl = ELASTICSEARCH.getUrl();
         String[] args = {
             "--type", "elasticsearch",
             "--url", esUrl,
@@ -54,7 +51,7 @@ public class ElasticsearchMainTest {
         // Given
         File scriptFolder = temporaryFolder.newFolder("script");
         writeScripts(scriptFolder);
-        String esUrl = getEsUrl();
+        String esUrl = ELASTICSEARCH.getUrl();
         String[] args = {
             "--type", "elasticsearch",
             "--url", esUrl,

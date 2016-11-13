@@ -6,8 +6,10 @@ import com.github.gquintana.beepbeep.store.ScriptInfo;
 import com.github.gquintana.beepbeep.store.ScriptStatus;
 import com.github.gquintana.beepbeep.store.ScriptStoreException;
 import org.apache.http.client.methods.HttpDelete;
-import org.junit.*;
-import org.junit.rules.TemporaryFolder;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -16,23 +18,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ElasticsearchScriptStoreTest {
     @ClassRule
-    public static TemporaryFolder temporaryFolder = new TemporaryFolder();
-    @ClassRule
-    public static ElasticsearchRule elasticsearch = new ElasticsearchRule(temporaryFolder);
+    public static final RemoteElasticsearchRule ELASTICSEARCH = new RemoteElasticsearchRule();
 
     private HttpClientProvider httpClientProvider;
     private ElasticsearchScriptStore store;
 
     @Before
     public void setUp() {
-        httpClientProvider = new BasicHttpClientProvider("http://" + elasticsearch.getElasticsearch().getHttpAddress());
+        httpClientProvider = ELASTICSEARCH.getHttpClientProvider();
         store = new ElasticsearchScriptStore(httpClientProvider, ".beepbeep/beepbeep");
         store.prepare();
     }
 
     @After
     public void tearDown() throws Exception {
-        httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), new HttpDelete(".beepbeep?ignore_unavailable=true"));
+        ELASTICSEARCH.deleteIndex(".beepbeep");
     }
 
     private ScriptInfo<String> createInfo() {
