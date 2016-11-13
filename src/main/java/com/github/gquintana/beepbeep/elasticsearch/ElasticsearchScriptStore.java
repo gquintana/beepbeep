@@ -106,7 +106,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
             httpResponse = execute(httpRequest);
             checkError(httpResponse);
             // Wait for index
-            httpResponse = execute(new HttpGet("_cluster/health/" + index + "?" + URLEncoder.encode("wait_for_status=yellow&timeout=10s", "UTF-8")));
+            httpResponse = execute(new HttpGet("_cluster/health/" + index + "?wait_for_status=yellow&timeout=10s"));
             checkError(httpResponse);
             // Force refresh
             httpResponse = execute(new HttpGet(index + "/_refresh"));
