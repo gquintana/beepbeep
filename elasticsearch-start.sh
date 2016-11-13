@@ -4,6 +4,7 @@ ES_VERSION=5.0.0
 ES_TAR=${TARGET_DIR}/elasticsearch-${ES_VERSION}.tar.gz
 ES_DIR=${TARGET_DIR}/elasticsearch-${ES_VERSION}
 ES_PID=${TARGET_DIR}/elasticsearch.pid
+mkdir -p ${TARGET_DIR}
 if [ ! -f "${ES_TAR}" ]; then
   echo "Downloading Elasticsearch ${ES_VERSION}"
   curl -o ${ES_TAR} https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
