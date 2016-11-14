@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 public class RemoteElasticsearchRule extends ExternalResource {
+    private final RemoteElasticsearch process = new RemoteElasticsearch();
     private final String url;
     private HttpClientProvider httpClientProvider;
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -47,6 +48,7 @@ public class RemoteElasticsearchRule extends ExternalResource {
 
     @Override
     protected void before() throws Throwable {
+        process.start();
         String version = getVersion();
         if (!version.startsWith("5.")) {
             throw new IllegalStateException("Invalid Elasticsearch version " + version);
@@ -70,5 +72,6 @@ public class RemoteElasticsearchRule extends ExternalResource {
         } catch (Exception e) {
 
         }
+        process.stop();
     }
 }
