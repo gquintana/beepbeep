@@ -52,7 +52,7 @@ public class RemoteElasticsearchRule extends ExternalResource {
         String version = getVersion();
         if (!version.startsWith("5.")) {
             throw new IllegalStateException("Invalid Elasticsearch version " + version);
-        } ;
+        }
     }
 
     private String getVersion() throws IOException {

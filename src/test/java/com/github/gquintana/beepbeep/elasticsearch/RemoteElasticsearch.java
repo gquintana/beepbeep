@@ -27,7 +27,7 @@ public class RemoteElasticsearch {
             this.targetDir = new File("target");
             this.homeDir = new File(targetDir, name);
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            throw new RemoteElasticsearchException("Invalid download URL", e);
         }
     }
 
@@ -60,7 +60,7 @@ public class RemoteElasticsearch {
             }
             targetFile.setLastModified(zipEntry.getTime());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RemoteElasticsearchException("Failed to unzip "+zipFile.getName(), e);
         }
     }
 
@@ -85,10 +85,10 @@ public class RemoteElasticsearch {
             if (waitProcessToBeStarted()) {
                 LOGGER.info("Started " + name + " with PID " + getPid());
             } else {
-                throw new IllegalStateException(name + " not started");
+                throw new RemoteElasticsearchException(name + " not started");
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RemoteElasticsearchException("Failed to started", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
