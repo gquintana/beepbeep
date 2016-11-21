@@ -1,11 +1,9 @@
 package com.github.gquintana.beepbeep.elasticsearch;
 
-import com.github.gquintana.beepbeep.http.BasicHttpClientProvider;
 import com.github.gquintana.beepbeep.http.HttpClientProvider;
 import com.github.gquintana.beepbeep.store.ScriptInfo;
 import com.github.gquintana.beepbeep.store.ScriptStatus;
 import com.github.gquintana.beepbeep.store.ScriptStoreException;
-import org.apache.http.client.methods.HttpDelete;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;

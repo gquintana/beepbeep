@@ -10,12 +10,9 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.github.gquintana.beepbeep.TestFiles.adaptFileSeparator;
-import static com.github.gquintana.beepbeep.TestFiles.file;
-import static com.github.gquintana.beepbeep.TestFiles.folder;
+import static com.github.gquintana.beepbeep.TestFiles.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileScriptScannerGlobTest {

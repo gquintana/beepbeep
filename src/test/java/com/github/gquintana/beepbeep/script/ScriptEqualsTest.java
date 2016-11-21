@@ -3,10 +3,8 @@ package com.github.gquintana.beepbeep.script;
 import com.github.gquintana.beepbeep.TestFiles;
 import com.github.gquintana.beepbeep.pipeline.BaseEqualsHashcodeTest;
 import com.github.gquintana.beepbeep.util.ParametersBuilder;
-import org.junit.BeforeClass;
 import org.junit.runners.Parameterized;
 
-import java.io.IOException;
 import java.util.List;
 
 public class ScriptEqualsTest extends BaseEqualsHashcodeTest<Script> {

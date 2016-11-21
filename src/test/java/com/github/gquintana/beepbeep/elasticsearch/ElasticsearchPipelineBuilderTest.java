@@ -6,7 +6,6 @@ import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
 

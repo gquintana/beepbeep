@@ -5,7 +5,6 @@ import com.github.gquintana.beepbeep.pipeline.LineEvent;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
