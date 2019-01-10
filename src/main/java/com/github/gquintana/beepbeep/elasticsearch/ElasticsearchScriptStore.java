@@ -45,6 +45,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
      * Execute HTTP request
      */
     private HttpResponse execute(HttpRequest httpRequest) throws IOException {
+        httpRequest.setHeader("Accept", "application/json");
         HttpResponse httpResponse = httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), httpRequest);
         return httpResponse;
     }
@@ -53,6 +54,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
      * Execute HTTP request
      */
     private <T> T execute(HttpRequest httpRequest, ResponseHandler<T> httpResponseHandler) throws IOException {
+        httpRequest.setHeader("Accept", "application/json");
         return httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), httpRequest, httpResponseHandler);
     }
 
@@ -83,7 +85,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
     public void prepare() {
         String[] splitIndex = indexType.split("/");
         String index = splitIndex[0];
-        String type = splitIndex[1];
+        String type =  (splitIndex.length == 1) ? "_doc" : splitIndex[1];
         try {
             // Get index
             HttpResponse httpResponse = execute(new HttpGet(index));
@@ -92,15 +94,16 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
             }
             // Put index
             HttpPut httpRequest = new HttpPut(index);
+            httpRequest.setHeader("Content-Type", "application/json");
             String indexSettings = "{ \"settings\": {" +
                 "\"number_of_shards\":1}," +
                 "\"mappings\":{" +
                 "\"" + type + "\": {\"properties\": {" +
-                "\"full_name\":{\"type\":\"string\",\"index\":\"not_analyzed\"}," +
-                "\"status\":{\"type\":\"string\",\"index\":\"not_analyzed\" }," +
+                "\"full_name\":{\"type\":\"keyword\"}," +
+                "\"status\":{\"type\":\"keyword\" }," +
                 "\"start_date\":{\"type\":\"date\"}," +
                 "\"end_date\":{\"type\":\"date\"}," +
-                "\"sha1\":{\"type\":\"string\",\"index\":\"not_analyzed\" }" +
+                "\"sha1\":{\"type\":\"keyword\" }" +
                 "}}}}";
             httpRequest.setEntity(new StringEntity(indexSettings));
             httpResponse = execute(httpRequest);

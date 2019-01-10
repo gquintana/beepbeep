@@ -9,24 +9,41 @@ import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
 import com.github.gquintana.beepbeep.util.Strings;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class HttpLineExecutor extends LineExecutor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpLineExecutor.class);
     private final HttpClientProvider httpClientProvider;
+    private final List<HttpHeader> defaultHttpHeaders;
     private HttpClient httpClient;
 
 
-    public HttpLineExecutor(HttpClientProvider httpClientProvider, Consumer<ScriptEvent> consumer) {
+    public HttpLineExecutor(HttpClientProvider httpClientProvider, Consumer<ScriptEvent> consumer, List<HttpHeader> defaultHttpHeaders) {
         super(consumer);
         this.httpClientProvider = httpClientProvider;
+        this.defaultHttpHeaders = defaultHttpHeaders;
     }
 
     @Override
@@ -42,10 +59,30 @@ public class HttpLineExecutor extends LineExecutor {
             try {
                 ((CloseableHttpClient) httpClient).close();
             } catch (IOException e) {
-                throw new BeepBeepException("Failed to closee HTTP client", e);
+                throw new BeepBeepException("Failed to close HTTP client", e);
             }
         }
         httpClient = null;
+    }
+
+    private static final class HttpHeaderAccumulator {
+        private final List<HttpHeader> list = new ArrayList<>();
+        private final Set<String> nameSet = new HashSet<>();
+        private String contentType;
+        private HttpHeaderAccumulator addAll(Iterable<HttpHeader> headers) {
+            if (headers == null) {
+                return this;
+            }
+            for (HttpHeader header: headers) {
+                if (nameSet.add(header.getName())) {
+                    list.add(header);
+                    if (header.getName().equals("Content-Type")) {
+                        contentType = header.getValue();
+                    }
+                }
+            }
+            return this;
+        }
     }
 
     private HttpRequestBase createHttpRequest(HttpLine httpLine) throws UnsupportedEncodingException {
@@ -82,14 +119,10 @@ public class HttpLineExecutor extends LineExecutor {
                 throw new BeepBeepException("Unsupported HTTP method " + httpLine.getMethod());
         }
         // Headers
-        String contentType = null;
-        if (httpLine.getHeaders() != null) {
-            for (HttpLine.Header header : httpLine.getHeaders()) {
-                request.addHeader(header.getName(), header.getValue());
-                if (header.getName().equals("Content-Type")) {
-                    contentType = header.getValue();
-                }
-            }
+        HttpHeaderAccumulator headerAccu = new HttpHeaderAccumulator().addAll(httpLine.getHeaders()).addAll(defaultHttpHeaders);
+        String contentType = headerAccu.contentType;
+        for (HttpHeader header : headerAccu.list) {
+            request.addHeader(header.getName(), header.getValue());
         }
         // Body / Entity
         if (Strings.isNotNullNorEmpty(httpLine.getBody()) && request instanceof HttpEntityEnclosingRequestBase) {
@@ -118,6 +151,14 @@ public class HttpLineExecutor extends LineExecutor {
             HttpResponse httpResponse = httpClient.execute(httpClientProvider.getHttpHost(), httpRequest);
             int statusCode = httpResponse.getStatusLine().getStatusCode();
             if (statusCode >= 400 && statusCode < 599) {
+                if (LOGGER.isDebugEnabled()) {
+                    try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                        httpResponse.getEntity().writeTo(outputStream);
+                        LOGGER.debug("HTTP Response {} {}: {}", statusCode,httpResponse.getStatusLine().getReasonPhrase(), new String(outputStream.toByteArray(),new String(outputStream.toByteArray())));
+                    } catch (IOException e) {
+                        LOGGER.debug("HTTP Response {} {}: {}", statusCode,httpResponse.getStatusLine().getReasonPhrase(), e.getMessage());
+                    }
+                }
                 throw new LineException("HTTP Status " + statusCode + " " + httpResponse.getStatusLine().getReasonPhrase(), lineEvent);
             }
             produce(lineEvent, httpResponse);

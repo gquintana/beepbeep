@@ -15,7 +15,7 @@ public class ElasticsearchPipelineBuilderTest {
     @ClassRule
     public static TemporaryFolder temporaryFolder = new TemporaryFolder();
     @ClassRule
-    public static ElasticsearchRule elasticsearch = new ElasticsearchRule(temporaryFolder);
+    public static ElasticsearchRule elasticsearch = new ElasticsearchRule();
 
     @Test
     public void testGetHealth() throws IOException {
@@ -34,7 +34,7 @@ public class ElasticsearchPipelineBuilderTest {
     }
 
     private String getElasticsearchUri() {
-        return "http://" + elasticsearch.getElasticsearch().getHttpAddress();
+        return elasticsearch.getHttpHostAddress();
     }
 
     @Test

@@ -5,16 +5,13 @@ PUT /person
     "number_of_replicas":0
   },
   "mappings": {
-    "person": {
+    "_doc": {
       "properties": {
         "login": {
-          "type":"string",
-          "index":"not_analyzed"
+          "type":"keyword"
         },
         "email": {
-          "type":"string",
-          "index":"analyzed",
-          "analyzer":"standard"
+          "type":"text"
         }
       }
     }

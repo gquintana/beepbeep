@@ -1,9 +1,9 @@
-POST person/person
+POST person/_doc
 {
   "login":"jdoe",
   "email":"john.doe@unknown.com"
 }
-POST person/person
+POST person/_doc
 {
 "login":"sconnor",
 "email":"sarah.connor@cyberdine.com"

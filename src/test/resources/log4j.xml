@@ -15,6 +15,9 @@
   <logger name="org.elasticsearch">
     <level value="WARN"/>
   </logger>
+  <logger name="com.github.gquintana.beepbeep">
+    <level value="INFO"/>
+  </logger>
   <root>
     <level value="INFO"/>
     <appender-ref ref="console"/>

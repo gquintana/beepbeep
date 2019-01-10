@@ -1,28 +1,26 @@
 package com.github.gquintana.beepbeep.elasticsearch;
 
 import org.junit.rules.ExternalResource;
-import org.junit.rules.TemporaryFolder;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 public class ElasticsearchRule extends ExternalResource {
-    private final TemporaryFolder temporaryFolder;
-    private EmbeddedElasticsearch elasticsearch;
+    private final ElasticsearchContainer container;
 
-    public ElasticsearchRule(TemporaryFolder temporaryFolder) {
-        this.temporaryFolder = temporaryFolder;
+    public ElasticsearchRule() {
+        container = new ElasticsearchContainer();
     }
 
     @Override
     protected void before() throws Throwable {
-        elasticsearch = new EmbeddedElasticsearch(temporaryFolder.newFolder("elasticsearch"));
-        elasticsearch.start();
+        container.start();
     }
 
-    public EmbeddedElasticsearch getElasticsearch() {
-        return elasticsearch;
+    public String getHttpHostAddress() {
+        return "http://" + container.getHttpHostAddress();
     }
 
     @Override
     protected void after() {
-        elasticsearch.close();
+        container.stop();
     }
 }

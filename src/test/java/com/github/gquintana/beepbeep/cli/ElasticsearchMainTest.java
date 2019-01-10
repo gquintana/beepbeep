@@ -21,7 +21,7 @@ public class ElasticsearchMainTest {
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Rule
-    public final ElasticsearchRule elasticsearchRule = new ElasticsearchRule(temporaryFolder);
+    public final ElasticsearchRule elasticsearchRule = new ElasticsearchRule();
 
     protected void writeScripts(File scriptFolder) throws IOException {
         TestFiles.writeResource("elasticsearch/index_create.json", new File(scriptFolder, "01_create.json"));
@@ -29,7 +29,7 @@ public class ElasticsearchMainTest {
     }
 
     protected String getEsUrl() {
-        return "http://" + elasticsearchRule.getElasticsearch().getHttpAddress();
+        return elasticsearchRule.getHttpHostAddress();
     }
 
     @Test
@@ -72,6 +72,7 @@ public class ElasticsearchMainTest {
         try {
             HttpClientProvider httpClientProvider = new BasicHttpClientProvider(esUrl);
             HttpDelete httpRequest = new HttpDelete(Arrays.stream(indices).collect(Collectors.joining(",")) + "?ignore_unavailable=true");
+            httpRequest.setHeader("Accept", "application/json");
             httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), httpRequest);
         } catch (IOException e) {
         }

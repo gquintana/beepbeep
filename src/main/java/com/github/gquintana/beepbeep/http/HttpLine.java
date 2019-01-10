@@ -5,7 +5,6 @@ import com.github.gquintana.beepbeep.pipeline.LineEvent;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -15,27 +14,10 @@ import java.util.stream.Collectors;
 public class HttpLine {
     private final String method;
     private final String uri;
-    private final List<Header> headers;
+    private final List<HttpHeader> headers;
     private final String body;
-    public static class Header {
-        private final String name;
-        private final String value;
 
-        public Header(String name, String value) {
-            this.name = name;
-            this.value = value;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
-
-    public HttpLine(String method, String uri, List<Header> headers, String body) {
+    public HttpLine(String method, String uri, List<HttpHeader> headers, String body) {
         this.method = method;
         this.uri = uri;
         this.headers = headers;
@@ -50,7 +32,7 @@ public class HttpLine {
         return uri;
     }
 
-    public List<Header> getHeaders() {
+    public List<HttpHeader> getHeaders() {
         return headers;
     }
 
@@ -97,11 +79,11 @@ public class HttpLine {
         }
         // Parse headers
         int i = 1;
-        List<HttpLine.Header> headers = new ArrayList<>();
+        List<HttpHeader> headers = new ArrayList<>();
         for (; i < subLines.size(); i++) {
             Matcher headerMatcher = HEADER_PATTERN.matcher(subLines.get(i));
             if (headerMatcher.matches()) {
-                headers.add(new HttpLine.Header(headerMatcher.group(2), headerMatcher.group(3)));
+                headers.add(new HttpHeader(headerMatcher.group(2), headerMatcher.group(3)));
             } else {
                 break;
             }

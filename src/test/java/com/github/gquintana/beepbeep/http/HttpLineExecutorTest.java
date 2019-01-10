@@ -27,7 +27,7 @@ public class HttpLineExecutorTest {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://www.google.com");
-        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
+        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer, null);
         // When
         String eol = System.lineSeparator();
         processor.consume(new LineEvent(null, 1, "GET /" + eol + "HEADER Accept text/html" + eol));
@@ -44,7 +44,7 @@ public class HttpLineExecutorTest {
                 .withBody("{\"body\":\"Hello world\"}")));
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = getBasicHttpClientProviderOnWireMock();
-        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
+        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer, null);
         // When
         String eol = System.lineSeparator();
         processor.consume(new LineEvent(null, 1, "GET /my/url" + eol + "HEADER Accept application/json" + eol));
@@ -66,7 +66,7 @@ public class HttpLineExecutorTest {
                 .withBody("{\"created\":\"true\"}")));
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = getBasicHttpClientProviderOnWireMock();
-        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
+        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer, null);
         // When
         String eol = System.lineSeparator();
         processor.consume(new LineEvent(null, 1, "POST my/url" + eol
@@ -83,7 +83,7 @@ public class HttpLineExecutorTest {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = getBasicHttpClientProviderOnWireMock();
-        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
+        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer, null);
         // When
         String eol = System.lineSeparator();
         processor.consume(new LineEvent(null, 1, "# Comment" + eol
@@ -98,7 +98,7 @@ public class HttpLineExecutorTest {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = getBasicHttpClientProviderOnWireMock();
-        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
+        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer, null);
         // When
         processor.consume(new LineEvent(null, 1, "FAIL /at/url"));
         // Then
@@ -110,7 +110,7 @@ public class HttpLineExecutorTest {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = getBasicHttpClientProviderOnWireMock();
-        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
+        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer, null);
         // When
         processor.consume(new LineEvent(null, 1, "GET /unknown/url"));
         // Then
@@ -122,7 +122,7 @@ public class HttpLineExecutorTest {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://unknown");
-        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer);
+        HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer, null);
         // When
         processor.consume(new LineEvent(null, 1, "GET /unknown/url"));
         // Then

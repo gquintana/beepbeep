@@ -5,6 +5,13 @@ import com.github.gquintana.beepbeep.script.ScriptStores;
 import com.github.gquintana.beepbeep.store.ScriptStore;
 
 public class ElasticsearchPipelineBuilder extends HttpPipelineBuilder<ElasticsearchPipelineBuilder>  {
+
+    public ElasticsearchPipelineBuilder() {
+        super();
+        withDefaultHttpHeader("Accept", "application/json");
+        withDefaultHttpHeader("Content-Type", "application/json");
+    }
+
     @Override
     public ElasticsearchPipelineBuilder withScriptStore(String name) {
         ScriptStore store = ScriptStores.scheme(name);

@@ -6,7 +6,10 @@ import com.github.gquintana.beepbeep.store.ScriptInfo;
 import com.github.gquintana.beepbeep.store.ScriptStatus;
 import com.github.gquintana.beepbeep.store.ScriptStoreException;
 import org.apache.http.client.methods.HttpDelete;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.time.Instant;
@@ -18,14 +21,14 @@ public class ElasticsearchScriptStoreTest {
     @ClassRule
     public static TemporaryFolder temporaryFolder = new TemporaryFolder();
     @ClassRule
-    public static ElasticsearchRule elasticsearch = new ElasticsearchRule(temporaryFolder);
+    public static ElasticsearchRule elasticsearch = new ElasticsearchRule();
 
     private HttpClientProvider httpClientProvider;
     private ElasticsearchScriptStore store;
 
     @Before
     public void setUp() {
-        httpClientProvider = new BasicHttpClientProvider("http://" + elasticsearch.getElasticsearch().getHttpAddress());
+        httpClientProvider = new BasicHttpClientProvider(elasticsearch.getHttpHostAddress());
         store = new ElasticsearchScriptStore(httpClientProvider, ".beepbeep/beepbeep");
         store.prepare();
     }
