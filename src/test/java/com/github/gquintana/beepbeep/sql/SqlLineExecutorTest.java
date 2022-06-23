@@ -5,7 +5,7 @@ import com.github.gquintana.beepbeep.pipeline.LineEvent;
 import com.github.gquintana.beepbeep.pipeline.RegexReplacer;
 import com.github.gquintana.beepbeep.pipeline.ResultEvent;
 import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -28,17 +28,17 @@ import java.time.Instant;
 public class ElasticsearchScriptStore implements ScriptStore<String> {
     private final HttpClientProvider httpClientProvider;
     /**
-     * Index/Type
+     * Index
      */
-    private final String indexType;
+    private final String index;
     /**
      * Jackson JSON mapper
      */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public ElasticsearchScriptStore(HttpClientProvider httpClientProvider, String indexType) {
+    public ElasticsearchScriptStore(HttpClientProvider httpClientProvider, String index) {
         this.httpClientProvider = httpClientProvider;
-        this.indexType = indexType;
+        this.index = index;
     }
 
     /**
@@ -46,8 +46,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
      */
     private HttpResponse execute(HttpRequest httpRequest) throws IOException {
         httpRequest.setHeader("Accept", "application/json");
-        HttpResponse httpResponse = httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), httpRequest);
-        return httpResponse;
+        return httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), httpRequest);
     }
 
     /**
@@ -83,9 +82,6 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
      */
     @Override
     public void prepare() {
-        String[] splitIndex = indexType.split("/");
-        String index = splitIndex[0];
-        String type =  (splitIndex.length == 1) ? "_doc" : splitIndex[1];
         try {
             // Get index
             HttpResponse httpResponse = execute(new HttpGet(index));
@@ -98,13 +94,13 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
             String indexSettings = "{ \"settings\": {" +
                 "\"number_of_shards\":1}," +
                 "\"mappings\":{" +
-                "\"" + type + "\": {\"properties\": {" +
+                "\"properties\": {" +
                 "\"full_name\":{\"type\":\"keyword\"}," +
                 "\"status\":{\"type\":\"keyword\" }," +
                 "\"start_date\":{\"type\":\"date\"}," +
                 "\"end_date\":{\"type\":\"date\"}," +
                 "\"sha1\":{\"type\":\"keyword\" }" +
-                "}}}}";
+                "}}}";
             httpRequest.setEntity(new StringEntity(indexSettings));
             httpResponse = execute(httpRequest);
             checkError(httpResponse);
@@ -135,11 +131,11 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
         try {
             String id = fullNameToId(fullName);
             // 1 requête par Id
-            HttpGet httpRequest = new HttpGet(indexType + "/" + id);
+            HttpGet httpRequest = new HttpGet(index + "/_doc/" + id);
             ScriptInfo<String> info = execute(httpRequest, new GetByFullNameResponseHandler1());
             // 2 requête par Full name
             if (info == null) {
-                httpRequest = new HttpGet(indexType + "/_search?version=true&q=" + URLEncoder.encode("full_name:\"" + fullName + "\"", "UTF-8"));
+                httpRequest = new HttpGet(index + "/_search?seq_no_primary_term=true&q=" + URLEncoder.encode("full_name:\"" + fullName + "\"", "UTF-8"));
                 info = execute(httpRequest, new GetByFullNameResponseHandler2(fullName));
             }
             return info;
@@ -161,7 +157,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
     }
 
     private class GetByFullNameResponseHandler2 implements ResponseHandler<ScriptInfo<String>> {
-        private String fullName;
+        private final String fullName;
 
         public GetByFullNameResponseHandler2(String fullName) {
             this.fullName = fullName;
@@ -186,7 +182,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
     @Override
     public ScriptInfo<String> create(ScriptInfo<String> info) {
         try {
-            HttpPut httpRequest = new HttpPut(indexType + "/" + fullNameToId(info.getFullName()) + "?refresh=true");
+            HttpPut httpRequest = new HttpPut(index + "/_doc/" + fullNameToId(info.getFullName()) + "?refresh=true");
             httpRequest.setEntity(write(info));
             return execute(httpRequest, new CreateResponseHandler(info));
         } catch (IOException e) {
@@ -195,7 +191,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
     }
 
     private class CreateResponseHandler implements ResponseHandler<ScriptInfo<String>> {
-        private ScriptInfo<String> info;
+        private final ScriptInfo<String> info;
 
         public CreateResponseHandler(ScriptInfo<String> info) {
             this.info = info;
@@ -208,10 +204,8 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
                 throw new ScriptStoreException("Create script " + info.getFullName() + " failed, " + httpResponse.getStatusLine().getReasonPhrase());
             }
             JsonNode jsonNode = readJsonContent(httpResponse, JsonNode.class);
-            String id = jsonNode.get("_id").asText();
-            int version = jsonNode.get("_version").asInt();
-            info.setId(id);
-            info.setVersion(version);
+            info.setId(jsonNode.get("_id").asText());
+            info.setVersion(jsonNode.get("_seq_no").asInt() + "/" + jsonNode.get("_primary_term").asInt());
             return info;
         }
     }
@@ -221,7 +215,8 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
     public ScriptInfo<String> update(ScriptInfo<String> info) {
         String fullName = info.getFullName();
         try {
-            HttpPut httpRequest = new HttpPut(indexType + "/" + info.getId() + "?refresh=true&version=" + info.getVersion());
+            String[] versionParts = info.getVersion().split("/", 2);
+            HttpPut httpRequest = new HttpPut(index + "/_doc/" + info.getId() + "?refresh=true&if_seq_no=" + versionParts[0] + "&if_primary_term=" + versionParts[1]);
             httpRequest.setEntity(write(info));
             return execute(httpRequest, new UpdateResponseHandler(info));
         } catch (IOException e) {
@@ -230,7 +225,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
     }
 
     private class UpdateResponseHandler implements ResponseHandler<ScriptInfo<String>> {
-        private ScriptInfo<String> info;
+        private final ScriptInfo<String> info;
 
         public UpdateResponseHandler(ScriptInfo<String> info) {
             this.info = info;
@@ -243,8 +238,7 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
                 throw new ScriptStoreException("Update script " + info.getFullName() + " failed, " + httpResponse.getStatusLine().getReasonPhrase());
             }
             JsonNode jsonNode = readJsonContent(httpResponse, JsonNode.class);
-            int version = jsonNode.get("_version").asInt();
-            info.setVersion(version);
+            info.setVersion(jsonNode.get("_seq_no").asInt() + "/" + jsonNode.get("_primary_term").asInt());
             return info;
         }
     }
@@ -275,17 +269,17 @@ public class ElasticsearchScriptStore implements ScriptStore<String> {
             return null;
         }
         String id = node.get("_id").asText();
-        int version = node.get("_version").asInt();
+        String version = node.get("_seq_no").asInt() + "/" + node.get("_primary_term").asInt();
         ObjectNode source = (ObjectNode) node.get("_source");
         String fullName = source.get("full_name").asText();
         long size = source.get("size").asLong();
         String sha1 = source.get("sha1").asText();
         String status = source.get("status").asText();
-        Long startDate = source.get("start_date").asLong();
-        Long endDate = source.path("end_date").asLong();
+        long startDate = source.get("start_date").asLong();
+        Long endDate = source.has("end_date") && !source.get("end_date").isNull() ? source.get("end_date").asLong() : null;
         return new ScriptInfo<>(id, version, fullName, size, sha1,
             Instant.ofEpochMilli(startDate),
-            endDate == 0L ? null : Instant.ofEpochMilli(endDate),
+            endDate == null ? null : Instant.ofEpochMilli(endDate),
             status == null ? null : ScriptStatus.valueOf(status));
     }
 

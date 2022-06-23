@@ -23,7 +23,7 @@ public final class Maps {
             Collection<?> coll = (Collection<?>) object;
             int index = 0;
             for (Object value : coll) {
-                flatten(value, longPrefix + Integer.toString(index), collector);
+                flatten(value, longPrefix + index, collector);
                 index++;
             }
         } else {

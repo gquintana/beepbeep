@@ -3,8 +3,6 @@ package com.github.gquintana.beepbeep.script;
 import com.github.gquintana.beepbeep.pipeline.Consumer;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 
-import java.io.IOException;
-
 public class SingleScriptScanner extends ScriptScanner {
     private final Script script;
 
@@ -14,7 +12,7 @@ public class SingleScriptScanner extends ScriptScanner {
     }
 
     @Override
-    public void scan() throws IOException {
+    public void scan() {
         produce(script);
     }
 }

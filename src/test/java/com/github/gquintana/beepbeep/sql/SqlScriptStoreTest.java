@@ -3,51 +3,44 @@ package com.github.gquintana.beepbeep.sql;
 import com.github.gquintana.beepbeep.store.ScriptInfo;
 import com.github.gquintana.beepbeep.store.ScriptStatus;
 import com.github.gquintana.beepbeep.store.ScriptStoreException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collection;
 
 import static com.github.gquintana.beepbeep.sql.TestSqlConnectionProviders.createSqlConnectionProvider;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@RunWith(Parameterized.class)
 public class SqlScriptStoreTest {
     private SingleSqlConnectionProvider connectionProvider;
     private SqlScriptStore store;
-    private final boolean sequence;
 
-    @Parameterized.Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{{false}, {true}});
-    }
 
-    public SqlScriptStoreTest(boolean sequence) {
-        this.sequence = sequence;
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() {
         connectionProvider = new SingleSqlConnectionProvider(
             createSqlConnectionProvider());
-        store = new SqlScriptStore(connectionProvider, "beepbeep", sequence);
-        store.prepare();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    private SqlScriptStore prepareStore(boolean sequence) {
+        store = new SqlScriptStore(connectionProvider, "beepbeep", sequence);
+        store.prepare();
+        return store;
+    }
+
+    @AfterEach
+    public void tearDown() throws SQLException {
         try(Connection connection= connectionProvider.getConnection();
             Statement statement = connection.createStatement()) {
             statement.execute("DROP TABLE beepbeep");
-            if (sequence) {
+            if (store.isSequence()) {
                 statement.execute("DROP SEQUENCE beepbeep_seq");
             }
         }
@@ -64,29 +57,35 @@ public class SqlScriptStoreTest {
         return info;
     }
 
-    @Test
-    public void testCreate() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void testCreate(boolean sequence) {
         // Given
+        prepareStore(sequence);
         ScriptInfo<Integer> info = createInfo();
         // When
         info = store.create(info);
         // Then
-        assertThat(info.getVersion()).isEqualTo(1);
+        assertThat(info.getVersionAsInt()).isEqualTo(1);
         assertThat(store.getByFullName(info.getFullName())).isNotNull();
     }
 
-    @Test(expected = ScriptStoreException.class)
-    public void testCreate_AlreadyExists() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void testCreate_AlreadyExists(boolean sequence) {
         // Given
+        prepareStore(sequence);
         ScriptInfo<Integer> info = createInfo();
-        info = store.create(info);
+        ScriptInfo<Integer> info2 = store.create(info);
         // When
-        info = store.create(info);
+        assertThatThrownBy(() -> store.create(info2)).isInstanceOf(ScriptStoreException.class);
     }
 
-    @Test
-    public void testUpdate() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void testUpdate(boolean sequence) {
         // Given
+        prepareStore(sequence);
         ScriptInfo<Integer> info = createInfo();
         info = store.create(info);
         info.setStatus(ScriptStatus.SUCCEEDED);
@@ -95,37 +94,42 @@ public class SqlScriptStoreTest {
         info = store.update(info);
         // Then
         assertThat(info.getId()).isEqualTo(1);
-        assertThat(info.getVersion()).isEqualTo(2);
+        assertThat(info.getVersionAsInt()).isEqualTo(2);
         ScriptInfo<Integer> inStore = store.getByFullName(info.getFullName());
         assertThat(inStore.getStatus()).isEqualTo(ScriptStatus.SUCCEEDED);
         assertThat(inStore.getEndDate()).isNotNull();
     }
 
-    @Test(expected = ScriptStoreException.class)
-    public void testUpdate_NotFound() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void testUpdate_NotFound(boolean sequence) {
         // Given
+        prepareStore(sequence);
         ScriptInfo<Integer> info = createInfo();
         info.setStatus(ScriptStatus.SUCCEEDED);
         info.setEndDate(Instant.now().plus(10, ChronoUnit.SECONDS));
         info.setId(12);
-        info.setVersion(1);
+        info.setVersion("1");
         // When
-        info = store.update(info);
+        assertThatThrownBy(() -> store.update(info)).isInstanceOf(ScriptStoreException.class);
     }
 
-    @Test(expected = ScriptStoreException.class)
-    public void testUpdate_ConcurrentModification() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void testUpdate_ConcurrentModification(boolean sequence) {
         // Given
+        prepareStore(sequence);
         ScriptInfo<Integer> info = createInfo();
         info = store.create(info);
         info.setStatus(ScriptStatus.SUCCEEDED);
         info.setEndDate(Instant.now().plus(10, ChronoUnit.SECONDS));
-        int version = info.getVersion();
+        String version = info.getVersion();
         info = store.update(info);
         info.setVersion(version);
         info.setStatus(ScriptStatus.FAILED);
         info.setEndDate(Instant.now().plus(10, ChronoUnit.SECONDS));
+        ScriptInfo<Integer> info2 = info;
         // When
-        info = store.update(info);
+        assertThatThrownBy(() -> store.update(info2)).isInstanceOf(ScriptStoreException.class);
     }
 }

@@ -29,13 +29,13 @@ public class VariableReplacer extends LineTransformer {
         StringBuilder r = new StringBuilder();
         while(matcher.find(start)) {
             if (matcher.start() > start) {
-                r.append(s.substring(start, matcher.start()));
+                r.append(s, start, matcher.start());
             }
             r.append(getVariable(matcher.group(1), matcher.group(0)));
             start = matcher.end();
         }
         if (start < s.length()) {
-            r.append(s.substring(start, s.length()));
+            r.append(s.substring(start));
         }
         return r.toString();
     }

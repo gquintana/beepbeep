@@ -4,22 +4,21 @@ import com.github.gquintana.beepbeep.TestFiles;
 import com.github.gquintana.beepbeep.elasticsearch.ElasticsearchPipelineBuilder;
 import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
 import com.github.gquintana.beepbeep.sql.SqlPipelineBuilder;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.kohsuke.args4j.CmdLineParser;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import static com.github.gquintana.beepbeep.TestReflect.getField;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MainTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
 
     @Test
-    public void testInvalidArgument() throws Exception {
+    public void testInvalidArgument() {
         // Given
         // When
         int exit = Main.doMain("--invalid",
@@ -32,7 +31,7 @@ public class MainTest {
     }
 
     @Test
-    public void testInvalidType() throws Exception {
+    public void testInvalidType() {
         // Given
         // When
         int exit = Main.doMain(
@@ -65,12 +64,12 @@ public class MainTest {
     @Test
     public void testCreatePipelineBuilder_SqlConfiguration() throws Exception {
         // Given
-        File configFile = new File(temporaryFolder.getRoot(), "sql.yml");
+        Path configFile = tempDir.resolve( "sql.yml");
         TestFiles.writeResource("config/sql1.yml", configFile);
         Main main = new Main();
         CmdLineParser cmdLineParser = new CmdLineParser(main);
         cmdLineParser.parseArgument(
-            "--config", configFile.getPath());
+            "--config", configFile.toString());
         // When
         PipelineBuilder pipelineBuilder = main.createPipelineBuilder();
         // Then

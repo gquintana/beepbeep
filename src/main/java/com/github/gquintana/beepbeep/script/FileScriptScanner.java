@@ -4,9 +4,17 @@ import com.github.gquintana.beepbeep.pipeline.Consumer;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,15 +44,12 @@ public class FileScriptScanner extends ScriptScanner {
     }
 
     @Override
-    @SuppressWarnings("Convert2MethodRef")
     public void scan() throws IOException {
         ScriptsFileVisitor fileVisitor = new ScriptsFileVisitor();
         Files.walkFileTree(folder, EnumSet.of(FileVisitOption.FOLLOW_LINKS), maxDepth, fileVisitor);
-        List<FileScript> scripts = fileVisitor.scripts;
-        Collections.sort(scripts, Comparator.comparing(FileScript::getPath));
-        for (FileScript script : scripts) {
-            produce(script);
-        }
+        fileVisitor.scripts.stream()
+            .sorted(Comparator.comparing(FileScript::getPath))
+            .forEach(this::produce);
     }
 
     private class ScriptsFileVisitor extends SimpleFileVisitor<Path> {

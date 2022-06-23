@@ -5,7 +5,14 @@ import com.github.gquintana.beepbeep.store.ScriptStatus;
 import com.github.gquintana.beepbeep.store.ScriptStore;
 import com.github.gquintana.beepbeep.store.ScriptStoreException;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.Instant;
 
 /**
@@ -126,11 +133,11 @@ public class SqlScriptStore implements ScriptStore<Integer> {
              PreparedStatement statement = connection.prepareStatement(getUpdateSql())) {
             int index = write(statement, info, 1);
             statement.setInt(index++, info.getId());
-            statement.setInt(index++, info.getVersion());
+            statement.setInt(index++, info.getVersionAsInt());
             if (statement.executeUpdate() == 0) {
                 throw new ScriptStoreException("Concurrent modification of script " + info.getFullName());
             } else {
-                info.setVersion(info.getVersion() + 1);
+                info.setVersion(info.getVersionAsInt() + 1);
             }
             commit(connection);
             return info;
@@ -152,7 +159,7 @@ public class SqlScriptStore implements ScriptStore<Integer> {
     public ScriptInfo<Integer> create(ScriptInfo<Integer> info) {
         try (Connection connection = connectionProvider.getConnection()) {
             int index = 1;
-            int id = 0;
+            int id;
             if (sequence) {
                 id = generateId(connection);
                 try (PreparedStatement statement = connection.prepareStatement(getInsertSql())) {
@@ -241,5 +248,9 @@ public class SqlScriptStore implements ScriptStore<Integer> {
         if (!connection.getAutoCommit()) {
             connection.commit();
         }
+    }
+
+    public boolean isSequence() {
+        return sequence;
     }
 }

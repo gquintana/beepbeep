@@ -2,7 +2,7 @@ package com.github.gquintana.beepbeep.pipeline;
 
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.TestFiles;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 public class PipelineBuilderTest {

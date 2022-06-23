@@ -1,9 +1,8 @@
 package com.github.gquintana.beepbeep.http;
 
 import com.github.gquintana.beepbeep.pipeline.LineEvent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -49,7 +48,7 @@ public class HttpLineTest {
     }
 
     @Test
-    public void testParsePostBody() throws UnsupportedEncodingException {
+    public void testParsePostBody()  {
         // Given
         String eol = System.lineSeparator();
         LineEvent lineEvent = new LineEvent(null, 10,
@@ -75,7 +74,7 @@ public class HttpLineTest {
     }
 
     @Test
-    public void testParseGetHeaders() throws UnsupportedEncodingException {
+    public void testParseGetHeaders()  {
         // Given
         String eol = System.lineSeparator();
         LineEvent lineEvent = new LineEvent(null, 10,
@@ -95,7 +94,7 @@ public class HttpLineTest {
     }
 
     @Test
-    public void testParseEmpty() throws UnsupportedEncodingException {
+    public void testParseEmpty()  {
         // Given
         String eol = System.lineSeparator();
         LineEvent lineEvent = new LineEvent(null, 10,

@@ -1,14 +1,14 @@
 package com.github.gquintana.beepbeep.pipeline;
 
 import com.github.gquintana.beepbeep.TestConsumer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MultiLineAggregatorTest {
 
     @Test
-    public void testConsume_EndMarker() throws Exception {
+    public void testConsume_EndMarker() {
         // Given
         TestConsumer<ScriptEvent> end = new TestConsumer<>();
         MultilineAggregator processor = new MultilineAggregator(";[ ]*$", end);
@@ -31,7 +31,7 @@ public class MultiLineAggregatorTest {
 
 
     @Test
-    public void testConsume_StartMarker() throws Exception {
+    public void testConsume_StartMarker() {
         // Given
         TestConsumer<ScriptEvent> end = new TestConsumer<>();
         MultilineAggregator processor = new MultilineAggregator("^[ ]*(GET|POST)", MultilineAggregator.LineMarkerStrategy.START, false, end);

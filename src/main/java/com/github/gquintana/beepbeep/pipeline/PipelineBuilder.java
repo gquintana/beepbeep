@@ -1,35 +1,40 @@
 package com.github.gquintana.beepbeep.pipeline;
 
 import com.github.gquintana.beepbeep.config.ConfigurationException;
-import com.github.gquintana.beepbeep.script.*;
+import com.github.gquintana.beepbeep.script.CompositeScriptScanner;
+import com.github.gquintana.beepbeep.script.Script;
+import com.github.gquintana.beepbeep.script.ScriptScanner;
+import com.github.gquintana.beepbeep.script.ScriptScannerFactories;
+import com.github.gquintana.beepbeep.script.ScriptScannerFactory;
 import com.github.gquintana.beepbeep.store.ScriptStore;
 import com.github.gquintana.beepbeep.store.ScriptStoreFilter;
 import com.github.gquintana.beepbeep.store.ScriptStoreUpdater;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.temporal.TemporalAmount;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements AutoCloseable {
-    protected Charset charset = Charset.forName("UTF-8");
+public abstract class PipelineBuilder<B extends PipelineBuilder<B>> {
+    protected Charset charset = StandardCharsets.UTF_8;
     protected String url;
     protected String username;
     protected String password;
     protected ScriptStore scriptStore;
     /**
-     * Re run script when it is modified
+     * Re-run script when it is modified
      */
     private Boolean scriptStoreReRunChanged;
     /**
-     * Re run script when it previously failed
+     * Re-run script when it previously failed
      */
     private Boolean scriptStoreReRunFailed;
     /**
-     * Re run script when it's stuck in started state after given timeout
+     * Re-run script when it's stuck in started state after given timeout
      */
     private TemporalAmount scriptStoreReRunStartedTimeout;
     private Boolean scriptReaderIgnoreErrors;
@@ -97,21 +102,21 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements A
     public abstract B withScriptStore(String name);
 
     /**
-     * Re run script when it is modified
+     * Re-run script when it is modified
      */
     public B withScriptStoreReRunChanged(boolean reRunChanged) {
         this.scriptStoreReRunChanged = reRunChanged;
         return self();
     }
     /**
-     * Re run script when it previously failed
+     * Re-run script when it previously failed
      */
     public B withScriptStoreReRunFailed(boolean reRunFailed) {
         this.scriptStoreReRunFailed = reRunFailed;
         return self();
     }
     /**
-     * Re run script when it's stuck in started state after given timeout
+     * Re-run script when it's stuck in started state after given timeout
      */
     public B withScriptStoreReRunStartedTimeout(TemporalAmount reRunStartedTimeout) {
         this.scriptStoreReRunStartedTimeout = reRunStartedTimeout;
@@ -223,35 +228,35 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements A
     }
 
     /**
-     * Scan and use muliples scripts from file system
+     * Scan and use multiples scripts from file system
      */
     public B withFilesScriptScanner(Path folder, Predicate<Path> fileFilter) {
         return withScriptScanner(ScriptScannerFactories.files(folder, fileFilter));
     }
 
     /**
-     * Scan and use muliples scripts from file system using file glob syntax
+     * Scan and use multiples scripts from file system using file glob syntax
      */
     public B withFilesScriptScanner(String fileGlob) {
         return withScriptScanner(ScriptScannerFactories.files(fileGlob));
     }
 
     /**
-     * Scan and use muliple scripts from class path
+     * Scan and use multiple scripts from class path
      */
     public B withResourcesScriptScanner(ClassLoader classLoader, Predicate<String> resourceFilter) {
         return withScriptScanner(ScriptScannerFactories.resources(classLoader, resourceFilter));
     }
 
     /**
-     * Scan and use muliple scripts from class path using resource glob syntax
+     * Scan and use multiple scripts from class path using resource glob syntax
      */
     public B withResourcesScriptScanner(ClassLoader classLoader, String resourceGlob) {
         return withScriptScanner(ScriptScannerFactories.resources(classLoader, resourceGlob));
     }
 
     /**
-     * Scan and use muliple scripts from class path or file (dependending on scheme) using glob syntax.
+     * Scan and use multiple scripts from class path or file (dependending on scheme) using glob syntax.
      * Examples:<ul>
      *     <li>classpath:folder/script*.sql</li>
      *     <li>file:///folder/script*.sql</li>
@@ -275,11 +280,6 @@ public abstract class PipelineBuilder<B extends PipelineBuilder<B>> implements A
         public B end() {
             return parentBuilder.withScriptScanner(factory());
         }
-
-    }
-
-    @Override
-    public void close() throws Exception {
 
     }
 }

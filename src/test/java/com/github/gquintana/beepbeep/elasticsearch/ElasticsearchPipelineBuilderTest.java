@@ -1,21 +1,26 @@
 package com.github.gquintana.beepbeep.elasticsearch;
 
 import com.github.gquintana.beepbeep.TestConsumer;
+import com.github.gquintana.beepbeep.TestElasticsearch;
 import com.github.gquintana.beepbeep.http.BasicHttpClientProvider;
 import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Testcontainers
 public class ElasticsearchPipelineBuilderTest {
-    @ClassRule
-    public static TemporaryFolder temporaryFolder = new TemporaryFolder();
-    @ClassRule
-    public static ElasticsearchRule elasticsearch = new ElasticsearchRule();
+    @TempDir
+    Path tempDir;
+    @Container
+    static ElasticsearchContainer elasticsearchContainer = TestElasticsearch.createContainer();
 
     @Test
     public void testGetHealth() throws IOException {
@@ -34,7 +39,7 @@ public class ElasticsearchPipelineBuilderTest {
     }
 
     private String getElasticsearchUri() {
-        return elasticsearch.getHttpHostAddress();
+        return "http://" + elasticsearchContainer.getHttpHostAddress();
     }
 
     @Test
@@ -64,7 +69,7 @@ public class ElasticsearchPipelineBuilderTest {
         ElasticsearchPipelineBuilder pipelineBuilder = new ElasticsearchPipelineBuilder()
             .withUrl(getElasticsearchUri())
             .withHttpClientProvider(clientProvider).withEndConsumer(output)
-            .withScriptStore(".beepbeep/script")
+            .withScriptStore(".beepbeep")
             .withResourcesScriptScanner(Thread.currentThread().getContextClassLoader(), scriptGlob);
         pipelineBuilder.scan();
         output.clear();

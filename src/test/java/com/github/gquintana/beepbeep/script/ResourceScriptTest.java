@@ -2,7 +2,7 @@ package com.github.gquintana.beepbeep.script;
 
 import com.github.gquintana.beepbeep.TestFiles;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ public class ResourceScriptTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
-    public void testClass() throws IOException {
+    public void testClass() {
         // Given
         // When
         ResourceScript script = ResourceScript.create(TestFiles.class, "sql/init/01_create.sql");
@@ -41,7 +41,7 @@ public class ResourceScriptTest {
     }
 
     @Test
-    public void testConfiguration() throws IOException {
+    public void testConfiguration() {
         // Given
         String resource = TestFiles.getResourceFullName("sql/init/01_create.sql");
         ResourceScript script = ResourceScript.create(Thread.currentThread().getContextClassLoader(), resource);

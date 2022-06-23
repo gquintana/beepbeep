@@ -6,7 +6,13 @@ import com.github.gquintana.beepbeep.util.Maps;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
@@ -31,18 +37,17 @@ public class YamlFileScriptStore extends FileScriptStore {
 
     @Override
     protected Stream<ScriptInfo<Integer>> load() throws IOException {
-        File file = getFile().toFile();
-        if (!file.exists()) {
+        if (!Files.exists(getFile())) {
             return Stream.empty();
         }
-        try (Reader reader= new InputStreamReader(new FileInputStream(file), "UTF-8")) {
-            List<Map<String, Object>> marshalled = (List<Map<String, Object>>) yaml.load(reader);
+        try (Reader reader= new InputStreamReader(Files.newInputStream(getFile()), StandardCharsets.UTF_8)) {
+            List<Map<String, Object>> marshalled = yaml.load(reader);
             return  marshalled.stream().map(this::unmarshall);
         }
     }
 
     private ScriptInfo<Integer> unmarshall(Map<String, Object> map) {
-        return new ScriptInfo<Integer>(
+        return new ScriptInfo<>(
             convert(map.get("id"), Integer.class),
             convert(map.get("version"), Integer.class),
             convert(map.get("full_name"), String.class),
@@ -56,7 +61,7 @@ public class YamlFileScriptStore extends FileScriptStore {
 
     @Override
     protected void save(List<ScriptInfo<Integer>> infos) throws IOException{
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(getFile().toFile()), "UTF-8")) {
+        try (Writer writer = new OutputStreamWriter(Files.newOutputStream(getFile()), StandardCharsets.UTF_8)) {
             List<Map<String, Object>> marshalled = infos.stream().map(this::marshal).collect(Collectors.toList());
             yaml.dump(marshalled, writer);
         }

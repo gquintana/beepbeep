@@ -9,7 +9,7 @@
   <fileSets>
     <fileSet>
       <directory>${basedir}/src/assembly</directory>
-      <outputDirectory></outputDirectory>
+      <outputDirectory/>
       <excludes>
         <exclude>bin.xml</exclude>
       </excludes>

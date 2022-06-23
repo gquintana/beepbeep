@@ -6,8 +6,8 @@ import com.github.gquintana.beepbeep.TestFiles;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import com.github.gquintana.beepbeep.script.ResourceScript;
 import com.github.gquintana.beepbeep.script.Script;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -23,7 +23,7 @@ public class ScriptStoreFilterTest {
     private ScriptStoreFilter filter;
     private Script script;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         output = new TestConsumer<>();
         store = new MemoryScriptStore();

@@ -25,7 +25,7 @@ public class SingleSqlConnectionProvider implements SqlConnectionProvider {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws SQLException {
         if (connection != null) {
             connection.close();
             connection = null;

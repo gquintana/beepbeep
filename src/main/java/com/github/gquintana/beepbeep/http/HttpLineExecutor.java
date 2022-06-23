@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -154,7 +155,7 @@ public class HttpLineExecutor extends LineExecutor {
                 if (LOGGER.isDebugEnabled()) {
                     try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                         httpResponse.getEntity().writeTo(outputStream);
-                        LOGGER.debug("HTTP Response {} {}: {}", statusCode,httpResponse.getStatusLine().getReasonPhrase(), new String(outputStream.toByteArray(),new String(outputStream.toByteArray())));
+                        LOGGER.debug("HTTP Response {} {}: {}", statusCode,httpResponse.getStatusLine().getReasonPhrase(), outputStream.toString(outputStream.toString()));
                     } catch (IOException e) {
                         LOGGER.debug("HTTP Response {} {}: {}", statusCode,httpResponse.getStatusLine().getReasonPhrase(), e.getMessage());
                     }
@@ -171,7 +172,7 @@ public class HttpLineExecutor extends LineExecutor {
         String resultEvent = httpResponse.getStatusLine().getStatusCode() + "," + httpResponse.getStatusLine().getReasonPhrase();
         if (httpResponse.getEntity() != null) {
             ContentType contentType = ContentType.get(httpResponse.getEntity());
-            Charset charset = contentType.getCharset() == null ? Charset.forName("UTF-8") : contentType.getCharset();
+            Charset charset = contentType.getCharset() == null ? StandardCharsets.UTF_8 : contentType.getCharset();
             try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
                 httpResponse.getEntity().writeTo(byteArrayOutputStream);
                 resultEvent += "," + new String(byteArrayOutputStream.toByteArray(), charset);

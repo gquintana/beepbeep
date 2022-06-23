@@ -10,12 +10,12 @@ import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import com.github.gquintana.beepbeep.script.Script;
 import com.github.gquintana.beepbeep.script.ScriptScanners;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,31 +26,33 @@ import java.util.stream.Collectors;
 
 import static com.github.gquintana.beepbeep.sql.TestSqlConnectionProviders.createSqlConnectionProvider;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SqlPipelineBuilderTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
     private boolean store = false;
 
-    private static void writeResource(ScriptStartEvent e, File scriptFolder) {
+    private static void writeResource(ScriptStartEvent e, Path scriptFolder) {
         try {
             Script s = e.getScript();
-            TestFiles.writeResource("sql/init/" + s.getName(), new File(scriptFolder, s.getName()));
+            TestFiles.writeResource("sql/init/" + s.getName(), scriptFolder.resolve(s.getName()));
         } catch (IOException e1) {
             e1.printStackTrace();
         }
     }
 
-    public DriverSqlConnectionProvider createFileConnectionProvider() throws IOException {
-        File h2dbFolder = temporaryFolder.newFolder("h2db");
+    public DriverSqlConnectionProvider createFileConnectionProvider() {
+        Path h2dbFolder = tempDir.resolve("h2db");
         return createSqlConnectionProvider(h2dbFolder);
     }
     @Test
     public void testConsume() throws Exception {
         // Given
         TestConsumer<ScriptEvent> output = new TestConsumer<>();
-        File scriptFolder = temporaryFolder.newFolder("script");
+        Path scriptFolder = tempDir.resolve("script");
+        Files.createDirectories(scriptFolder);
         ScriptScanners.resources(getClass().getClassLoader(), "com/github/gquintana/beepbeep/sql/init/*.sql",
             e -> writeResource(e, scriptFolder)).scan();
         DriverSqlConnectionProvider connectionProvider = createFileConnectionProvider();
@@ -58,7 +60,7 @@ public class SqlPipelineBuilderTest {
             .withConnectionProvider(connectionProvider.getDriverClass().getName(), connectionProvider.getUrl(), connectionProvider.getUsername(), connectionProvider.getPassword())
             .withVariable("variable", "value")
             .withEndConsumer(output)
-            .withFilesScriptScanner(scriptFolder.getPath() + "/*.sql");
+            .withFilesScriptScanner(scriptFolder.toAbsolutePath() + "/*.sql");
         // When
         pipelineBuilder.scan();
         // Then
@@ -102,7 +104,7 @@ public class SqlPipelineBuilderTest {
         SingleSqlConnectionProvider connectionProvider = createSqlConnectionProvider().single();
         SqlPipelineBuilder pipelineBuilder = new SqlPipelineBuilder()
             .withConnectionProvider(connectionProvider)
-            .withScriptStore(temporaryFolder.newFile("store.yml").toURI().toString())
+            .withScriptStore(tempDir.resolve("store.yml").toUri().toString())
             .withEndConsumer(output)
             .withResourcesScriptScanner(getClass().getClassLoader(), SqlPipelineBuilderTest::isInitSqlScript);
         store = true;
@@ -201,12 +203,9 @@ public class SqlPipelineBuilderTest {
             .withEndConsumer(output)
             .withResourcesScriptScanner(getClass().getClassLoader(), resourceFilter);
         // When
-        try {
-            pipelineBuilder.scan();
-            fail("Exception expected");
-        } catch (BeepBeepException e) {
-            // Exception expected
-        }
+        assertThatThrownBy(pipelineBuilder::scan)
+            .isInstanceOf(BeepBeepException.class);
+
         // Then
         assertThat(output.events).hasSize(2);
         assertThat(output.events(ScriptStartEvent.class)).hasSize(1);

@@ -1,40 +1,47 @@
 package com.github.gquintana.beepbeep.elasticsearch;
 
+import com.github.gquintana.beepbeep.TestElasticsearch;
 import com.github.gquintana.beepbeep.http.BasicHttpClientProvider;
 import com.github.gquintana.beepbeep.http.HttpClientProvider;
 import com.github.gquintana.beepbeep.store.ScriptInfo;
 import com.github.gquintana.beepbeep.store.ScriptStatus;
 import com.github.gquintana.beepbeep.store.ScriptStoreException;
 import org.apache.http.client.methods.HttpDelete;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@Testcontainers
 public class ElasticsearchScriptStoreTest {
-    @ClassRule
-    public static TemporaryFolder temporaryFolder = new TemporaryFolder();
-    @ClassRule
-    public static ElasticsearchRule elasticsearch = new ElasticsearchRule();
+    @TempDir
+    Path tempDir;
+    @Container
+    static ElasticsearchContainer elasticsearchContainer = TestElasticsearch.createContainer();
 
     private HttpClientProvider httpClientProvider;
     private ElasticsearchScriptStore store;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        httpClientProvider = new BasicHttpClientProvider(elasticsearch.getHttpHostAddress());
-        store = new ElasticsearchScriptStore(httpClientProvider, ".beepbeep/beepbeep");
+        httpClientProvider = new BasicHttpClientProvider("http://" + elasticsearchContainer.getHttpHostAddress());
+        store = new ElasticsearchScriptStore(httpClientProvider, ".beepbeep");
         store.prepare();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    public void tearDown() throws IOException {
         httpClientProvider.getHttpClient().execute(httpClientProvider.getHttpHost(), new HttpDelete(".beepbeep?ignore_unavailable=true"));
     }
 
@@ -49,28 +56,28 @@ public class ElasticsearchScriptStoreTest {
     }
 
     @Test
-    public void testCreate() throws Exception {
+    public void testCreate()  {
         // Given
         ScriptInfo<String> info = createInfo();
         // When
         info = store.create(info);
         // Then
         assertThat(info.getId()).isNotNull();
-        assertThat(info.getVersion()).isEqualTo(1);
+        assertThat(info.getVersion()).isEqualTo("0/1");
         assertThat(store.getByFullName(info.getFullName())).isNotNull();
     }
 
-    @Test(expected = ScriptStoreException.class) // TODO
-    public void testCreate_AlreadyExists() throws Exception {
+    @Test
+    public void testCreate_AlreadyExists() {
         // Given
         ScriptInfo<String> info = createInfo();
-        info = store.create(info);
+        ScriptInfo<String> info2 = store.create(info);
         // When
-        info = store.create(info);
+        assertThatThrownBy(() -> store.create(info2)).isInstanceOf(ScriptStoreException.class);
     }
 
     @Test
-    public void testUpdate() throws Exception {
+    public void testUpdate()  {
         // Given
         ScriptInfo<String> info = createInfo();
         info = store.create(info);
@@ -80,38 +87,40 @@ public class ElasticsearchScriptStoreTest {
         info = store.update(info);
         // Then
         assertThat(info.getId()).isNotEmpty();
-        assertThat(info.getVersion()).isEqualTo(2);
+        assertThat(info.getVersion()).isEqualTo("1/1");
         ScriptInfo<String> inStore = store.getByFullName(info.getFullName());
         assertThat(inStore.getStatus()).isEqualTo(ScriptStatus.SUCCEEDED);
         assertThat(inStore.getEndDate()).isNotNull();
     }
 
-    @Test(expected = ScriptStoreException.class)
-    public void testUpdate_NotFound() throws Exception {
+    @Test
+    public void testUpdate_NotFound()  {
         // Given
         ScriptInfo<String> info = createInfo();
         info.setStatus(ScriptStatus.SUCCEEDED);
         info.setEndDate(Instant.now().plus(10, ChronoUnit.SECONDS));
         info.setId("12");
-        info.setVersion(1);
+        info.setVersion("1/2");
         // When
-        info = store.update(info);
+        assertThatThrownBy(() -> store.update(info)).isInstanceOf(ScriptStoreException.class);
     }
 
-    @Test(expected = ScriptStoreException.class)
-    public void testUpdate_ConcurrentModification() throws Exception {
+    @Test
+    public void testUpdate_ConcurrentModification()  {
         // Given
         ScriptInfo<String> info = createInfo();
         info = store.create(info);
         info.setStatus(ScriptStatus.SUCCEEDED);
         info.setEndDate(Instant.now().plus(10, ChronoUnit.SECONDS));
-        int version = info.getVersion();
+        String version = info.getVersion();
         info = store.update(info);
         info.setVersion(version);
         info.setStatus(ScriptStatus.FAILED);
         info.setEndDate(Instant.now().plus(10, ChronoUnit.SECONDS));
+        ScriptInfo<String> info2 = info;
         // When
-        info = store.update(info);
+        assertThatThrownBy(() -> store.update(info2))
+            .isInstanceOf(ScriptStoreException.class);
     }
 
     @Test

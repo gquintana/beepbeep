@@ -3,18 +3,16 @@ package com.github.gquintana.beepbeep.script;
 import com.github.gquintana.beepbeep.file.YamlFileScriptStore;
 import com.github.gquintana.beepbeep.store.MemoryScriptStore;
 import com.github.gquintana.beepbeep.store.ScriptStore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
-import java.io.IOException;
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScriptStoresTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
 
     @Test
     public void testMemory() {
@@ -29,11 +27,11 @@ public class ScriptStoresTest {
     }
 
     @Test
-    public void testFile() throws IOException {
+    public void testFile() {
         // Given
-        File yamlFile = temporaryFolder.newFile("store.yml");
+        Path yamlFile = tempDir.resolve("store.yml");
         // When
-        ScriptStore store = ScriptStores.scheme(yamlFile.toURI().toString());
+        ScriptStore store = ScriptStores.scheme(yamlFile.toUri().toString());
         // Then
         assertThat(store).isInstanceOf(YamlFileScriptStore.class);
     }

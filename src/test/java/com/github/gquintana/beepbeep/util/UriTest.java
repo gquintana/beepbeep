@@ -1,23 +1,17 @@
 package com.github.gquintana.beepbeep.util;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.Collection;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(Parameterized.class)
 public class UriTest {
-    private final String input;
-    private final String scheme;
-    private final String path;
-
-    @Parameterized.Parameters
-    public static Collection<Object[]> getParameters() {
+    public static Stream<Arguments> getParameters() {
         boolean windows = System.getProperty("os.name").toLowerCase().contains("win");
         String userDir = System.getProperty("user.dir").replace(File.separatorChar, '/');
         return new ParametersBuilder()
@@ -32,14 +26,10 @@ public class UriTest {
             .build();
     }
 
-    public UriTest(String input, String scheme, String path) {
-        this.input = input;
-        this.scheme = scheme;
-        this.path = path;
-    }
 
-    @Test
-    public void testValueOf() throws Exception {
+    @ParameterizedTest
+    @MethodSource("getParameters")
+    public void testValueOf(String input, String scheme, String path) {
         // Given
         // When
         Uri uri = Uri.valueOf(input);

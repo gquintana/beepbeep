@@ -8,9 +8,18 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
@@ -34,13 +43,11 @@ public class ResourceScriptScanner extends ScriptScanner {
                 .split(File.pathSeparator))
                 .map(Paths::get)
                 .collect(Collectors.toSet());
-        List<Path> classPath = new ArrayList<>();
-        classPath.addAll(
-            Arrays.stream(System.getProperty("java.class.path")
+        List<Path> classPath = new ArrayList<>(Arrays.stream(System.getProperty("java.class.path")
                 .split(File.pathSeparator))
-                .map(Paths::get)
-                .filter(f -> !bootClassPath.contains(f))
-                .collect(Collectors.toList()));
+            .map(Paths::get)
+            .filter(f -> !bootClassPath.contains(f))
+            .collect(Collectors.toList()));
         if (classLoader instanceof URLClassLoader) {
             URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
             for (URL url : urlClassLoader.getURLs()) {
@@ -60,15 +67,15 @@ public class ResourceScriptScanner extends ScriptScanner {
 
     @Override
     public void scan() throws IOException {
-        // Same ressource can be present multiple times in class path
+        // Same resource can be present multiple times in class path
         Set<String> resources = new HashSet<>();
         for (Path path: getClassPath()) {
             String pathString = path.toString();
-            File pathFile = path.toFile();
             List<String> resourcesList = new ArrayList<>();
-            if (pathFile.isFile() && pathString.endsWith(".jar")) {
+            BasicFileAttributes pathAttr = Files.readAttributes(path, BasicFileAttributes.class);
+            if (pathAttr.isRegularFile() && pathString.endsWith(".jar")) {
                 scanJar(path, resources, resourcesList);
-            } else if (pathFile.isDirectory()) {
+            } else if (pathAttr.isDirectory()) {
                 scanFolder(path, resources, resourcesList);
             }
             Collections.sort(resourcesList);
@@ -113,7 +120,6 @@ public class ResourceScriptScanner extends ScriptScanner {
             scriptConsumer);
     }
 
-    @SuppressWarnings("RedundantStringToString")
     private static final class RegexNamePredicate implements Predicate<String> {
         private final Pattern pattern;
 

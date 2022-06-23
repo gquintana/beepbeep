@@ -1,15 +1,16 @@
 package com.github.gquintana.beepbeep.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 public class MapsTest {
 
     @Test
-    public void testFlatten() throws Exception {
+    public void testFlatten() {
         // Given
         Map<String, Object> map = Maps.<String, Object>builder()
             .put("K1", "V1")
@@ -39,7 +40,7 @@ public class MapsTest {
         );
     }
     @Test
-    public void testFlattenPrefix() throws Exception {
+    public void testFlattenPrefix() {
         // Given
         Map<String, Object> map = Maps.<String, Object>builder()
             .put("K1", "V1")

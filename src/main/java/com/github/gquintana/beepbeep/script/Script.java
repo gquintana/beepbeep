@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.Optional;
@@ -39,7 +40,7 @@ public abstract class Script {
         }
         try (InputStream inputStream = getStream();
              AnalyzerInputStream analyzerInputStream = new AnalyzerInputStream(inputStream, "SHA-1");
-             InputStreamReader reader = new InputStreamReader(analyzerInputStream, "UTF-8");
+             InputStreamReader reader = new InputStreamReader(analyzerInputStream, StandardCharsets.UTF_8);
              BufferedReader lineReader = new BufferedReader(reader)) {
             String line;
             while ((line = lineReader.readLine()) != null) {

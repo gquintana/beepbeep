@@ -5,14 +5,12 @@ PUT /person
     "number_of_replicas":0
   },
   "mappings": {
-    "_doc": {
-      "properties": {
-        "login": {
-          "type":"keyword"
-        },
-        "email": {
-          "type":"text"
-        }
+    "properties": {
+      "login": {
+        "type":"keyword"
+      },
+      "email": {
+        "type":"text"
       }
     }
   }

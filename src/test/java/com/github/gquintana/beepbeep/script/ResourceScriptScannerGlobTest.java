@@ -2,7 +2,7 @@ package com.github.gquintana.beepbeep.script;
 
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 

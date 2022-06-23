@@ -17,7 +17,7 @@ public abstract class ResourceScript extends Script {
             return fullName;
         }
         if (slashPos + 1 < fullName.length()) {
-            return fullName.substring(slashPos + 1, fullName.length());
+            return fullName.substring(slashPos + 1);
         }
         return "";
     }

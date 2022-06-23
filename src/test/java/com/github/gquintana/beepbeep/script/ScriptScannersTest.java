@@ -4,11 +4,11 @@ import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.TestFiles;
 import com.github.gquintana.beepbeep.config.ConfigurationException;
 import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
-import org.junit.Test;
+import com.github.jknack.handlebars.internal.Files;
+import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -16,11 +16,7 @@ import static org.assertj.core.api.Assertions.fail;
 public class ScriptScannersTest {
 
     private String readAsString(Script script) throws IOException {
-        try (InputStream inputStream = script.getStream();
-             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            TestFiles.copy(inputStream, outputStream);
-            return new String(outputStream.toByteArray(), "UTF-8");
-        }
+        return Files.read(script.getStream(), StandardCharsets.UTF_8);
     }
 
     @Test
@@ -133,7 +129,7 @@ public class ScriptScannersTest {
     }
 
     @Test
-    public void testScheme_Invalidscheme() throws Exception {
+    public void testScheme_Invalidscheme() {
         // Given
         TestConsumer<ScriptStartEvent> output = new TestConsumer<>();
         // When

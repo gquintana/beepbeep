@@ -1,14 +1,14 @@
 package com.github.gquintana.beepbeep.pipeline;
 
 import com.github.gquintana.beepbeep.TestConsumer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RegexReplacerTest {
 
     @Test
-    public void testTransform() throws Exception {
+    public void testTransform() {
         // Given
         TestConsumer<ScriptEvent> end = new TestConsumer<>();
         RegexReplacer processor = new RegexReplacer(";\\s*$", "", end);

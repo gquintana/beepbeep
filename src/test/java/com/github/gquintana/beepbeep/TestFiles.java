@@ -2,7 +2,11 @@ package com.github.gquintana.beepbeep;
 
 import com.github.gquintana.beepbeep.script.ResourceScript;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileVisitResult;
@@ -21,9 +25,9 @@ public class TestFiles {
         }
     }
 
-    public static void writeResource(String sourceResource, File targetFile) throws IOException {
+    public static void writeResource(String sourceResource, Path targetFile) throws IOException {
         try (InputStream inputStream = getResourceAsStream(sourceResource);
-             FileOutputStream outputStream = new FileOutputStream(targetFile)) {
+             OutputStream outputStream = Files.newOutputStream(targetFile)) {
             copy(inputStream, outputStream);
         }
     }
@@ -85,7 +89,7 @@ public class TestFiles {
             this.name = name;
         }
 
-        public abstract File create(File rootFolder) throws IOException;
+        public abstract Path create(Path rootFolder) throws IOException;
     }
 
     public static class FolderNode extends Node {
@@ -100,9 +104,9 @@ public class TestFiles {
         }
 
         @Override
-        public File create(File rootFolder) throws IOException {
-            File folder = new File(rootFolder, name);
-            folder.mkdir();
+        public Path create(Path rootFolder) throws IOException {
+            Path folder = rootFolder.resolve(name);
+            Files.createDirectories(folder);
             for (Node child : children) {
                 child.create(folder);
             }
@@ -116,9 +120,9 @@ public class TestFiles {
         }
 
         @Override
-        public File create(File rootFolder) throws IOException {
-            File file = new File(rootFolder, name);
-            file.createNewFile();
+        public Path create(Path rootFolder) throws IOException {
+            Path file = rootFolder.resolve(name);
+            Files.createFile(file);
             return file;
         }
     }
@@ -130,13 +134,13 @@ public class TestFiles {
         Files.walkFileTree(path, Collections.emptySet(), 5, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                file.toFile().delete();
+                Files.delete(file);
                 return super.visitFile(file, attrs);
             }
 
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                dir.toFile().delete();
+                Files.delete(dir);
                 return super.postVisitDirectory(dir, exc);
             }
         });

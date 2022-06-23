@@ -60,7 +60,7 @@ public abstract class ScriptScanner extends Producer<ScriptStartEvent> {
                     start = astMatcher.end();
                 }
                 if (start < suffixPart.length()) {
-                    suffixRegexBuilder.append(Pattern.quote(suffixPart.substring(start, suffixPart.length())));
+                    suffixRegexBuilder.append(Pattern.quote(suffixPart.substring(start)));
                 }
                 if (!lastPart) {
                     suffixRegexBuilder.append("/");

@@ -18,7 +18,7 @@ public class PrintConsumer<E> implements Consumer<E> {
     public void consume(E event) {
         if (event!=null) {
             if (verbose || (!(event instanceof ResultEvent || event instanceof LineEvent))) {
-                System.out.println(event.toString());
+                System.out.println(event);
             }
         }
     }

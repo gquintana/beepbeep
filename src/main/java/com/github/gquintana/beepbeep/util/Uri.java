@@ -13,7 +13,7 @@ public class Uri {
     /**
      * Regular expression to analyze scheme:///path/to/file*.txt
      */
-    private static Pattern SCHEME_PATTERN = Pattern.compile("^(?:([a-z]+):)?(/*)(.*)$");
+    private static final Pattern SCHEME_PATTERN = Pattern.compile("^(?:([a-z]+):)?(/*)(.*)$");
     private final String scheme;
     private final String path;
 

@@ -2,11 +2,11 @@ package com.github.gquintana.beepbeep.cli;
 
 import com.github.gquintana.beepbeep.TestFiles;
 import com.github.gquintana.beepbeep.sql.DriverSqlConnectionProvider;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,22 +18,23 @@ import static com.github.gquintana.beepbeep.sql.TestSqlConnectionProviders.creat
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SqlMainTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
 
     @Test
     public void testGlobal() throws Exception {
         // Given
-        File scriptFolder = temporaryFolder.newFolder("sql");
-        File h2Folder = temporaryFolder.newFolder("h2");
-        TestFiles.writeResource("sql/init/01_create.sql", new File(scriptFolder, "01_create.sql"));
-        TestFiles.writeResource("sql/init/02_data.sql", new File(scriptFolder, "02_data.sql"));
-        String h2Url = "jdbc:h2:file:" + h2Folder.getPath();
+        Path scriptFolder = tempDir.resolve("sql");
+        Files.createDirectories(scriptFolder);
+        Path h2Folder = tempDir.resolve("h2");
+        TestFiles.writeResource("sql/init/01_create.sql", scriptFolder.resolve( "01_create.sql"));
+        TestFiles.writeResource("sql/init/02_data.sql", scriptFolder.resolve( "02_data.sql"));
+        String h2Url = "jdbc:h2:file:" + h2Folder.toAbsolutePath();
         String[] args = {
             "--type", "sql",
             "--url", h2Url,
             "--username", "sa",
-            "--files", scriptFolder.getPath() + "/*.sql"};
+            "--files", scriptFolder.toAbsolutePath() + "/*.sql"};
         // When
         int exit = Main.doMain(args);
         // Then
@@ -56,17 +57,18 @@ public class SqlMainTest {
     @Test
     public void testGlobal_Store() throws Exception {
         // Given
-        File scriptFolder = temporaryFolder.newFolder("sql");
-        File h2Folder = temporaryFolder.newFolder("h2");
-        TestFiles.writeResource("sql/init/01_create.sql", new File(scriptFolder, "01_create.sql"));
-        TestFiles.writeResource("sql/init/02_data.sql", new File(scriptFolder, "02_data.sql"));
-        String h2Url = "jdbc:h2:file:" + h2Folder.getPath();
+        Path scriptFolder = tempDir.resolve("sql");
+        Files.createDirectories(scriptFolder);
+        Path h2Folder = tempDir.resolve("h2");
+        TestFiles.writeResource("sql/init/01_create.sql", scriptFolder.resolve( "01_create.sql"));
+        TestFiles.writeResource("sql/init/02_data.sql", scriptFolder.resolve( "02_data.sql"));
+        String h2Url = "jdbc:h2:file:" + h2Folder.toAbsolutePath();
         String[] args = {
             "--type", "sql",
             "--url", h2Url,
             "--username", "sa",
             "--store", "beepbeep",
-            "--files", scriptFolder.getPath() + "/*.sql"};
+            "--files", scriptFolder.toAbsolutePath() + "/*.sql"};
         // When
         int exit = Main.doMain(args);
         // Then

@@ -3,14 +3,14 @@ package com.github.gquintana.beepbeep.pipeline;
 import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.TestFiles;
 import com.github.gquintana.beepbeep.script.ResourceScript;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ScriptReaderTest {
 
@@ -19,7 +19,7 @@ public class ScriptReaderTest {
         // Given
         ResourceScript script = ResourceScript.create(TestFiles.class, "sql/init/02_data.sql");
         TestConsumer<ScriptEvent> end = new TestConsumer<>();
-        ScriptReader scriptReader = new ScriptReader(end, Charset.forName("UTF-8"));
+        ScriptReader scriptReader = new ScriptReader(end, StandardCharsets.UTF_8);
         // When
         scriptReader.consume(new ScriptStartEvent(script));
         // Then
@@ -40,14 +40,12 @@ public class ScriptReaderTest {
         // Given
         ResourceScript script = ResourceScript.create(TestFiles.class, "sql/init/02_data.sql");
         TestConsumer<ScriptEvent> end = failAtEventNum(3);
-        ScriptReader scriptReader = new ScriptReader(end, Charset.forName("UTF-8"));
+        ScriptReader scriptReader = new ScriptReader(end, StandardCharsets.UTF_8);
         // When
-        try {
-            scriptReader.consume(new ScriptStartEvent(script));
-            fail("Expected exception");
-        } catch (Exception e) {
+        assertThatThrownBy(() ->
+            scriptReader.consume(new ScriptStartEvent(script)))
+            .isInstanceOf(IllegalArgumentException.class);
 
-        }
         // Then
         assertThat(end.events).hasSize(3);
         List<String> lines = end.lines();
@@ -63,7 +61,7 @@ public class ScriptReaderTest {
         // Given
         ResourceScript script = ResourceScript.create(TestFiles.class, "sql/init/02_data.sql");
         TestConsumer<ScriptEvent> end = failAtEventNum(3);
-        ScriptReader scriptReader = new ScriptReader(end, Charset.forName("UTF-8"), true);
+        ScriptReader scriptReader = new ScriptReader(end, StandardCharsets.UTF_8, true);
         // When
         scriptReader.consume(new ScriptStartEvent(script));
         // Then

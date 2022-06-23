@@ -1,7 +1,7 @@
 package com.github.gquintana.beepbeep.pipeline;
 
 import com.github.gquintana.beepbeep.TestConsumer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class VariableReplacerTest {
 
     @Test
-    public void testConsume() throws Exception {
+    public void testConsume() {
         // Given
         TestConsumer<ScriptEvent> end = new TestConsumer<>();
         Map<String, Object> variables = new HashMap<>();
@@ -37,7 +37,7 @@ public class VariableReplacerTest {
     }
 
     @Test
-    public void testConsumeRecursiveReplace() throws Exception {
+    public void testConsumeRecursiveReplace() {
         // Given
         TestConsumer<ScriptEvent> end = new TestConsumer<>();
         Map<String, Object> variables = new HashMap<>();

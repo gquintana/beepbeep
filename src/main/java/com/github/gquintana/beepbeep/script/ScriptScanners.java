@@ -42,28 +42,28 @@ public final class ScriptScanners {
     }
 
     /**
-     * Scan and use muliples scripts from file system
+     * Scan and use multiples scripts from file system
      */
     public static FileScriptScanner files(Path folder, Predicate<Path> fileFilter, Consumer<ScriptStartEvent> scriptConsumer) {
         return new FileScriptScanner(folder, fileFilter, scriptConsumer);
     }
 
     /**
-     * Scan and use muliples scripts from file system using file glob syntax
+     * Scan and use multiples scripts from file system using file glob syntax
      */
     public static ScriptScanner files(String fileGlob, Consumer<ScriptStartEvent> scriptConsumer) {
         return FileScriptScanner.fileGlob(fileGlob, scriptConsumer);
     }
 
     /**
-     * Scan and use muliple scripts from class path
+     * Scan and use multiple scripts from class path
      */
     public static ResourceScriptScanner resources(ClassLoader classLoader, Predicate<String> resourceFilter, Consumer<ScriptStartEvent> scriptConsumer) {
         return new ResourceScriptScanner(classLoader, resourceFilter, scriptConsumer);
     }
 
     /**
-     * Scan and use muliple scripts from class path using resource glob syntact
+     * Scan and use multiple scripts from class path using resource glob syntact
      */
     public static ResourceScriptScanner resources(ClassLoader classLoader, String resourceGlob, Consumer<ScriptStartEvent> scriptConsumer) {
         return ResourceScriptScanner.resourceGlob(classLoader, resourceGlob, scriptConsumer);
@@ -86,7 +86,7 @@ public final class ScriptScanners {
     }
 
     /**
-     * Scan and use muliple scripts from class path (using classpath: scheme) or file system (using file: or no scheme)
+     * Scan and use multiple scripts from class path (using classpath: scheme) or file system (using file: or no scheme)
      */
     public static ScriptScanner schemes(String glob, Consumer<ScriptStartEvent> consumer) {
         Uri uri = parseUri(glob);

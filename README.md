@@ -13,7 +13,7 @@ It can be used to:
 * Prepare a database for unit testing with JUnit
 * Setup and configure database for production use
 
-With the same tool, these scripts can be ran on:
+With the same tool, these scripts can be run on:
 * SQL scripts on relational databases using JDBC driver
 * Sense scripts on Elasticsearch
 * CQL scripts on Cassandra
@@ -35,7 +35,7 @@ END_SUCCESS script/index_data.json:15
 
 ### Java API
 
-Run all SQL scripts from the classpath on a H2 embedded database and replace `${variable}` placeholders in scripts by value.
+Run all SQL scripts from the classpath on an H2 embedded database and replace `${variable}` placeholders in scripts by value.
 ```
 new SqlPipelineBuilder()
     .withConnectionProvider(Driver.class.getName(), "jdbc:h2:mem:test", "sa", "")

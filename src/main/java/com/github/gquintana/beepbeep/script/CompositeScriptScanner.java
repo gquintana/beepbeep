@@ -117,7 +117,7 @@ public class CompositeScriptScanner extends ScriptScanner {
         }
 
         /**
-         * Scan and use muliple scripts from class path (using classpath: scheme) or file system (using file: or no scheme)
+         * Scan and use multiple scripts from class path (using classpath: scheme) or file system (using file: or no scheme)
          */
         public B schemes(String glob) {
             return scanner(ScriptScannerFactories.schemes(glob));
@@ -128,12 +128,10 @@ public class CompositeScriptScanner extends ScriptScanner {
         }
 
         public ScriptScannerFactory factory() {
-            switch (scannerFactories.size()) {
-                case 1:
-                    return scannerFactories.get(0);
-                default:
-                    return this::build;
+            if (scannerFactories.size() == 1) {
+                return scannerFactories.get(0);
             }
+            return this::build;
         }
     }
 

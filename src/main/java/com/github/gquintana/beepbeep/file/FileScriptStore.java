@@ -5,9 +5,11 @@ import com.github.gquintana.beepbeep.store.ScriptStore;
 import com.github.gquintana.beepbeep.store.ScriptStoreException;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,7 +30,11 @@ public abstract class FileScriptStore implements ScriptStore<Integer> {
 
     @Override
     public void prepare() {
-        file.getParent().toFile().mkdirs();
+        try {
+            Files.createDirectories(file.getParent());
+        } catch (IOException e) {
+            throw new ScriptStoreException("Store file prepare failed", e);
+        }
     }
 
     @Override
@@ -58,8 +64,8 @@ public abstract class FileScriptStore implements ScriptStore<Integer> {
     private ScriptInfo<Integer> update(ScriptInfo<Integer> before, ScriptInfo<Integer> after) {
         if (!before.getId().equals(after.getId())) {
             return before;
-        } else if (before.getVersion() == after.getVersion()) {
-            after.setVersion(after.getVersion() + 1);
+        } else if (Objects.equals(before.getVersionAsInt(), after.getVersionAsInt())) {
+            after.setVersion(after.getVersionAsInt() + 1);
             return after;
         } else {
             throw new ScriptStoreException("Concurrent modification of script " + before.getFullName());
@@ -69,11 +75,11 @@ public abstract class FileScriptStore implements ScriptStore<Integer> {
     @Override
     public ScriptInfo<Integer> update(ScriptInfo<Integer> info) {
         try {
-            int versionBefore = info.getVersion();
+            int versionBefore = Integer.parseInt(info.getVersion());
             List<ScriptInfo<Integer>> infos = load()
                 .map(i -> update(i, info))
                 .collect(Collectors.toList());
-            if (versionBefore + 1 != info.getVersion()) {
+            if (versionBefore + 1 != Integer.parseInt(info.getVersion())) {
                 throw new ScriptStoreException("Can not update script " + info.getFullName());
             }
             save(infos);

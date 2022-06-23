@@ -17,15 +17,15 @@ import java.util.EnumSet;
 public class ScriptStoreFilter extends Filter<ScriptStartEvent> {
     private final ScriptStore store;
     /**
-     * Re run script when it is modified
+     * Re-run script when it is modified
      */
     private boolean reRunChanged;
     /**
-     * Re run script when it previously failed
+     * Re-run script when it previously failed
      */
     private boolean reRunFailed = true;
     /**
-     * Re run script when it's stuck in started state after given timeout
+     * Re-run script when it's stuck in started state after given timeout
      */
     private TemporalAmount reRunStartedTimeout = Duration.ofMinutes(1);
 

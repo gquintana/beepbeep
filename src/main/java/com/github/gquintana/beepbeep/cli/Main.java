@@ -10,8 +10,6 @@ import org.kohsuke.args4j.Option;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class Main {
     @Option(name = "--help", aliases = {"-h"}, usage = "Display help", help = true)
@@ -34,7 +32,7 @@ public class Main {
     public boolean verbose = false;
 
 
-    public void run() throws IOException, CmdLineException {
+    public void run() throws IOException {
         PipelineBuilder pipelineBuilder = createPipelineBuilder();
         pipelineBuilder.scan();
     }
@@ -70,7 +68,7 @@ public class Main {
                 parser.printUsage(System.out);
                 return 0;
             }
-            System.out.println("Args: " + Arrays.stream(args).collect(Collectors.joining(" ")));
+            System.out.println("Args: " + String.join(" ", args));
             main.run();
             return 0;
         } catch (CmdLineException e) {

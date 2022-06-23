@@ -1,11 +1,12 @@
 package com.github.gquintana.beepbeep.store;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MemoryScriptStoreTest {
 
@@ -20,7 +21,7 @@ public class MemoryScriptStoreTest {
     }
 
     @Test
-    public void testCreate() throws Exception {
+    public void testCreate() {
         // Given
         ScriptInfo<Integer> info = createInfo();
         MemoryScriptStore store = new MemoryScriptStore();
@@ -28,22 +29,23 @@ public class MemoryScriptStoreTest {
         info = store.create(info);
         // Then
         assertThat(info.getId()).isEqualTo(1);
-        assertThat(info.getVersion()).isEqualTo(1);
+        assertThat(info.getVersion()).isEqualTo("1");
         assertThat(store.getByFullName(info.getFullName())).isNotNull();
     }
 
-    @Test(expected = ScriptStoreException.class)
-    public void testCreate_AlreadyExists() throws Exception {
+    @Test
+
+    public void testCreate_AlreadyExists() {
         // Given
         ScriptInfo<Integer> info = createInfo();
         MemoryScriptStore store = new MemoryScriptStore();
-        info = store.create(info);
+        ScriptInfo<Integer> info2 = store.create(info);
         // When
-        info = store.create(info);
+        assertThatThrownBy(() -> store.create(info2));
     }
 
     @Test
-    public void testUpdate() throws Exception {
+    public void testUpdate() {
         // Given
         ScriptInfo<Integer> info = createInfo();
         MemoryScriptStore store = new MemoryScriptStore();
@@ -54,37 +56,38 @@ public class MemoryScriptStoreTest {
         info = store.update(info);
         // Then
         assertThat(info.getId()).isEqualTo(1);
-        assertThat(info.getVersion()).isEqualTo(2);
+        assertThat(info.getVersionAsInt()).isEqualTo(2);
         ScriptInfo<Integer> inStore = store.getByFullName(info.getFullName());
         assertThat(inStore.getStatus()).isEqualTo(ScriptStatus.SUCCEEDED);
         assertThat(inStore.getEndDate()).isNotNull();
     }
 
-    @Test(expected = ScriptStoreException.class)
-    public void testUpdate_NotFound() throws Exception {
+    @Test
+    public void testUpdate_NotFound() {
         // Given
         ScriptInfo<Integer> info = createInfo();
         MemoryScriptStore store = new MemoryScriptStore();
         info.setStatus(ScriptStatus.SUCCEEDED);
         info.setEndDate(Instant.now().plus(10, ChronoUnit.SECONDS));
         // When
-        info = store.update(info);
+        assertThatThrownBy(() -> store.update(info)).isInstanceOf(ScriptStoreException.class);
     }
 
-    @Test(expected = ScriptStoreException.class)
-    public void testUpdate_ConcurrentModification() throws Exception {
+    @Test
+    public void testUpdate_ConcurrentModification() {
         // Given
         ScriptInfo<Integer> info = createInfo();
         MemoryScriptStore store = new MemoryScriptStore();
         info = store.create(info);
         info.setStatus(ScriptStatus.SUCCEEDED);
         info.setEndDate(Instant.now().plus(10, ChronoUnit.SECONDS));
-        int version = info.getVersion();
+        int version = info.getVersionAsInt();
         info = store.update(info);
         info.setVersion(version);
         info.setStatus(ScriptStatus.FAILED);
         info.setEndDate(Instant.now().plus(10, ChronoUnit.SECONDS));
+        ScriptInfo<Integer> info2 = info;
         // When
-        info = store.update(info);
+        assertThatThrownBy(() -> store.update(info2)).isInstanceOf(ScriptStoreException.class);
     }
 }

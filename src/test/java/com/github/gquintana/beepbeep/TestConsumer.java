@@ -1,6 +1,10 @@
 package com.github.gquintana.beepbeep;
 
-import com.github.gquintana.beepbeep.pipeline.*;
+import com.github.gquintana.beepbeep.pipeline.Consumer;
+import com.github.gquintana.beepbeep.pipeline.LineEvent;
+import com.github.gquintana.beepbeep.pipeline.ScriptEndEvent;
+import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
+import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import com.github.gquintana.beepbeep.script.Script;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -15,7 +15,11 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.temporal.TemporalAmount;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.github.gquintana.beepbeep.util.Maps.flatten;
@@ -50,16 +54,22 @@ public class ConfigurationLoader {
         PipelineBuilder pipelineBuilder = Pipelines.create(type);
         for (Map.Entry<String, Object> keyValue : map.entrySet()) {
             String key = Strings.toCamelCase(keyValue.getKey());
-            if (key.equals("Type")) {
-                // Skip
-            } else if (key.equals("Scripts")) {
-                applyWithScriptScanner(pipelineBuilder, keyValue.getValue());
-            } else if (key.equals("Variables")) {
-                applyWithVariables(pipelineBuilder, flatten(keyValue.getValue(), null));
-            } else if (key.equals("ScriptStore")) {
-                applyWithScriptStore(pipelineBuilder, key, keyValue.getValue());
-            } else {
-                applyWith(pipelineBuilder, keyValue.getKey(), keyValue.getValue());
+            switch (key) {
+                case "Type":
+                    // Skip
+                    break;
+                case "Scripts":
+                    applyWithScriptScanner(pipelineBuilder, keyValue.getValue());
+                    break;
+                case "Variables":
+                    applyWithVariables(pipelineBuilder, flatten(keyValue.getValue(), null));
+                    break;
+                case "ScriptStore":
+                    applyWithScriptStore(pipelineBuilder, key, keyValue.getValue());
+                    break;
+                default:
+                    applyWith(pipelineBuilder, keyValue.getKey(), keyValue.getValue());
+                    break;
             }
         }
         return pipelineBuilder;
@@ -151,7 +161,6 @@ public class ConfigurationLoader {
     /**
      * Convert withXXX method parameter to appropriate type
      */
-    @SuppressWarnings("unchecked")
     private <T> T convert(Object object, Class<T> clazz) {
         return Converters.convert(object, clazz);
     }

@@ -1,6 +1,10 @@
 package com.github.gquintana.beepbeep.sql;
 
-import com.github.gquintana.beepbeep.pipeline.*;
+import com.github.gquintana.beepbeep.pipeline.Consumer;
+import com.github.gquintana.beepbeep.pipeline.MultilineAggregator;
+import com.github.gquintana.beepbeep.pipeline.PipelineBuilder;
+import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
+import com.github.gquintana.beepbeep.pipeline.ScriptStartEvent;
 import com.github.gquintana.beepbeep.script.ScriptStores;
 import com.github.gquintana.beepbeep.store.ScriptStore;
 

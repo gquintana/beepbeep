@@ -40,8 +40,8 @@ public class HttpLine {
         return body;
     }
 
-    private static Pattern METHOD_URI_PATTERN = Pattern.compile("^\\s*(GET|POST|PUT|DELETE|HEAD|OPTIONS|PATCH)\\s+(.*)$");
-    private static Pattern HEADER_PATTERN = Pattern.compile("^\\s*(HEADER)\\s+(\\S+)\\s+(.*)$");
+    private static final Pattern METHOD_URI_PATTERN = Pattern.compile("^\\s*(GET|POST|PUT|DELETE|HEAD|OPTIONS|PATCH)\\s+(.*)$");
+    private static final Pattern HEADER_PATTERN = Pattern.compile("^\\s*(HEADER)\\s+(\\S+)\\s+(.*)$");
 
     /**
      * Remove empty lines and comment lines
@@ -93,7 +93,7 @@ public class HttpLine {
         String body = null;
         if (!bodyLines.isEmpty()) {
             String eol = System.lineSeparator();
-            body = bodyLines.stream().collect(Collectors.joining(eol))+ eol;
+            body = String.join(eol, bodyLines) + eol;
         }
         return new HttpLine(method, uri, headers, body);
     }

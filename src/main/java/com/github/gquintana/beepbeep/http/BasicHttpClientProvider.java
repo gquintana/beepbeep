@@ -10,7 +10,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -94,11 +93,6 @@ public class BasicHttpClientProvider implements HttpClientProvider {
         } catch (MalformedURLException e) {
             throw new BeepBeepException("Invalid HTTP URL " + url, e);
         }
-    }
-
-    @Override
-    public void close() throws IOException {
-
     }
 
 }

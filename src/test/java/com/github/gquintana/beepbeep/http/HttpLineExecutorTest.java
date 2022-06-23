@@ -5,20 +5,23 @@ import com.github.gquintana.beepbeep.TestConsumer;
 import com.github.gquintana.beepbeep.pipeline.LineEvent;
 import com.github.gquintana.beepbeep.pipeline.ScriptEvent;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class HttpLineExecutorTest {
-    @Rule
-    public WireMockRule wireMock = new WireMockRule(WireMockConfiguration.wireMockConfig().dynamicPort());
+    @RegisterExtension
+    static WireMockExtension wireMock = WireMockExtension.newInstance()
+        .options(WireMockConfiguration.wireMockConfig().dynamicPort())
+        .build();
 
     private BasicHttpClientProvider getBasicHttpClientProviderOnWireMock() {
-        return new BasicHttpClientProvider("http://localhost:"+wireMock.port()+"/");
+        return new BasicHttpClientProvider("http://localhost:"+wireMock.getPort()+"/");
     }
 
     @Test
@@ -26,14 +29,14 @@ public class HttpLineExecutorTest {
     public void testGetGoogle() {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
-        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://www.google.com");
+        HttpClientProvider httpClientProvider = new BasicHttpClientProvider("https://www.google.com");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer, null);
         // When
         String eol = System.lineSeparator();
         processor.consume(new LineEvent(null, 1, "GET /" + eol + "HEADER Accept text/html" + eol));
         // Then
         assertThat(consumer.events).hasSize(1);
-        assertThat(consumer.events.get(0).toString()).startsWith("200,OK");
+        assertThat(consumer.events.get(0).toString()).contains("200,OK");
     }
 
     @Test
@@ -93,38 +96,41 @@ public class HttpLineExecutorTest {
         assertThat(consumer.events).isEmpty();
     }
 
-    @Test(expected = LineException.class)
+    @Test
     public void testParseFailure() {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = getBasicHttpClientProviderOnWireMock();
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer, null);
         // When
-        processor.consume(new LineEvent(null, 1, "FAIL /at/url"));
+        assertThatThrownBy(() -> processor.consume(new LineEvent(null, 1, "FAIL /at/url")))
+            .isInstanceOf(LineException.class);
         // Then
         assertThat(consumer.events).isEmpty();
     }
 
-    @Test(expected = LineException.class)
+    @Test
     public void test404Error() {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = getBasicHttpClientProviderOnWireMock();
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer, null);
         // When
-        processor.consume(new LineEvent(null, 1, "GET /unknown/url"));
+        assertThatThrownBy(() -> processor.consume(new LineEvent(null, 1, "GET /unknown/url")))
+            .isInstanceOf(LineException.class);
         // Then
         assertThat(consumer.events).isEmpty();
     }
 
-    @Test(expected = LineException.class)
+    @Test
     public void testConnectionError() {
         // Given
         TestConsumer<ScriptEvent> consumer = new TestConsumer<>();
         HttpClientProvider httpClientProvider = new BasicHttpClientProvider("http://unknown");
         HttpLineExecutor processor = new HttpLineExecutor(httpClientProvider, consumer, null);
         // When
-        processor.consume(new LineEvent(null, 1, "GET /unknown/url"));
+        assertThatThrownBy(() -> processor.consume(new LineEvent(null, 1, "GET /unknown/url")))
+            .isInstanceOf(LineException.class);
         // Then
         assertThat(consumer.events).isEmpty();
     }

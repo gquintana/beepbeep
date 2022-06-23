@@ -8,7 +8,7 @@ import java.time.Instant;
  */
 public class ScriptInfo<ID> {
     private ID id;
-    private Integer version;
+    private String version;
     private String fullName;
     private long size;
     private String sha1;
@@ -19,7 +19,10 @@ public class ScriptInfo<ID> {
     public ScriptInfo() {
     }
 
-    public ScriptInfo(ID id, Integer version, String fullName, long size, String sha1, Instant startDate, Instant endDate, ScriptStatus status) {
+    public ScriptInfo(ID id, int version, String fullName, long size, String sha1, Instant startDate, Instant endDate, ScriptStatus status) {
+        this(id, Integer.toString(version), fullName, size, sha1, startDate, endDate, status);
+    }
+    public ScriptInfo(ID id, String version, String fullName, long size, String sha1, Instant startDate, Instant endDate, ScriptStatus status) {
         this.fullName = fullName;
         this.id = id;
         this.version = version;
@@ -38,12 +41,18 @@ public class ScriptInfo<ID> {
         this.id = id;
     }
 
-    public Integer getVersion() {
+    public String getVersion() {
         return version;
     }
+    public Integer getVersionAsInt() {
+        return version == null ? null : Integer.valueOf(version);
+    }
 
-    public void setVersion(Integer version) {
+    public void setVersion(String version) {
         this.version = version;
+    }
+    public void setVersion(int version) {
+        this.version = Integer.toString(version);
     }
 
     public String getFullName() {

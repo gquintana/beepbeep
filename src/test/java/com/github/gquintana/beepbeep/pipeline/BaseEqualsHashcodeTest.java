@@ -1,37 +1,27 @@
 package com.github.gquintana.beepbeep.pipeline;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(Parameterized.class)
 public abstract class BaseEqualsHashcodeTest<T> {
-    private final T actual;
-    private final T expected;
-    private final boolean equals;
 
-    protected BaseEqualsHashcodeTest(T actual, T expected, boolean equals) {
-        this.actual = actual;
-        this.expected = expected;
-        this.equals = equals;
-    }
-
-    @Test
-    public void testEquals() {
+    @ParameterizedTest
+    @MethodSource("getParameters")
+    public void testEquals(T actual, T expected, boolean equals) {
         if (equals) {
-            assertEquals(expected, actual);
+            assertThat(actual).isEqualTo(expected);
         } else {
-            assertNotEquals(expected, actual);
+            assertThat(actual).isNotEqualTo(expected);
         }
     }
 
-    @Test
-    public void testHashcode() {
+    @ParameterizedTest
+    @MethodSource("getParameters")
+    public void testHashcode(T actual, T expected, boolean equals) {
         if (equals) {
-            assertEquals(expected.hashCode(), actual.hashCode());
+            assertThat(actual.hashCode()).isEqualTo(expected.hashCode());
         }
     }
 

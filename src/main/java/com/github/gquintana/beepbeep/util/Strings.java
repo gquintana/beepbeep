@@ -45,7 +45,7 @@ public final class Strings {
         if (start <= 0) {
             return line;
         }
-        return line.substring(start, line.length());
+        return line.substring(start);
     }
 
     public static String bytesToHex(byte[] bytes) {

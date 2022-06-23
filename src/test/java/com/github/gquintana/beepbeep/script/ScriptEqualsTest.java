@@ -3,20 +3,13 @@ package com.github.gquintana.beepbeep.script;
 import com.github.gquintana.beepbeep.TestFiles;
 import com.github.gquintana.beepbeep.pipeline.BaseEqualsHashcodeTest;
 import com.github.gquintana.beepbeep.util.ParametersBuilder;
-import org.junit.BeforeClass;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.provider.Arguments;
 
-import java.io.IOException;
-import java.util.List;
+import java.util.stream.Stream;
 
 public class ScriptEqualsTest extends BaseEqualsHashcodeTest<Script> {
 
-    public ScriptEqualsTest(Script actual, Script expected, boolean equals) {
-        super(actual, expected, equals);
-    }
-
-    @Parameterized.Parameters
-    public static List<Object[]> getParameters() {
+    static Stream<Arguments> getParameters() {
         Script script1 = ResourceScript.create(TestFiles.class, "sql/init/01_create.sql");
         Script script2 = ResourceScript.create(TestFiles.class, "sql/init/02_data.sql");
         return new ParametersBuilder()

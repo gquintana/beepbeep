@@ -1,6 +1,6 @@
 package com.github.gquintana.beepbeep.script;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ScriptConfigurationTest {
 
     @Test
-    public void testParse() throws Exception {
+    public void testParse() {
         // Given
         ScriptConfiguration configuration = new ScriptConfiguration();
         // When

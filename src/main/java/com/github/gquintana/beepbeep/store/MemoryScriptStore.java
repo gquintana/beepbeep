@@ -58,7 +58,7 @@ public class MemoryScriptStore implements ScriptStore<Integer> {
                 throw new ScriptStoreException("Concurrent modification of script " + info.getFullName());
             }
             copy(info, original);
-            int version = original.getVersion() == null ? 0 : original.getVersion();
+            int version = original.getVersion() == null ? 0 : original.getVersionAsInt();
             version++;
             original.setVersion(version);
             info.setVersion(version);

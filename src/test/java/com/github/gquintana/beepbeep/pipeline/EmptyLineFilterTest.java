@@ -1,7 +1,7 @@
 package com.github.gquintana.beepbeep.pipeline;
 
 import com.github.gquintana.beepbeep.TestConsumer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 
@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class EmptyLineFilterTest {
 
     @Test
-    public void testConsume() throws Exception {
+    public void testConsume() {
         // Given
         TestConsumer<ScriptEvent> end = new TestConsumer<>();
         LineFilter<ScriptEvent> filter = LineFilter.notNulNotEmptyFilter(end);
